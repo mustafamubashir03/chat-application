@@ -14,7 +14,9 @@ export const signUp = async (req: Request, res: Response) => {
     const signupData = req.body;
     const result = userSchemaCreateZod.safeParse(signupData);
     if (!result.success) {
-      return;
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ message: result.error.issues[0].path });
     }
     const newUser = await signupService(signupData);
     res
@@ -30,3 +32,5 @@ export const signUp = async (req: Request, res: Response) => {
       .json(internalServerErrorResponse(error));
   }
 };
+
+export const signIn = async (req: Request, res: Response) => {};
