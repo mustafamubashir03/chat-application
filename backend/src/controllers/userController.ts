@@ -1,36 +1,73 @@
-import { userSchemaCreateZod } from '@itz____mmm/common';
+import bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { signupService } from '../services/userService';
+import { signinService, signupService } from '../services/userService';
 import {
+  ClientError,
   customErrorResponse,
   internalServerErrorResponse,
   successResponse
 } from '../utils/ObjectResponse';
+import { MongooseError } from 'mongoose';
+import { jwtGenerate } from '../auth/auth';
 
 export const signUp = async (req: Request, res: Response) => {
   try {
-    const signupData = req.body;
-    const result = userSchemaCreateZod.safeParse(signupData);
-    if (!result.success) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ message: result.error.issues[0].path });
-    }
-    const newUser = await signupService(signupData);
+    const newUser = await signupService(req.body);
     res
       .status(StatusCodes.CREATED)
       .json(successResponse(newUser, 'User has been created successfully'));
   } catch (error: any) {
-    console.log('User controller error', error);
-    if (error.statusCode) {
-      return res.status(error.statusCode).json(customErrorResponse(error));
+    if (error instanceof MongooseError) {
+      res.status(StatusCodes.BAD_REQUEST).json(error);
+      return;
     }
-    return res
+    console.log(error);
+    if (error.statusCode) {
+      res.status(error.statusCode).json(customErrorResponse(error.message));
+    }
+    res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json(internalServerErrorResponse(error));
   }
 };
 
-export const signIn = async (req: Request, res: Response) => {};
+export const signIn = async (req: Request, res: Response) => {
+  try {
+    const userFound = await signinService(req.body);
+    if (!userFound) {
+      throw new ClientError({
+        explanation: 'Invalid data from the client',
+        message: 'User not Found',
+        status: StatusCodes.BAD_REQUEST
+      });
+    }
+    const isMatched = bcrypt.compareSync(req.body.password, userFound.password);
+    if (!isMatched) {
+      throw new ClientError({
+        explanation: 'Invalid data from the client',
+        message: 'Incorrect password',
+        status: StatusCodes.BAD_REQUEST
+      });
+    }
+    res.status(StatusCodes.OK).json({
+      username: userFound.username,
+      avatar: userFound.avatar,
+      email: userFound.email,
+      token: jwtGenerate({ id: userFound._id, email: userFound.email })
+    });
+  } catch (error: any) {
+    if (error instanceof MongooseError) {
+      res.status(StatusCodes.BAD_REQUEST).json(error.message);
+      return;
+    }
+    console.log(error);
+    if (error.statusCode) {
+      res.status(error.statusCode).json(customErrorResponse(error));
+    }
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json(internalServerErrorResponse(error));
+  }
+};

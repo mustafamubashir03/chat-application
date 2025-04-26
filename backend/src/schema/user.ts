@@ -1,4 +1,3 @@
-import { UserCreateType } from '@itz____mmm/common';
 import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
 

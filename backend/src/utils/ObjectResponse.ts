@@ -1,3 +1,5 @@
+import { StatusCodes } from 'http-status-codes';
+
 export const internalServerErrorResponse = (error: any) => {
   return {
     status: false,
@@ -27,3 +29,17 @@ export const successResponse = (data: any, message: any) => {
     error: {}
   };
 };
+
+
+
+export class ClientError extends Error {
+  explanation;
+  status;
+  constructor(error: any) {
+    super();
+    this.name = 'Client Error';
+    this.message = error.message;
+    this.explanation = error.explanation;
+    this.status = error.status ? error.status : StatusCodes.BAD_REQUEST;
+  }
+}
