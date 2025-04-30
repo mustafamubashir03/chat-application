@@ -1,7 +1,7 @@
-import { Request } from "express";
-import { ObjectId } from "mongoose";
+import { Request } from 'express';
+import { ObjectId } from 'mongoose';
 
-declare module "express-serve-static-core" {
+declare module 'express-serve-static-core' {
   interface Request {
     user?: {
       id: ObjectId;

@@ -19,7 +19,12 @@ export const userSchemaSignInZod = z.object({
     email:z.string().email(),
 })
 
+export const createWorkspaceSchema = z.object({
+    name:z.string()
+})
+
 export type UserReqType = z.infer<typeof userSchemaReqZod>
 export type UserOptionalType = z.infer<typeof userSchemaOptionalZod>
 export type UserSignUpType = z.infer<typeof userSchemaSignUpZod>
 export type UserSignInType = z.infer<typeof userSchemaSignInZod>
+export type CreateWorkspaceType = z.infer<typeof createWorkspaceSchema>

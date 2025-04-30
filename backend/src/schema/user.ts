@@ -1,7 +1,14 @@
 import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
 
-const userSchema = new mongoose.Schema(
+export interface UserI {
+  email: string;
+  password: string;
+  username: string;
+  avatar?: string;
+}
+
+const userSchema = new mongoose.Schema<UserI>(
   {
     email: {
       type: String,
@@ -38,6 +45,6 @@ userSchema.pre('save', async function saveUser(next) {
   next();
 });
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model<UserI>('User', userSchema);
 
 export default User;

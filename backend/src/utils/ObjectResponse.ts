@@ -30,8 +30,6 @@ export const successResponse = (data: any, message: any) => {
   };
 };
 
-
-
 export class ClientError extends Error {
   explanation;
   status;

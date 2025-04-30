@@ -51,7 +51,15 @@ export declare const userSchemaSignInZod: z.ZodObject<{
     password: string;
     email: string;
 }>;
+export declare const createWorkspaceSchema: z.ZodObject<{
+    name: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    name: string;
+}, {
+    name: string;
+}>;
 export type UserReqType = z.infer<typeof userSchemaReqZod>;
 export type UserOptionalType = z.infer<typeof userSchemaOptionalZod>;
 export type UserSignUpType = z.infer<typeof userSchemaSignUpZod>;
 export type UserSignInType = z.infer<typeof userSchemaSignInZod>;
+export type CreateWorkspaceType = z.infer<typeof createWorkspaceSchema>;

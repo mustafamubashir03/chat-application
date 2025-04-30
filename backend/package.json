@@ -26,8 +26,9 @@
     "typescript-eslint": "^8.31.0"
   },
   "dependencies": {
-    "@itz____mmm/common": "^1.0.7",
+    "@itz____mmm/common": "^1.0.8",
     "@types/mongoose": "^5.11.96",
+    "@types/uuid": "^10.0.0",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.5.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
@@ -35,6 +36,7 @@
     "http-status-codes": "^2.3.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.13.2",
+    "uuid": "^11.1.0",
     "zod": "^3.24.3"
   }
 }

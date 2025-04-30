@@ -12,22 +12,18 @@ export const validator = (schema: ZodSchema) => {
     try {
       const result = schema.safeParse(req.body);
       if (!result.success) {
-        res
-          .status(StatusCodes.BAD_REQUEST)
-          .json({
-            message: result.error.issues.map((issue) => ({
-              message: issue.message,
-              field: issue.path.join('.')
-            }))
-          });
+        res.status(StatusCodes.BAD_REQUEST).json({
+          message: result.error.issues.map((issue) => ({
+            message: issue.message,
+            field: issue.path.join('.')
+          }))
+        });
         return;
       }
       next();
     } catch (error: any) {
       if (error instanceof MongooseError) {
-        res
-          .status(StatusCodes.BAD_REQUEST)
-          .json(error.message);
+        res.status(StatusCodes.BAD_REQUEST).json(error.message);
         return;
       }
       console.log(error);
