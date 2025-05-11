@@ -26,10 +26,12 @@ export const signUp = async (req: Request, res: Response) => {
     console.log(error);
     if (error.statusCode) {
       res.status(error.statusCode).json(customErrorResponse(error.message));
+      return;
     }
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json(internalServerErrorResponse(error));
+    return;
   }
 };
 
@@ -65,9 +67,11 @@ export const signIn = async (req: Request, res: Response) => {
     console.log(error);
     if (error.statusCode) {
       res.status(error.statusCode).json(customErrorResponse(error));
+      return;
     }
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json(internalServerErrorResponse(error));
+    return;
   }
 };

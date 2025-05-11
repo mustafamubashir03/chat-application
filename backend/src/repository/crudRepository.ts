@@ -23,6 +23,10 @@ export default function crudRepository<T extends Document>(schema: Model<T>) {
     deleteDoc: async (id: mongoose.Types.ObjectId) => {
       const deleteDoc = await schema.findByIdAndDelete(id);
       return deleteDoc;
+    },
+    deleteAllDocs: async (ids: mongoose.Types.ObjectId[]) => {
+      const response = await schema.deleteMany({ _id: { $in: ids } });
+      return response;
     }
   };
 }

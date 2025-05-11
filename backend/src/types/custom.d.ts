@@ -1,11 +1,6 @@
-import { Request } from 'express';
-import { ObjectId } from 'mongoose';
+import { Request, Response, NextFunction } from 'express';
+import mongoose from 'mongoose';
 
-declare module 'express-serve-static-core' {
-  interface Request {
-    user?: {
-      id: ObjectId;
-      email?: string; // Add other fields if needed
-    };
-  }
+export interface AuthRequest extends Request {
+  user?: mongoose.Types.ObjectId;
 }

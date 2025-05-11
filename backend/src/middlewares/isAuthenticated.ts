@@ -8,9 +8,10 @@ import {
 } from '../utils/ObjectResponse';
 import userRepository from '../repository/userRepository';
 import mongoose from 'mongoose';
+import { AuthRequest } from '../types/custom';
 
 export const isAuthenticated = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction
 ) => {

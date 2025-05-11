@@ -1,20 +1,26 @@
-import { Request, Response } from 'express';
+import { Request, response, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { MongooseError } from 'mongoose';
+import mongoose, { MongooseError, ObjectId } from 'mongoose';
 import {
   customErrorResponse,
   internalServerErrorResponse
 } from '../utils/ObjectResponse';
-import { createWorkspaceService } from '../services/workspaceService';
+import {
+  createWorkspaceService,
+  deleteWorkspaceService,
+  getWorkspaceByIdService,
+  getWorkspacesUserIsMemberOfService
+} from '../services/workspaceService';
+import { AuthRequest } from '../types/custom';
 
 export const createWorkspaceController = async (
-  req: Request,
+  req: AuthRequest,
   res: Response
 ) => {
   try {
     const response = await createWorkspaceService({
-      ...req.body,
-      owner: req.user
+      ...req.body, //name of the workspace
+      owner: req.user //userId via middleware valildation
     });
     res.status(StatusCodes.OK).json(response);
   } catch (error: any) {
@@ -32,3 +38,62 @@ export const createWorkspaceController = async (
     return;
   }
 };
+
+export const getWorkspacesUserisMemberOfController = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    const response = await getWorkspacesUserIsMemberOfService(req.user!);
+    res.status(StatusCodes.OK).json(response);
+  } catch (error: any) {
+    console.log(error);
+    if (error.statusCode) {
+      res.status(error.statusCode).json(customErrorResponse(error.message));
+    }
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json(internalServerErrorResponse(error));
+    return;
+  }
+};
+
+export const deleteWorkspaceController = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    const response = await deleteWorkspaceService(
+      new mongoose.Types.ObjectId(req.params.workspaceId),
+      req.user!
+    );
+    res.status(StatusCodes.OK).json(response);
+  } catch (error: any) {
+    console.log(error);
+    if (error.statusCode) {
+      res.status(error.statusCode).json(customErrorResponse(error.message));
+    }
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json(internalServerErrorResponse(error));
+    return;
+  }
+};
+
+
+export const getWorkspaceByIdController = async(req:AuthRequest,res:Response)=>{
+  try{
+
+    const response = await getWorkspaceByIdService( new mongoose.Types.ObjectId(req.params.workspaceId),req.user!)
+    res.status(StatusCodes.OK).json(response);
+  }catch (error: any) {
+    console.log(error);
+    if (error.statusCode) {
+      res.status(error.statusCode).json(customErrorResponse(error.message));
+    }
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json(internalServerErrorResponse(error));
+    return;
+  }
+}
