@@ -4,7 +4,6 @@ import crudRepository from './crudRepository';
 import User from '../schema/user';
 import { ClientError } from '../utils/ObjectResponse';
 import { StatusCodes } from 'http-status-codes';
-import Channel from '../schema/channel';
 import channelRepository from './channelRepository';
 
 const workspaceRepository = {

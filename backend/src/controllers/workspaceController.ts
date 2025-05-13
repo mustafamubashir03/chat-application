@@ -1,6 +1,6 @@
-import { Request, response, Response } from 'express';
+import { Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import mongoose, { MongooseError, ObjectId } from 'mongoose';
+import mongoose, { MongooseError } from 'mongoose';
 import {
   customErrorResponse,
   internalServerErrorResponse
@@ -9,6 +9,7 @@ import {
   createWorkspaceService,
   deleteWorkspaceService,
   getWorkspaceByIdService,
+  getWorkspaceByJoinCodeService,
   getWorkspacesUserIsMemberOfService
 } from '../services/workspaceService';
 import { AuthRequest } from '../types/custom';
@@ -80,13 +81,17 @@ export const deleteWorkspaceController = async (
   }
 };
 
-
-export const getWorkspaceByIdController = async(req:AuthRequest,res:Response)=>{
-  try{
-
-    const response = await getWorkspaceByIdService( new mongoose.Types.ObjectId(req.params.workspaceId),req.user!)
+export const getWorkspaceByIdController = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    const response = await getWorkspaceByIdService(
+      new mongoose.Types.ObjectId(req.params.workspaceId),
+      req.user!
+    );
     res.status(StatusCodes.OK).json(response);
-  }catch (error: any) {
+  } catch (error: any) {
     console.log(error);
     if (error.statusCode) {
       res.status(error.statusCode).json(customErrorResponse(error.message));
@@ -96,4 +101,26 @@ export const getWorkspaceByIdController = async(req:AuthRequest,res:Response)=>{
       .json(internalServerErrorResponse(error));
     return;
   }
+};
+
+
+export const getWokspaceByJoinCodeController = async(req:AuthRequest,res:Response)=>{
+  try{
+    const response = getWorkspaceByJoinCodeService(req.params.joinCode)
+    res.status(StatusCodes.OK).json(response);
+  } catch (error: any) {
+    console.log(error);
+    if (error.statusCode) {
+      res.status(error.statusCode).json(customErrorResponse(error.message));
+    }
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json(internalServerErrorResponse(error));
+    return;
+  }
+
+}
+
+export const updateWorkspaceController = async(req:AuthRequest,res:Response)=>{
+
 }

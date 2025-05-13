@@ -18,7 +18,7 @@ router.post(
 );
 
 router.get('/', isAuthenticated, getWorkspacesUserisMemberOfController);
-router.get("/:workspaceId",isAuthenticated,getWorkspaceByIdController)
+router.get('/:workspaceId', isAuthenticated, getWorkspaceByIdController);
 router.delete('/:workspaceId', isAuthenticated, deleteWorkspaceController);
 
 export default router;

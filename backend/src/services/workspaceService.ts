@@ -4,22 +4,28 @@ import { ClientError } from '../utils/ObjectResponse';
 import { StatusCodes } from 'http-status-codes';
 import mongoose from 'mongoose';
 import channelRepository from '../repository/channelRepository';
+import { UpdateWorkspaceType } from '@itz____mmm/common';
 
-const isUserAdminOfWorkspace = (userId:mongoose.Types.ObjectId,workspace:any)=>{
+
+const isUserAdminOfWorkspace = (
+  userId: mongoose.Types.ObjectId,
+  workspace: any
+) => {
   return workspace.members.find(
     (member: { memberId: mongoose.Types.ObjectId; role: string }) =>
-      (member.memberId.toString() === userId.toString()) && member.role === 'admin'
+      member.memberId.toString() === userId.toString() &&
+      member.role === 'admin'
   );
-}
-const isUserPartOfWorkspace = (userId:mongoose.Types.ObjectId,workspace:any)=>{
+};
+const isUserPartOfWorkspace = (
+  userId: mongoose.Types.ObjectId,
+  workspace: any
+) => {
   return workspace.members.find(
     (member: { memberId: mongoose.Types.ObjectId; role: string }) =>
       member.memberId.toString() === userId.toString()
   );
-}
-
-
-
+};
 
 export const createWorkspaceService = async (workspaceData: any) => {
   try {
@@ -68,7 +74,7 @@ export const deleteWorkspaceService = async (
 ) => {
   try {
     const workspace = await workspaceRepository.getDocById(workspaceId);
-    const isAllowed = isUserAdminOfWorkspace(userId,workspace)
+    const isAllowed = isUserAdminOfWorkspace(userId, workspace);
     if (isAllowed) {
       await channelRepository.deleteAllDocs(workspace.channels);
       const response = await workspaceRepository.deleteDoc(workspaceId);
@@ -85,28 +91,88 @@ export const deleteWorkspaceService = async (
   }
 };
 
+export const getWorkspaceByIdService = async (
+  workspaceId: mongoose.Types.ObjectId,
+  userId: mongoose.Types.ObjectId
+) => {
+  try {
+    const workspace = await workspaceRepository.getDocById(workspaceId);
+    if (!workspace) {
+      throw new ClientError({
+        message: 'Invalid data from client',
+        explanation: 'No such workspace exists',
+        status: StatusCodes.NOT_FOUND
+      });
+    }
+    const isMember = isUserPartOfWorkspace(userId, workspace);
+    if (!isMember) {
+      throw new ClientError({
+        message: 'User is not part of the workspace',
+        explanation: 'Workspace is not found or user is not part of workspace',
+        status: StatusCodes.UNAUTHORIZED
+      });
+    }
+    return workspace;
+  } catch (error) {
+    throw error;
+  }
+};
 
-export const getWorkspaceByIdService = async(workspaceId:mongoose.Types.ObjectId,userId:mongoose.Types.ObjectId)=>{
+
+export const getWorkspaceByJoinCodeService = async(joinCode:string)=>{
   try{
-   const workspace =  await workspaceRepository.getDocById(workspaceId)
-   if (!workspace) {
-    throw new ClientError({
-      message: 'Invalid data from client',
-      explanation: 'No such workspace exists',
-      status: StatusCodes.NOT_FOUND
-    });
+    const workspace = await workspaceRepository.getWokspaceByJoinCode(joinCode)
+    return workspace
+  }catch(error){
+    throw error
+  }
+}
 
+export const updateWorkspaceService = async(workspaceId:mongoose.Types.ObjectId,workspaceData:UpdateWorkspaceType,userId:mongoose.Types.ObjectId)=>{
+  try{
+    const workspace = await workspaceRepository.getDocById(workspaceId);
+    if (!workspace) {
+      throw new ClientError({
+        message: 'Invalid data from client',
+        explanation: 'No such workspace exists',
+        status: StatusCodes.NOT_FOUND
+      });
+    }
+    const isAllowed = isUserAdminOfWorkspace(userId, workspace);
+    if (isAllowed) {
+        const updatedWorkspace = await workspaceRepository.updateDoc(workspaceId,{name:workspaceData.name})
+        return updatedWorkspace
+    } else {
+      throw new ClientError({
+        message: 'User is not authorized to update the workspace',
+        explanation: 'Workspace is not found or user is not an admin',
+        status: StatusCodes.UNAUTHORIZED
+      });
+    }  
+
+  }catch(error){
+    throw error
   }
-  const isMember = isUserPartOfWorkspace(userId,workspace)
-  if (!isMember) {
-    throw new ClientError({
-      message: 'User is not part of the workspace',
-      explanation: 'Workspace is not found or user is not part of workspace',
-      status: StatusCodes.UNAUTHORIZED
-    });
-  }
-  return workspace;
-}catch (error) {
-  throw error;
-}}
   
+}
+
+export const addMemberToWorkspaceService = async(userId:mongoose.Types.ObjectId,workspaceId:mongoose.Types.ObjectId,role:string)=>{
+  try{
+    const response = await workspaceRepository.addMemberToWorkspace(userId,workspaceId,role)
+    return response
+    
+  }catch(error){
+    throw error
+  }
+
+}
+
+export const addChannelToWorkspaceService = async(channelName:string,workspaceId:mongoose.Types.ObjectId)=>{
+  try{
+    const response = await workspaceRepository.addChannelToWorkspace(workspaceId,channelName)
+    return response
+
+  }catch(error){
+    throw error
+  }
+}
