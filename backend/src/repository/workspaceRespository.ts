@@ -43,6 +43,7 @@ const workspaceRepository = {
         status: StatusCodes.NOT_FOUND
       });
     }
+
     const isValidUser = await User.findById(memberId);
     if (!isValidUser) {
       throw new ClientError({
@@ -89,7 +90,10 @@ const workspaceRepository = {
         status: StatusCodes.NOT_FOUND
       });
     }
-    const channel = await channelRepository.createDoc({ name: channelName });
+    const channel = await channelRepository.createDoc({
+      name: channelName,
+      workspaceId
+    });
     workspace.channels.push(channel);
     await workspace.save();
     return workspace;

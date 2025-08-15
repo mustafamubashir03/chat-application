@@ -6,11 +6,14 @@ import {
   internalServerErrorResponse
 } from '../utils/ObjectResponse';
 import {
+  addChannelToWorkspaceService,
+  addMemberToWorkspaceService,
   createWorkspaceService,
   deleteWorkspaceService,
   getWorkspaceByIdService,
   getWorkspaceByJoinCodeService,
-  getWorkspacesUserIsMemberOfService
+  getWorkspacesUserIsMemberOfService,
+  updateWorkspaceService
 } from '../services/workspaceService';
 import { AuthRequest } from '../types/custom';
 
@@ -103,10 +106,12 @@ export const getWorkspaceByIdController = async (
   }
 };
 
-
-export const getWokspaceByJoinCodeController = async(req:AuthRequest,res:Response)=>{
-  try{
-    const response = getWorkspaceByJoinCodeService(req.params.joinCode)
+export const getWokspaceByJoinCodeController = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    const response = await getWorkspaceByJoinCodeService(req.params.joinCode);
     res.status(StatusCodes.OK).json(response);
   } catch (error: any) {
     console.log(error);
@@ -118,9 +123,74 @@ export const getWokspaceByJoinCodeController = async(req:AuthRequest,res:Respons
       .json(internalServerErrorResponse(error));
     return;
   }
+};
 
-}
+export const updateWorkspaceController = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    const response = await updateWorkspaceService(
+      new mongoose.Types.ObjectId(req.params.workspaceId),
+      req.body,
+      req.user!
+    );
+    res.status(StatusCodes.OK).json(response);
+  } catch (error: any) {
+    console.log(error);
+    if (error.statusCode) {
+      res.status(error.statusCode).json(customErrorResponse(error.message));
+    }
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json(internalServerErrorResponse(error));
+    return;
+  }
+};
 
-export const updateWorkspaceController = async(req:AuthRequest,res:Response)=>{
+export const addMemberToWorkspaceController = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    const response = await addMemberToWorkspaceService(
+      req.body.memberId,
+      new mongoose.Types.ObjectId(req.params.workspaceId),
+      req.user!,
+      req.body.role
+    );
+    res.status(StatusCodes.OK).json(response);
+  } catch (error: any) {
+    console.log(error);
+    if (error.statusCode) {
+      res.status(error.statusCode).json(customErrorResponse(error.message));
+    }
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json(internalServerErrorResponse(error));
+    return;
+  }
+};
 
-}
+export const addChannelToWorkspaceController = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    const response = await addChannelToWorkspaceService(
+      req.body.channelName,
+      req.user!,
+      new mongoose.Types.ObjectId(req.params.workspaceId)
+    );
+    res.status(StatusCodes.OK).json(response);
+  } catch (error: any) {
+    console.log(error);
+    if (error.statusCode) {
+      res.status(error.statusCode).json(customErrorResponse(error.message));
+    }
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json(internalServerErrorResponse(error));
+    return;
+  }
+};

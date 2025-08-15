@@ -6,8 +6,7 @@ import mongoose from 'mongoose';
 import channelRepository from '../repository/channelRepository';
 import { UpdateWorkspaceType } from '@itz____mmm/common';
 
-
-const isUserAdminOfWorkspace = (
+export const isUserAdminOfWorkspace = (
   userId: mongoose.Types.ObjectId,
   workspace: any
 ) => {
@@ -17,7 +16,7 @@ const isUserAdminOfWorkspace = (
       member.role === 'admin'
   );
 };
-const isUserPartOfWorkspace = (
+export const isUserPartOfWorkspace = (
   userId: mongoose.Types.ObjectId,
   workspace: any
 ) => {
@@ -39,6 +38,7 @@ export const createWorkspaceService = async (workspaceData: any) => {
     await workspaceRepository.addMemberToWorkspace(
       workspaceData.owner,
       response._id,
+
       'admin'
     );
     const channelAddedWorkspace =
@@ -118,18 +118,21 @@ export const getWorkspaceByIdService = async (
   }
 };
 
-
-export const getWorkspaceByJoinCodeService = async(joinCode:string)=>{
-  try{
-    const workspace = await workspaceRepository.getWokspaceByJoinCode(joinCode)
-    return workspace
-  }catch(error){
-    throw error
+export const getWorkspaceByJoinCodeService = async (joinCode: string) => {
+  try {
+    const workspace = await workspaceRepository.getWokspaceByJoinCode(joinCode);
+    return workspace;
+  } catch (error) {
+    throw error;
   }
-}
+};
 
-export const updateWorkspaceService = async(workspaceId:mongoose.Types.ObjectId,workspaceData:UpdateWorkspaceType,userId:mongoose.Types.ObjectId)=>{
-  try{
+export const updateWorkspaceService = async (
+  workspaceId: mongoose.Types.ObjectId,
+  workspaceData: UpdateWorkspaceType,
+  userId: mongoose.Types.ObjectId
+) => {
+  try {
     const workspace = await workspaceRepository.getDocById(workspaceId);
     if (!workspace) {
       throw new ClientError({
@@ -140,39 +143,85 @@ export const updateWorkspaceService = async(workspaceId:mongoose.Types.ObjectId,
     }
     const isAllowed = isUserAdminOfWorkspace(userId, workspace);
     if (isAllowed) {
-        const updatedWorkspace = await workspaceRepository.updateDoc(workspaceId,{name:workspaceData.name})
-        return updatedWorkspace
+      const updatedWorkspace = await workspaceRepository.updateDoc(
+        workspaceId,
+        { name: workspaceData.name }
+      );
+      return updatedWorkspace;
     } else {
       throw new ClientError({
         message: 'User is not authorized to update the workspace',
         explanation: 'Workspace is not found or user is not an admin',
         status: StatusCodes.UNAUTHORIZED
       });
-    }  
-
-  }catch(error){
-    throw error
+    }
+  } catch (error) {
+    throw error;
   }
-  
-}
+};
 
-export const addMemberToWorkspaceService = async(userId:mongoose.Types.ObjectId,workspaceId:mongoose.Types.ObjectId,role:string)=>{
-  try{
-    const response = await workspaceRepository.addMemberToWorkspace(userId,workspaceId,role)
-    return response
-    
-  }catch(error){
-    throw error
+export const addMemberToWorkspaceService = async (
+  memberId: mongoose.Types.ObjectId,
+  workspaceId: mongoose.Types.ObjectId,
+  userId: mongoose.Types.ObjectId,
+  role: string
+) => {
+  try {
+    const workspace = await workspaceRepository.getDocById(workspaceId);
+    if (!workspace) {
+      throw new ClientError({
+        message: 'Invalid data from client',
+        explanation: 'No such workspace exists',
+        status: StatusCodes.NOT_FOUND
+      });
+    }
+    const isAllowed = isUserAdminOfWorkspace(userId, workspace);
+    if (!isAllowed) {
+      throw new ClientError({
+        message: 'User is not authorized to add member to the workspace',
+        explanation: 'Workspace is not found or user is not an admin',
+        status: StatusCodes.UNAUTHORIZED
+      });
+    }
+    const response = await workspaceRepository.addMemberToWorkspace(
+      memberId,
+      workspaceId,
+      role
+    );
+    return response;
+  } catch (error) {
+    throw error;
   }
+};
 
-}
-
-export const addChannelToWorkspaceService = async(channelName:string,workspaceId:mongoose.Types.ObjectId)=>{
-  try{
-    const response = await workspaceRepository.addChannelToWorkspace(workspaceId,channelName)
-    return response
-
-  }catch(error){
-    throw error
+export const addChannelToWorkspaceService = async (
+  channelName: string,
+  userId: mongoose.Types.ObjectId,
+  workspaceId: mongoose.Types.ObjectId
+) => {
+  try {
+    const workspace = await workspaceRepository.getDocById(workspaceId);
+    if (!workspace) {
+      throw new ClientError({
+        message: 'Invalid data from client',
+        explanation: 'No such workspace exists',
+        status: StatusCodes.NOT_FOUND
+      });
+    }
+    const isAllowed = isUserAdminOfWorkspace(userId, workspace);
+    if (!isAllowed) {
+      throw new ClientError({
+        message: 'User is not authorized to add channel to the workspace',
+        explanation: 'Workspace is not found or user is not an admin',
+        status: StatusCodes.UNAUTHORIZED
+      });
+    }
+    const response = await workspaceRepository.addChannelToWorkspace(
+      workspaceId,
+      channelName
+    );
+    return response;
+  } catch (error) {
+    throw error;
   }
-}
+};
