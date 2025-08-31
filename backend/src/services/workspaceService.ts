@@ -5,6 +5,9 @@ import { StatusCodes } from 'http-status-codes';
 import mongoose from 'mongoose';
 import channelRepository from '../repository/channelRepository';
 import { UpdateWorkspaceType } from '@itz____mmm/common';
+import { addEmailtoMailQueue } from '../producers/mailQueueProducer';
+import mailObject from '../utils/mailObject';
+import userRepository from '../repository/userRepository';
 
 export const isUserAdminOfWorkspace = (
   userId: mongoose.Types.ObjectId,
@@ -20,7 +23,7 @@ export const isUserPartOfWorkspace = (
   userId: mongoose.Types.ObjectId,
   workspace: any
 ) => {
-  return workspace.members.find(
+  return workspace?.members?.find(
     (member: { memberId: mongoose.Types.ObjectId; role: string }) =>
       member.memberId.toString() === userId.toString()
   );
@@ -175,6 +178,14 @@ export const addMemberToWorkspaceService = async (
         status: StatusCodes.NOT_FOUND
       });
     }
+    const isValidUser = await userRepository.getDocById(memberId);
+    if (!isValidUser) {
+      throw new ClientError({
+        message: 'User is not valid',
+        explanation: 'No such user exist',
+        status: StatusCodes.NOT_FOUND
+      });
+    }
     const isAllowed = isUserAdminOfWorkspace(userId, workspace);
     if (!isAllowed) {
       throw new ClientError({
@@ -183,11 +194,18 @@ export const addMemberToWorkspaceService = async (
         status: StatusCodes.UNAUTHORIZED
       });
     }
+
     const response = await workspaceRepository.addMemberToWorkspace(
       memberId,
       workspaceId,
       role
     );
+    await addEmailtoMailQueue({
+      ...mailObject,
+      to: isValidUser.email,
+      subject: 'You have been added to a Workspace',
+      text: `Someone has added you to the workspace ${workspace.name}.`
+    });
     return response;
   } catch (error) {
     throw error;

@@ -65,9 +65,28 @@ export declare const updateWorkspaceSchema: z.ZodObject<{
 }, {
     name: string;
 }>;
+export declare const addChannelToWorkspaceSchema: z.ZodObject<{
+    channelName: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    channelName: string;
+}, {
+    channelName: string;
+}>;
+export declare const addMemberToWorkspaceSchema: z.ZodObject<{
+    memberId: z.ZodString;
+    role: z.ZodOptional<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    memberId: string;
+    role?: string | undefined;
+}, {
+    memberId: string;
+    role?: string | undefined;
+}>;
 export type UserReqType = z.infer<typeof userSchemaReqZod>;
 export type UserOptionalType = z.infer<typeof userSchemaOptionalZod>;
 export type UserSignUpType = z.infer<typeof userSchemaSignUpZod>;
 export type UserSignInType = z.infer<typeof userSchemaSignInZod>;
 export type CreateWorkspaceType = z.infer<typeof createWorkspaceSchema>;
 export type UpdateWorkspaceType = z.infer<typeof updateWorkspaceSchema>;
+export type addChannelToWorkspaceType = z.infer<typeof addChannelToWorkspaceSchema>;
+export type addMemberToWorkspaceType = z.infer<typeof addMemberToWorkspaceSchema>;
