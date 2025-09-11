@@ -6,8 +6,14 @@ import connectDB from './config/dbConfig';
 import { PORT } from './config/serverConfig';
 import apiRouter from './routes/apiRouter';
 import { mailQueue } from './queues/mailQueue';
+import { createServer } from "http";
+import { Server } from "socket.io";
+import messageHandlers from './controllers/messageSocketController';
 
 const app: Express = express();
+const server = createServer(app);
+const io = new Server(server);
+
 const serverAdapter = new ExpressAdapter();
 createBullBoard({
   queues: [new BullAdapter(mailQueue)],
@@ -19,7 +25,12 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/api', apiRouter);
 
-app.listen(PORT, async () => {
+io.on("connection",(socket)=>{
+  console.log("client connected :",socket.id)
+ messageHandlers(io,socket)
+})
+
+server.listen(PORT, async () => {
   console.log('Server has been started at ', PORT);
   connectDB();
 });
