@@ -8,7 +8,8 @@ import apiRouter from './routes/apiRouter';
 import { mailQueue } from './queues/mailQueue';
 import { createServer } from "http";
 import { Server } from "socket.io";
-import messageHandlers from './controllers/messageSocketController';
+import  MessageSocketHandler from './controllers/messageSocketController';
+import  ChannelSocketHandler from './controllers/channelSocketController';
 
 const app: Express = express();
 const server = createServer(app);
@@ -27,7 +28,8 @@ app.use('/api', apiRouter);
 
 io.on("connection",(socket)=>{
   console.log("client connected :",socket.id)
- messageHandlers(io,socket)
+ MessageSocketHandler(io,socket)
+ ChannelSocketHandler(io,socket)
 })
 
 server.listen(PORT, async () => {

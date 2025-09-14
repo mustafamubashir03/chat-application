@@ -41,7 +41,7 @@ export const getChannelWithWorkspaceDetailsService = async (
     if (!validUser) {
       throw new ClientError({
         message: 'Invalid data from client',
-        explanation: 'You are not authorized',
+        explanation: 'You are not part of this workspace',
         status: StatusCodes.UNAUTHORIZED
       });
     }
