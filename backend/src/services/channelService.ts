@@ -3,7 +3,8 @@ import channelRepository from '../repository/channelRepository';
 import { ClientError } from '../utils/ObjectResponse';
 import mongoose from 'mongoose';
 import { isUserPartOfWorkspace } from './workspaceService';
-import workspaceRepository from '../repository/workspaceRespository';
+import messageRepository from '../repository/messageRepository';
+
 
 export const getChannelByIdService = async (
   channelId: mongoose.Types.ObjectId
@@ -37,6 +38,7 @@ export const getChannelWithWorkspaceDetailsService = async (
         status: StatusCodes.NOT_FOUND
       });
     }
+
     const validUser = isUserPartOfWorkspace(userId, channel.workspaceId);
     if (!validUser) {
       throw new ClientError({
@@ -45,7 +47,19 @@ export const getChannelWithWorkspaceDetailsService = async (
         status: StatusCodes.UNAUTHORIZED
       });
     }
-    return channel;
+
+    const messages = await messageRepository.getPaginatedMessages(
+      { channelId },
+      1,
+      20
+    )
+
+    // Convert Mongoose document to plain object and add messages
+    const channelData = channel.toObject();
+    return {
+      ...channelData,
+      messages
+    };
   } catch (error) {
     throw error;
   }
