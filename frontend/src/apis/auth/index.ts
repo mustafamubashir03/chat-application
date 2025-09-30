@@ -3,12 +3,12 @@ import { type UserSignInType, type UserSignUpType } from '@itz____mmm/common'
 
 export const signupRequest = async ({ email, password, username }: UserSignUpType) => {
   try {
-    const response = axios.post('/user/signup', {
+    const response = await axios.post('/user/signup', {
       email,
       password,
       username,
     })
-    return response
+    return response.data
   } catch (error: any) {
     console.log(error)
     throw error.response.data
@@ -16,11 +16,11 @@ export const signupRequest = async ({ email, password, username }: UserSignUpTyp
 }
 export const signinRequest = async ({ email, password }: UserSignInType) => {
   try {
-    const response = axios.post('/user/signin', {
+    const response = await axios.post('/user/signin', {
       email,
       password,
     })
-    return response
+    return response.data
   } catch (error: any) {
     console.log(error)
     throw error.response.data

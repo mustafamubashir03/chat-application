@@ -1,10 +1,10 @@
-import { SignupCard } from '@/organisms/Auth/SignupCard'
 
-const Auth = () => {
+
+const Auth = ({children}:any) => {
   return (
-    <div className="h-[100vh] flex items-center justify-center bg-[#040512]">
-      <div className="md:h-auto md:w-[420px]">
-        <SignupCard />
+    <div className="h-[100vh] flex items-center justify-center">
+      <div className="md:h-auto max-w-[420px]">
+        {children}
       </div>
     </div>
   )

@@ -1,9 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200..800&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --font-sans: "Plus Jakarta Sans", sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -74,9 +76,23 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --radius: 0.625rem;
+
+  /* Background / Foreground */
+  --background: #040512; /* your custom bg */
+  --foreground: oklch(0.145 0 0);
+
+  /* Gradient stops */
+  --primary-start: #133dae;
+  --primary-mid: #2054c6;
+  --primary-end: #2b6bd3;
 }
 
 .dark {
+  --background: #040512; /* optional if you want same in dark */
+  --primary-start: #133dae;
+  --primary-mid: #2054c6;
+  --primary-end: #2b6bd3;
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -116,5 +132,11 @@
   }
   body {
     @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+  }
+  .btn-primary {
+    @apply px-6 py-3 rounded-[8px] font-medium text-white 
+           bg-gradient-to-r from-[var(--primary-start)] via-[var(--primary-mid)] to-[var(--primary-end)]
+           shadow-md transition duration-300 hover:shadow-lg cursor-pointer;
   }
 }
