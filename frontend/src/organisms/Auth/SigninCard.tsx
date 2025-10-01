@@ -27,7 +27,7 @@ export const SigninCard = () => {
             disabled:cursor-not-allowed disabled:opacity-50"
             placeholder="Email"
             value={signinForm.email}
-            type='email'
+            type="email"
             disabled={false}
             required
             onChange={(e) => setSigninForm({ ...signinForm, email: e.target.value })}
@@ -46,19 +46,19 @@ export const SigninCard = () => {
             onChange={(e) => setSigninForm({ ...signinForm, password: e.target.value })}
           />
 
-          <Button
-            disabled={false}
-            size={'lg'}
-            type="submit"
-            className="btn-primary w-full"
-          >
+          <Button disabled={false} size={'lg'} type="submit" className="btn-primary w-full">
             Continue
           </Button>
         </form>
-        <Separator className='my-4 bg-neutral-700 '/>
-        <p className='text-center text-sm mt-2 text-slate-500'>
+        <Separator className="my-4 bg-neutral-700 " />
+        <p className="text-center text-sm mt-2 text-slate-500">
           Do not have an account?
-          <span onClick={()=>navigate('/auth/signup')} className='text-[#4384ec] ml-1 hover:underline cursor-pointer'>Sign up</span>
+          <span
+            onClick={() => navigate('/auth/signup')}
+            className="text-[#4384ec] ml-1 hover:underline cursor-pointer"
+          >
+            Sign up
+          </span>
         </p>
       </CardContent>
     </Card>

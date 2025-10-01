@@ -5,7 +5,6 @@ import mongoose from 'mongoose';
 import { isUserPartOfWorkspace } from './workspaceService';
 import messageRepository from '../repository/messageRepository';
 
-
 export const getChannelByIdService = async (
   channelId: mongoose.Types.ObjectId
 ) => {
@@ -52,7 +51,7 @@ export const getChannelWithWorkspaceDetailsService = async (
       { channelId },
       1,
       20
-    )
+    );
 
     // Convert Mongoose document to plain object and add messages
     const channelData = channel.toObject();

@@ -10,8 +10,7 @@ export const signupRequest = async ({ email, password, username }: UserSignUpTyp
     })
     return response.data
   } catch (error: any) {
-    console.log(error)
-    throw error.response.data
+    throw error.response?.data
   }
 }
 export const signinRequest = async ({ email, password }: UserSignInType) => {
@@ -20,9 +19,9 @@ export const signinRequest = async ({ email, password }: UserSignInType) => {
       email,
       password,
     })
-    return response.data
+    return response
   } catch (error: any) {
-    console.log(error)
-    throw error.response.data
+    throw error.response?.data || error.message
+
   }
 }

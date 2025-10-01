@@ -11,8 +11,13 @@ const messageRepository = {
   ) => {
     try {
       // Convert channelId to ObjectId if it's a string
-      if (messageParams.channelId && typeof messageParams.channelId === 'string') {
-        messageParams.channelId = new mongoose.Types.ObjectId(messageParams.channelId);
+      if (
+        messageParams.channelId &&
+        typeof messageParams.channelId === 'string'
+      ) {
+        messageParams.channelId = new mongoose.Types.ObjectId(
+          messageParams.channelId
+        );
       }
 
       const messages = await Message.find(messageParams)

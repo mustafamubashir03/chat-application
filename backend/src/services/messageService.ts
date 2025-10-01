@@ -13,8 +13,7 @@ export const getMessageService = async (
   return messages;
 };
 
-
-export const createMessageService = async(message:any)=>{
-    const newMessage = await messageRepository.createDoc(message)
-    return newMessage
-}
+export const createMessageService = async (message: any) => {
+  const newMessage = await messageRepository.createDoc(message);
+  return newMessage;
+};
