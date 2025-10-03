@@ -14,7 +14,7 @@ const SignupContainer = () => {
   const { isPending, isSuccess, error, signupMutation } = useSignUp()
   const navigate = useNavigate()
   async function onSignupFormSubmit(e: any) {
-    try{
+    try {
       setValidationError(null)
       e.preventDefault()
       console.log('signup form submitted', signupForm)
@@ -37,21 +37,17 @@ const SignupContainer = () => {
         username: signupForm.username,
         password: signupForm.password,
       })
-    }catch(error:any){
-      setValidationError(error)
-      setTimeout(()=>{
-        setValidationError(null)
-      },3000)
+    } catch (error: any) {
+      setValidationError(error?.response?.data?.message || error?.message || 'Something went wrong')
     }
   }
-  useEffect(()=>{
-    if(isSuccess){
-      setTimeout(()=>{
-
+  useEffect(() => {
+    if (isSuccess) {
+      setTimeout(() => {
         navigate('/auth/signin')
-      },3000)
+      }, 3000)
     }
-  },[isSuccess])
+  }, [isSuccess])
   return (
     <div>
       <SignupCard

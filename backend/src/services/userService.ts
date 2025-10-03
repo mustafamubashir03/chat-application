@@ -6,7 +6,7 @@ export const signupService = (data: UserSignUpType) => {
   try {
     const newUser = userRepository.createDoc(data);
     return newUser;
-  } catch (error) {
+  } catch (error:any) {
     console.log('user signup service error', error);
   }
 };

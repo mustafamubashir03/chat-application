@@ -22,6 +22,5 @@ export const signinRequest = async ({ email, password }: UserSignInType) => {
     return response
   } catch (error: any) {
     throw error.response?.data || error.message
-
   }
 }

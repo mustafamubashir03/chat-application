@@ -12,7 +12,7 @@ export const SignupCard = ({
   onSignupFormSubmit,
   error,
   isPending,
-  isSuccess
+  isSuccess,
 }: any) => {
   const navigate = useNavigate()
   return (
