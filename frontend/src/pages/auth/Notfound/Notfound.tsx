@@ -10,7 +10,7 @@ export const Notfound = () => {
           <h2 className="mt-6 text-6xl font-extrabold text-gray-100">404</h2>
           <p className="mt-2 text-3xl font-bold text-gray-100">Page not found</p>
           <p className="mt-2 text-sm text-gray-400">
-            Sorry, we couldn't find this person you're looking for.
+            Sorry, we couldn't find the page you're looking for.
           </p>
         </div>
         <div className="mt-8">

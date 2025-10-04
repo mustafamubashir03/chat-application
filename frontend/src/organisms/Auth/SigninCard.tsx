@@ -2,23 +2,46 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
-import { useState } from 'react'
+import { CheckCircle, LucideLoader2, TriangleAlert } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
-export const SigninCard = () => {
-  const [signinForm, setSigninForm] = useState({
-    email: '',
-    password: '',
-  })
+export const SigninCard = ({
+  signinForm,
+  setSigninForm,
+  onSigninFormSubmit,
+  validationError,
+  isPending,
+  error,
+  isSuccess,
+}: any) => {
   const navigate = useNavigate()
   return (
     <Card className="w-full h-full bg-gradient-to-r from-[#101321] via-[#151827] to-[#121423] border-slate-600">
       <CardHeader>
         <CardTitle className="text-slate-300">Sign In</CardTitle>
         <CardDescription className="text-slate-400">Sign in to access your account</CardDescription>
+        {validationError && (
+          <div className="bg-red-950 p-2 rounded-md flex items-center gap-x-2 text-sm text-red-300 mb-4  mt-2">
+            <TriangleAlert className="size-5" />
+            <p>{validationError}</p>
+          </div>
+        )}
+        {error && (
+          <div className="bg-red-950 p-2 rounded-md flex items-center gap-x-2 text-sm text-red-300 mb-4  mt-2">
+            <TriangleAlert className="size-5" />
+            <p>{error.message}</p>
+          </div>
+        )}
+        {isSuccess && (
+          <div className="bg-green-950 p-4 rounded-md flex items-start gap-x-2 text-sm text-green-300 mb-4  mt-2 ">
+            <CheckCircle className="size-9" />
+            <p>Successfully signed in. You'll be redirected to the Home page within 5 seconds.</p>
+            <LucideLoader2 className="size-9 animate-spin" />
+          </div>
+        )}
       </CardHeader>
       <CardContent>
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={onSigninFormSubmit}>
           <Input
             className="bg-[#212435] border border-neutral-700
             px-3 py-2 text-sm text-neutral-200 
@@ -28,7 +51,7 @@ export const SigninCard = () => {
             placeholder="Email"
             value={signinForm.email}
             type="email"
-            disabled={false}
+            disabled={isPending}
             required
             onChange={(e) => setSigninForm({ ...signinForm, email: e.target.value })}
           />
@@ -41,12 +64,12 @@ export const SigninCard = () => {
             placeholder="Password"
             type="password"
             value={signinForm.password}
-            disabled={false}
+            disabled={isPending}
             required
             onChange={(e) => setSigninForm({ ...signinForm, password: e.target.value })}
           />
 
-          <Button disabled={false} size={'lg'} type="submit" className="btn-primary w-full">
+          <Button disabled={isPending} size={'lg'} type="submit" className="btn-primary w-full">
             Continue
           </Button>
         </form>
