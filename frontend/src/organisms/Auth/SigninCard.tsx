@@ -44,7 +44,7 @@ export const SigninCard = ({
         <form className="space-y-4" onSubmit={onSigninFormSubmit}>
           <Input
             className="bg-[#212435] border border-neutral-700
-            px-3 py-2 text-sm text-neutral-200 
+            px-3 py-2 text-sm text-slate-300
             placeholder-neutral-500 
             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 
             disabled:cursor-not-allowed disabled:opacity-50"
@@ -57,7 +57,7 @@ export const SigninCard = ({
           />
           <Input
             className="bg-[#212435] border border-neutral-700
-            px-3 py-2 text-sm text-neutral-200 
+            px-3 py-2 text-sm text-slate-300 
             placeholder-neutral-500 
             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900 
             disabled:cursor-not-allowed disabled:opacity-50"

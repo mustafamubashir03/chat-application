@@ -10,9 +10,10 @@ const useSignin = () => {
     mutateAsync: signinMutation,
   } = useMutation({
     mutationFn: signinRequest,
-    onSuccess: (data: any) => {
+    onSuccess: (response: any) => {
       toast.success('You have signed in sucessfully.')
-      console.log('Successfully signed up', data)
+      localStorage.setItem("user",JSON.stringify(response.data))
+      localStorage.setItem('token',JSON.stringify(response.data.token))
     },
     onError: (error: Error) => {
       toast.error('Error has occured while signing in. Please try again')
