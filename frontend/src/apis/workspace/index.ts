@@ -1,13 +1,14 @@
-import axios from 'axios'
+import axios from '@/config/axiosConfig'
 
 export const getWorkspace = async ({ token }: { token: string }) => {
   try {
+    console.log('token', token)
     const response = await axios.get('/workspace', {
       headers: {
-        'x-access-token': token,
+        token: token,
       },
     })
-    console.log(response.data)
+    console.log('Data from axios', response?.data)
     return response?.data
   } catch (error: any) {
     console.log('Error in getting workspace')
@@ -25,7 +26,7 @@ export const createWorkspace = async ({ name, description, token }: any) => {
       },
       {
         headers: {
-          'x-access-token': token,
+          'token': token,
         },
       },
     )

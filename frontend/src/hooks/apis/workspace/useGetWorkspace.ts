@@ -9,10 +9,11 @@ const useGetWorkspace = () => {
     queryKey: ['getWorkspace'],
     staleTime: 30000,
   })
+  console.log('Data from React use Query', data)
   return {
     isFetching,
     isSuccess,
-    data,
+    workspaces: data,
   }
 }
 
