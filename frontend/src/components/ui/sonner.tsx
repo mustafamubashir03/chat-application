@@ -12,15 +12,15 @@ const Toaster = ({ className, ...props }: ToasterProps) => {
       toastOptions={{
         classNames: {
           toast: cn(
-            'bg-card text-card-foreground border rounded-xl shadow-sm',
-            'flex items-start gap-3 p-4 transition-all duration-300'
+            'bg-card text-slate-800 border rounded-xl shadow-sm',
+            'flex items-start gap-3 p-4 transition-all duration-300',
           ),
           title: 'font-semibold',
-          description: 'text-sm text-muted-foreground',
+          description: 'text-sm text-slate-700',
           actionButton:
-            'bg-primary text-primary-foreground hover:bg-primary/90 rounded-md px-3 py-1 text-sm font-medium',
+            'bg-primary text-slate-800 hover:bg-primary/90 rounded-md px-3 py-1 text-sm font-medium',
           cancelButton:
-            'bg-muted text-muted-foreground hover:bg-muted/80 rounded-md px-3 py-1 text-sm font-medium',
+            'bg-muted text-slate-800 hover:bg-muted/80 rounded-md px-3 py-1 text-sm font-medium',
         },
       }}
       position="top-right"

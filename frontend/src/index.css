@@ -127,15 +127,11 @@
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
   body {
     @apply bg-background text-foreground;
-    @apply bg-background text-foreground font-sans;
   }
   .btn-primary {
-    @apply px-6 py-3 rounded-[8px] font-medium text-white 
+    @apply px-6 py-3 rounded-[8px] font-medium text-white
            bg-gradient-to-r from-[var(--primary-start)] via-[var(--primary-mid)] to-[var(--primary-end)]
            shadow-md transition duration-300 hover:shadow-lg cursor-pointer;
   }

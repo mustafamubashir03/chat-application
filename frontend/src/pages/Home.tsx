@@ -1,9 +1,12 @@
-
+import UserIcon from '@/atoms/userIcon/UserIcon'
 import Workspaces from './Workspaces'
 
 const Home = () => {
   return (
-    <Workspaces/>
+    <div>
+      <UserIcon />
+      <Workspaces />
+    </div>
   )
 }
 
