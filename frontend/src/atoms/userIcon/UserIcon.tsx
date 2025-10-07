@@ -11,9 +11,9 @@ import { LogOutIcon, PencilIcon, Settings2Icon } from 'lucide-react'
 
 const UserIcon = () => {
   const { auth, logOut } = useAuth()
-  const {setOpenCreateWorkspaceModal} = useCreateWorkspaceModal()
+  const { setOpenCreateWorkspaceModal } = useCreateWorkspaceModal()
 
-  const handleModal =()=>{
+  const handleModal = () => {
     setOpenCreateWorkspaceModal(true)
   }
 
@@ -27,13 +27,13 @@ const UserIcon = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="text-slate-300 bg-gradient-to-r from-[#101321] via-[#151827] to-[#121423] border-none">
         <DropdownMenuItem>
-          <Settings2Icon className='size-4 mr-1'/>
+          <Settings2Icon className="size-4 mr-1" />
           Settings
-          </DropdownMenuItem>
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={handleModal}>
-          <PencilIcon className='size-4 mr-1'/>
+          <PencilIcon className="size-4 mr-1" />
           Create Workspace
-          </DropdownMenuItem>
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={logOut}>
           <LogOutIcon className="size-4 mr-1" />
           Log out

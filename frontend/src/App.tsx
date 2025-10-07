@@ -12,7 +12,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AppContextProvider>
         <AppRoutes />
-        <CreateWorkspaceModal/>
+        <CreateWorkspaceModal />
         <Toaster position="top-center" />
       </AppContextProvider>
     </QueryClientProvider>

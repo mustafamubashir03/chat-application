@@ -1,11 +1,5 @@
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import useCreateWorkspace from '@/hooks/apis/workspace/useCreateWorkspace'
 import { useCreateWorkspaceModal } from '@/hooks/apis/workspace/useCreateWorkspaceModal'
@@ -44,7 +38,7 @@ const CreateWorkspaceModal = () => {
   }
   return (
     <Dialog open={openCreateWorkspaceModal} onOpenChange={handleClose}>
-      <DialogContent className='bg-gradient-to-r from-[#0e111e] via-[#121526] to-[#121423] border-slate-600'>
+      <DialogContent className="bg-gradient-to-r from-[#0e111e] via-[#121526] to-[#121423] border-slate-600">
         <DialogHeader>
           <DialogTitle className="text-slate-300 mb-2">Create a new Workspace</DialogTitle>
         </DialogHeader>
@@ -75,7 +69,13 @@ const CreateWorkspaceModal = () => {
             disabled:cursor-not-allowed disabled:opacity-50 mb-4"
           />
           <div className="flex justify-center mt-5">
-            <Button disabled={isPending} size={'lg'} type="submit" className="btn-primary w-full">
+            <Button
+              disabled={isPending}
+              variant={'primary'}
+              size={'lg'}
+              type="submit"
+              className="w-full"
+            >
               Create Workspace
             </Button>
           </div>

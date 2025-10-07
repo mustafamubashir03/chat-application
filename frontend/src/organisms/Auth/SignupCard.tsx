@@ -94,7 +94,13 @@ export const SignupCard = ({
             required
             onChange={(e) => setSignupForm({ ...signupForm, confirmPassword: e.target.value })}
           />
-          <Button disabled={isPending} size={'lg'} type="submit" className="btn-primary w-full">
+          <Button
+            disabled={isPending}
+            size={'lg'}
+            variant={'primary'}
+            type="submit"
+            className="w-full"
+          >
             Continue
           </Button>
         </form>

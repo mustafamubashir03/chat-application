@@ -14,7 +14,7 @@ export const Notfound = () => {
           </p>
         </div>
         <div className="mt-8">
-          <Button onClick={() => navigate(-1)} className="btn-primary">
+          <Button onClick={() => navigate(-1)} variant={'primary'}>
             Go back
           </Button>
         </div>

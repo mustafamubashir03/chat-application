@@ -26,7 +26,7 @@ export const createWorkspace = async ({ name, description, token }: any) => {
       },
       {
         headers: {
-          'token': token,
+          token: token,
         },
       },
     )
@@ -34,6 +34,26 @@ export const createWorkspace = async ({ name, description, token }: any) => {
     return response?.data
   } catch (error: any) {
     console.log('Error in creating workspace')
+    throw error.response?.data
+  }
+}
+
+export const getWorkspaceDetails = async ({
+  workspaceId,
+  token,
+}: {
+  workspaceId: string
+  token: string
+}) => {
+  try {
+    const response = await axios.get(`workspace/:${workspaceId}`, {
+      headers: {
+        token: token,
+      },
+    })
+    return response?.data
+  } catch (error: any) {
+    console.log('Error in getting Workspace details')
     throw error.response?.data
   }
 }

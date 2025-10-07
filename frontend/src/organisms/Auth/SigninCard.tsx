@@ -69,7 +69,13 @@ export const SigninCard = ({
             onChange={(e) => setSigninForm({ ...signinForm, password: e.target.value })}
           />
 
-          <Button disabled={isPending} size={'lg'} type="submit" className="btn-primary w-full">
+          <Button
+            disabled={isPending}
+            size={'lg'}
+            type="submit"
+            variant={'primary'}
+            className="w-full"
+          >
             Continue
           </Button>
         </form>
