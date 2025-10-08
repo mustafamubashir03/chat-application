@@ -6,6 +6,7 @@ import Home from './pages/Home'
 import { Notfound } from './pages/Notfound/Notfound'
 import { ProtectedRoute } from './molecules/ProtectedRoute/ProtectedRoute'
 import WorkspaceLayout from './pages/Workspaces/WorkspaceLayout'
+import WorkspaceOptions from './organisms/Workspaces/WorkspaceNavbar'
 
 export const AppRoutes = () => {
   return (
@@ -38,7 +39,7 @@ export const AppRoutes = () => {
         path="/workspace/:workspaceId"
         element={
           <ProtectedRoute>
-            <WorkspaceLayout>Workspace</WorkspaceLayout>
+            <WorkspaceLayout>Hello World</WorkspaceLayout>
           </ProtectedRoute>
         }
       />

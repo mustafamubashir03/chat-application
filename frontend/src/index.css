@@ -89,7 +89,7 @@
 }
 
 .dark {
-  --background: #03030d; /* optional if you want same in dark */
+  --background: #02020c; /* optional if you want same in dark */
   --dark: #030616;
   --primary-start: #133dae;
   --primary-mid: #2054c6;
@@ -128,7 +128,10 @@
 }
 
 @layer base {
+  * {
+    @apply bg-dark;
+  }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
   }
 }

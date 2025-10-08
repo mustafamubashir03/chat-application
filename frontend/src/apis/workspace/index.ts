@@ -46,7 +46,7 @@ export const getWorkspaceDetails = async ({
   token: string
 }) => {
   try {
-    const response = await axios.get(`workspace/:${workspaceId}`, {
+    const response = await axios.get(`/workspace/${workspaceId}`, {
       headers: {
         token: token,
       },

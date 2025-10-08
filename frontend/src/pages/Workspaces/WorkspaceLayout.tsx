@@ -1,10 +1,12 @@
+import WorkspaceNavbar from '@/organisms/Workspaces/WorkspaceNavbar'
 import WorkspaceSidebar from '@/organisms/Workspaces/WorkspaceSidebar'
 import type React from 'react'
 
 const WorkspaceLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="h-[100vh]">
-      <div className="flex h-full">
+      <WorkspaceNavbar />
+      <div className="flex h-[calc(100vh-28px)]">
         <WorkspaceSidebar />
         {children}
       </div>

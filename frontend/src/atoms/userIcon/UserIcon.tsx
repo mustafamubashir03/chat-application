@@ -20,22 +20,22 @@ const UserIcon = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="outline-none cursor-pointer relative">
-        <Avatar className="size-10 hover:opacity-60 transition-opacity border-2 border-[var(--primary-end)]">
+        <Avatar className="size-12 hover:opacity-60 transition-opacity border-2 border-[var(--primary-end)]">
           <AvatarImage src={auth?.user?.avatar} />
           <AvatarFallback>{auth?.user?.username[0].toUpperCase()}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="text-slate-300 bg-gradient-to-r from-[#101321] via-[#151827] to-[#121423] border-none">
         <DropdownMenuItem>
-          <Settings2Icon className="size-4 mr-1" />
+          <Settings2Icon className="size-4 mr-1 text-blue-500" />
           Settings
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleModal}>
-          <PencilIcon className="size-4 mr-1" />
+          <PencilIcon className="size-4 mr-1 text-blue-500" />
           Create Workspace
         </DropdownMenuItem>
         <DropdownMenuItem onClick={logOut}>
-          <LogOutIcon className="size-4 mr-1" />
+          <LogOutIcon className="size-4 mr-1 text-blue-500" />
           Log out
         </DropdownMenuItem>
       </DropdownMenuContent>
