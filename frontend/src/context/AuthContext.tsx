@@ -2,6 +2,7 @@ import React, { createContext, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 type userType = {
+  id: string
   username: string
   avatar: string
   email: string

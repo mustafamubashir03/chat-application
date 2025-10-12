@@ -9,13 +9,13 @@ const WorkspaceNavbar = () => {
   const { isPending, workspaceDetails } = useGetWorkspaceById({ workspaceId: workspaceId || '' })
   if (isPending) {
     return (
-      <div className="flex items-center justify-center h-14 p-2 bg-[#090c1a] text-slate-400">
+      <div className="flex items-center justify-center h-14 p-2 bg-[#0b0d1a] text-slate-400">
         <LucideLoader2 className="size-9 animate-spin" />
       </div>
     )
   } else {
     return (
-      <nav className="flex items-center  justify-between h-14 p-2 bg-[#070916]">
+      <nav className="flex items-center  justify-between h-14 p-2 bg-[#0b0d1a]">
         <div className="flex-1"></div>
         <div>
           <Button variant={'darkBlue'} size={'sm'}>

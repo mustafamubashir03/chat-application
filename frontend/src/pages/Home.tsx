@@ -10,7 +10,7 @@ const Home = () => {
     if (isFetching) {
       return
     }
-    if (workspaces.length === 0 || !workspaces) {
+    if (workspaces?.length === 0 || !workspaces) {
       console.log('No workspaces found')
     } else {
       navigate(`/workspace/${workspaces[0]._id}`)

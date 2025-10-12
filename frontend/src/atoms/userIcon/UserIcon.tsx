@@ -35,7 +35,7 @@ const UserIcon = () => {
           Create Workspace
         </DropdownMenuItem>
         <DropdownMenuItem onClick={logOut}>
-          <LogOutIcon className="size-4 mr-1 text-blue-500" />
+          <LogOutIcon className="size-4 mr-1 text-red-500" />
           Log out
         </DropdownMenuItem>
       </DropdownMenuContent>

@@ -23,13 +23,13 @@ const WorkspaceSwitcher = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
-        <Button className="font-semibold text-xl p-6" variant={'BlueDark'}>
+        <Button className="font-semibold text-xl text-blue-300 px-4 py-6" variant={'BlueDark'}>
           {isPending ? <LucideLoader2 className="size-5 spin" /> : workspaceDetails.name[0]}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="text-slate-300 bg-gradient-to-r from-[#101321] via-[#151827] to-[#121423] border-none">
         <DropdownMenuLabel>Select Workspace</DropdownMenuLabel>
-        <DropdownMenuSeparator className='bg-slate-800'/>
+        <DropdownMenuSeparator className="bg-slate-800" />
         <DropdownMenuItem className="text-blue-400">{workspaceDetails?.name}</DropdownMenuItem>
         {isFetching ? (
           <LucideLoader2 />

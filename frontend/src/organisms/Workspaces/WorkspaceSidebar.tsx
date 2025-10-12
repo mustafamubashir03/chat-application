@@ -5,7 +5,7 @@ import WorkspaceSwitcher from './WorkspaceSwitcher'
 
 const WorkspaceSidebar = () => {
   return (
-    <aside className="w-[90px] h-full bg-[#070916]">
+    <aside className="w-[90px] h-full bg-[#0b0d1a]">
       <div className="h-[calc(100vh-40px)] flex flex-col gap-y-4 items-center pt-[10px] pb-[5px]">
         <WorkspaceSwitcher />
         <SidebarButton Icon={HomeIcon} Label={'Home'} />

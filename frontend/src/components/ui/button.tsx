@@ -12,8 +12,7 @@ const buttonVariants = cva(
         primary:
           'px-6 py-3 rounded-[8px] font-medium text-white bg-gradient-to-r from-[var(--primary-start)] via-[var(--primary-mid)] to-[var(--primary-end)] shadow-md transition duration-300 hover:shadow-lg cursor-pointer',
         default: 'bg-primary text-primary-foreground hover:bg-primary/90',
-        destructive:
-          'bg-destructive text-white hover:bg-destructive/90 ',
+        destructive: 'bg-destructive text-white hover:bg-destructive/90 ',
         outline:
           'border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50',
         secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
@@ -25,7 +24,7 @@ const buttonVariants = cva(
         indigoGlow:
           'bg-indigo-950/40 text-indigo-300 hover:bg-indigo-900/60 active:bg-indigo-800/40 shadow-sm border border-indigo-800/40',
         BlueDark:
-          'bg-blue-950  duration-200 ease-in-out hover:bg-black hover:rounded-full transition-all hover:w-10  cursor-pointer rounded-xl text-blue-400  shadow-sm',
+          'bg-blue-950 delay-0.2 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ease-in-out hover:bg-blue-700 hover:text-blue-100 hover:rounded-full transition-all   cursor-pointer rounded-xl text-blue-400  shadow-sm',
       },
       size: {
         default: 'h-9 px-4 py-2 has-[>svg]:px-3',

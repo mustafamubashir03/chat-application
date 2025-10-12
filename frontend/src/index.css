@@ -79,7 +79,7 @@
   --radius: 0.625rem;
 
   /* Background / Foreground */
-  --background: #040512; /* your custom bg */
+  --background: #02020c; /* your custom bg */
   --foreground: oklch(0.145 0 0);
 
   /* Gradient stops */
@@ -90,7 +90,7 @@
 
 .dark {
   --background: #02020c; /* optional if you want same in dark */
-  --dark: #030616;
+  --dark: #02020c;
   --primary-start: #133dae;
   --primary-mid: #2054c6;
   --primary-end: #2b6bd3;
@@ -127,11 +127,19 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
-@layer base {
-  * {
-    @apply bg-dark;
-  }
-  body {
-    @apply text-foreground;
+body {
+  @apply text-foreground;
+  @apply bg-background;
+  /* Disable white focus ring and border glow globally */
+  button:focus,
+  button:focus-visible,
+  select:focus,
+  input:focus,
+  [role='menuitem']:focus,
+  [role='option']:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    --tw-ring-color: transparent !important;
+    --tw-ring-offset-color: transparent !important;
   }
 }
