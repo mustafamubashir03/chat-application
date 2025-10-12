@@ -2,7 +2,6 @@ import { Button } from '@/components/ui/button'
 import { useGetWorkspaceById } from '@/hooks/apis/workspace/useGetWorkspaceById'
 import { InfoIcon, LucideLoader2, SearchIcon } from 'lucide-react'
 import { useParams } from 'react-router-dom'
-import WorkspaceSwitcher from './WorkspaceSwitcher'
 
 const WorkspaceNavbar = () => {
   const { workspaceId } = useParams()

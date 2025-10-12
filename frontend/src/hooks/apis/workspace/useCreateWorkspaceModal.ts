@@ -1,4 +1,4 @@
-import { CreateWorkspaceModalContext } from '@/context/createWorkspaceContext'
+import { CreateWorkspaceModalContext } from '@/context/CreateWorkspaceContext'
 import { useContext } from 'react'
 
 export const useCreateWorkspaceModal = () => {

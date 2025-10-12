@@ -16,7 +16,7 @@ const useCreateWorkspace = () => {
       toast.error('Error occurred while creating workspace')
       console.log(error)
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success('Workspace have been created')
     },
   })

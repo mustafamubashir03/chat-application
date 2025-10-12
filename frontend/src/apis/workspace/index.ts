@@ -57,3 +57,51 @@ export const getWorkspaceDetails = async ({
     throw error.response?.data
   }
 }
+
+export const deleteWorkspace = async ({
+  workspaceId,
+  token,
+}: {
+  workspaceId: string
+  token: string
+}) => {
+  try {
+    const response = await axios.delete(`/workspace/${workspaceId}`, {
+      headers: {
+        token: token,
+      },
+    })
+    return response?.data
+  } catch (error: any) {
+    console.log('Error while deleting Workspace details')
+    throw error.response?.data
+  }
+}
+
+export const updateWorkspaceDetails = async ({
+  workspaceId,
+  name,
+  token,
+}: {
+  workspaceId: string
+  name: string
+  token: string
+}) => {
+  try {
+    const response = await axios.put(
+      `/workspace/${workspaceId}`,
+      {
+        name,
+      },
+      {
+        headers: {
+          token: token,
+        },
+      },
+    )
+    return response?.data
+  } catch (error: any) {
+    console.log('Error while updating Workspace details')
+    throw error.response?.data
+  }
+}

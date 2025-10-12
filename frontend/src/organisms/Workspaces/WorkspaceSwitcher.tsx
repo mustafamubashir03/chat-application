@@ -24,7 +24,11 @@ const WorkspaceSwitcher = () => {
     <DropdownMenu>
       <DropdownMenuTrigger>
         <Button className="font-semibold text-xl text-blue-300 px-4 py-6" variant={'BlueDark'}>
-          {isPending ? <LucideLoader2 className="size-5 spin" /> : workspaceDetails.name[0]}
+          {isPending ? (
+            <LucideLoader2 className="size-5 spin" />
+          ) : (
+            workspaceDetails.name[0].toUpperCase()
+          )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="text-slate-300 bg-gradient-to-r from-[#101321] via-[#151827] to-[#121423] border-none">

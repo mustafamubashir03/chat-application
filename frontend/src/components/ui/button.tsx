@@ -25,6 +25,8 @@ const buttonVariants = cva(
           'bg-indigo-950/40 text-indigo-300 hover:bg-indigo-900/60 active:bg-indigo-800/40 shadow-sm border border-indigo-800/40',
         BlueDark:
           'bg-blue-950 delay-0.2 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ease-in-out hover:bg-blue-700 hover:text-blue-100 hover:rounded-full transition-all   cursor-pointer rounded-xl text-blue-400  shadow-sm',
+        delete:
+          'px-6 py-3 rounded-[8px] font-medium bg-red-800/40 text-red-300  transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:bg-red-900/50 active:scale-[0.98] cursor-pointer',
       },
       size: {
         default: 'h-9 px-4 py-2 has-[>svg]:px-3',

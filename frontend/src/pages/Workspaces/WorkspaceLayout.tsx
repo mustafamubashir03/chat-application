@@ -1,4 +1,5 @@
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
+import WorkspacePreferencesModal from '@/molecules/WorkspacePreferencesModal/WorkspacePreferencesModal'
 import WorkspaceNavbar from '@/organisms/Workspaces/WorkspaceNavbar'
 import WorkspacePanel from '@/organisms/Workspaces/WorkspacePanel'
 import WorkspaceSidebar from '@/organisms/Workspaces/WorkspaceSidebar'
@@ -19,6 +20,7 @@ const WorkspaceLayout = ({ children }: { children: React.ReactNode }) => {
         </ResizablePanelGroup>
         {children}
       </div>
+      <WorkspacePreferencesModal />
     </div>
   )
 }

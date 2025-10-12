@@ -1,8 +1,10 @@
 import combineContext from '@/utils/combineContext'
 import { AuthContextProvider } from './AuthContext'
-import CreateWorkspaceContextProvider from './createWorkspaceContext'
+import WorkspacePreferencesModalContextProvider from './WorkspaceModalContext'
+import CreateWorkspaceModalContextProvider from './CreateWorkspaceContext'
 
 export const AppContextProvider = combineContext(
   AuthContextProvider,
-  CreateWorkspaceContextProvider,
+  CreateWorkspaceModalContextProvider,
+  WorkspacePreferencesModalContextProvider,
 )
