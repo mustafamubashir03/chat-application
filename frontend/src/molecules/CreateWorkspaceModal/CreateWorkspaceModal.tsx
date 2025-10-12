@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input'
 import useCreateWorkspace from '@/hooks/apis/workspace/useCreateWorkspace'
 import { useCreateWorkspaceModal } from '@/hooks/apis/workspace/useCreateWorkspaceModal'
+import { useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -12,6 +13,7 @@ const CreateWorkspaceModal = () => {
   const { isPending, createWorkspaceMutation } = useCreateWorkspace()
   const [workspaceName, setWorkspaceName] = useState('')
   const [workspaceDescription, setWorkspaceDescription] = useState('')
+  const queryClient = useQueryClient()
   const handleClose = () => {
     setOpenCreateWorkspaceModal(false)
   }
@@ -25,7 +27,7 @@ const CreateWorkspaceModal = () => {
         name: workspaceName,
         description: workspaceDescription,
       })
-      console.log(data)
+      queryClient.invalidateQueries({queryKey:['getWorkspace']})
       navigate(`/workspace/${data._id}`)
       setOpenCreateWorkspaceModal(false)
     } catch (error) {

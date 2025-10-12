@@ -1,6 +1,5 @@
-import { useGetWorkspaceById } from '@/hooks/apis/workspace/useGetWorkspaceById'
-import { createContext, useEffect, useState, type Dispatch, type SetStateAction } from 'react'
-import { useParams } from 'react-router-dom'
+import { createContext, useState, type Dispatch, type SetStateAction } from 'react'
+
 
 export const workspacePreferencesModalContext = createContext<{
   openPreferences: boolean
@@ -16,7 +15,7 @@ export const workspacePreferencesModalContext = createContext<{
 
 const WorkspacePreferencesModalContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [openPreferences, setOpenPreferences] = useState(false)
-  const [initialValue, setInitialValue] = useState('Edit Workspace')
+  const [initialValue,setInitialValue] = useState("")
   return (
     <workspacePreferencesModalContext.Provider
       value={{ openPreferences, setOpenPreferences, initialValue, setInitialValue }}
