@@ -15,8 +15,9 @@ const WorkspacePanelHeader = ({ workspace }: { workspace: any }) => {
   const { setOpenPreferences, setInitialValue } = useWorkspacePreferences()
 
   const isLoggedinUserAdminOfWorkspace = members.find(
-    (member: any) => member.memberId === auth?.user?.id && member.role === 'admin',
+    (member: any) => member?.memberId?._id === auth?.user?.id && member.role === 'admin',
   )
+  console.log("is user admin of",isLoggedinUserAdminOfWorkspace)
   const handleSetOpenPreferences = () => {
     setOpenPreferences(true)
     setInitialValue(workspace?.name)
@@ -25,7 +26,7 @@ const WorkspacePanelHeader = ({ workspace }: { workspace: any }) => {
   return (
     <div className="flex items-center justify-around h-[50px] px-4 gap-0.5">
       <DropdownMenu>
-        <DropdownMenuTrigger>
+        <DropdownMenuTrigger asChild>
           <Button
             variant={'transparent'}
             className="font-semibold text-lg overflow-hidden w-auto p-1.5 cursor-pointer hover:border-none"
@@ -56,7 +57,6 @@ const WorkspacePanelHeader = ({ workspace }: { workspace: any }) => {
                 onClick={handleSetOpenPreferences}
                 className="text-sm cursor-pointer flex justify-center gap-1.5 hover:text-blue-500"
               >
-                {' '}
                 <Settings2 className="size-4 mr-1 text-blue-500" /> Preferences
               </DropdownMenuItem>
               <DropdownMenuItem className="text-sm cursor-pointer flex justify-center gap-1.5 hover:text-blue-500">

@@ -6,6 +6,7 @@ import { useParams } from 'react-router-dom'
 const WorkspaceNavbar = () => {
   const { workspaceId } = useParams()
   const { isPending, workspaceDetails } = useGetWorkspaceById({ workspaceId: workspaceId || '' })
+  console.log("workspace details",workspaceDetails)
   if (isPending) {
     return (
       <div className="flex items-center justify-center h-14 p-2 bg-[#0b0d1a] text-slate-400">

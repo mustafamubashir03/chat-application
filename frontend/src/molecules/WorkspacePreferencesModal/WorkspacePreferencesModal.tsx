@@ -10,6 +10,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { useDeleteWorkspace } from '@/hooks/apis/workspace/useDeleteWorkspace'
 import { useUpdateWorkspace } from '@/hooks/apis/workspace/useUpdateWorkspace'
+import { useConfirm } from '@/hooks/context/useConfirm'
 import { useWorkspacePreferences } from '@/hooks/context/useWorkspacePreferences'
 import { DialogClose } from '@radix-ui/react-dialog'
 import { useQueryClient } from '@tanstack/react-query'
@@ -19,12 +20,12 @@ import { useNavigate, useParams } from 'react-router-dom'
 
 const WorkspacePreferencesModal = () => {
   const { initialValue, openPreferences, setOpenPreferences } = useWorkspacePreferences()
+  const {Confirmation,ConfirmDialog} = useConfirm({title:"Are you sure that you want to delete the workspace?",message:"This action cannot be undone"})
+  const {Confirmation:updateConfirmation,ConfirmDialog:UpdateConfirmDialog} = useConfirm({title:"Are you sure that you want to update the name of the workspace?",message:"This action cannot be undone"})
   const [editOpen, setEditOpen] = useState(false)
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const [renameValue, setRenameValue] = useState(initialValue)
-  console.log(initialValue)
-  console.log("rename value",renameValue)
   const { workspaceId } = useParams()
   const { updateWorkspaceDetailsMutation,isPending } = useUpdateWorkspace({
     workspaceId: workspaceId || '',
@@ -33,9 +34,13 @@ const WorkspacePreferencesModal = () => {
   const { deleteWorkspaceMutation } = useDeleteWorkspace({ workspaceId: workspaceId || '' })
   const handleDeleteWorkspace = async () => {
     try {
+      const ok = await Confirmation()
+      if(!ok){
+        return
+      }
       await deleteWorkspaceMutation()
       setOpenPreferences(false)
-      queryClient.invalidateQueries({ queryKey: ['getWorkspace'] })
+      await queryClient.invalidateQueries({ queryKey: ['getWorkspace'] })
       navigate('/home')
     } catch (error) {
       console.log(error)
@@ -46,13 +51,20 @@ const WorkspacePreferencesModal = () => {
     if (!renameValue) {
       return
     }
+    const ok = await updateConfirmation()
+    if(!ok){
+      return
+    }
     await updateWorkspaceDetailsMutation()
     setEditOpen(false)
     setOpenPreferences(false)
-    queryClient.invalidateQueries({ queryKey: [`getWorkspaceDetails-${workspaceId}`] })
+    await queryClient.invalidateQueries({ queryKey: [`getWorkspaceDetails-${workspaceId}`] })
     navigate(`/workspace/${workspaceId}`)
   }
   return (
+    <>
+    <UpdateConfirmDialog/>
+     <ConfirmDialog/>
     <Dialog open={openPreferences} onOpenChange={setOpenPreferences}>
       <DialogContent className="bg-gradient-to-r rounded-md from-[#0e111e] via-[#121526] to-[#121423] border-slate-600">
         <DialogHeader>
@@ -101,6 +113,7 @@ const WorkspacePreferencesModal = () => {
         </div>
       </DialogContent>
     </Dialog>
+    </>
   )
 }
 

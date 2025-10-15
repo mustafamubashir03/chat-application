@@ -1,4 +1,3 @@
-import UserIcon from '@/atoms/userIcon/UserIcon'
 import { useCreateWorkspaceModal } from '@/hooks/apis/workspace/useCreateWorkspaceModal'
 import useGetWorkspace from '@/hooks/apis/workspace/useGetWorkspace'
 import { useEffect } from 'react'
@@ -13,8 +12,6 @@ const Home = () => {
       return
     }
     if (workspaces?.length === 0 || !workspaces) {
-      
-      console.log('No workspaces found')
       setOpenCreateWorkspaceModal(true)
     } else {
       navigate(`/workspace/${workspaces[0]._id}`)
@@ -22,7 +19,7 @@ const Home = () => {
   }, [workspaces, isFetching, navigate])
   return (
     <div>
-      <UserIcon />
+      No workspaces
     </div>
   )
 }

@@ -5,6 +5,7 @@ import { Toaster } from './components/ui/sonner'
 import { AppContextProvider } from './context/AppContextProvider'
 import { AppRoutes } from './Routes'
 import CreateWorkspaceModal from './molecules/CreateWorkspaceModal/CreateWorkspaceModal'
+import CreateChannelModal from './molecules/CreateChannelModal/CreateChannelModal'
 
 function App() {
   const queryClient = new QueryClient()
@@ -13,6 +14,7 @@ function App() {
       <AppContextProvider>
         <AppRoutes />
         <CreateWorkspaceModal />
+        <CreateChannelModal/>
         <Toaster position="top-center" />
       </AppContextProvider>
     </QueryClientProvider>

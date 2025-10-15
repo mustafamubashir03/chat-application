@@ -22,7 +22,7 @@ const WorkspaceSwitcher = () => {
   }
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>
         <Button className="font-semibold text-xl text-blue-300 px-4 py-6" variant={'BlueDark'}>
           {isPending ? (
             <LucideLoader2 className="size-5 spin" />
