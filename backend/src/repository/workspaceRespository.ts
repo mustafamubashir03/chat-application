@@ -19,6 +19,18 @@ const workspaceRepository = {
     }
     return workspace;
   },
+  getWorkspaceWithChannelDetails: async(id:mongoose.Types.ObjectId)=>{
+    const workspace = await Workspace.findById(id).populate('channels');
+    if (!workspace) {
+      throw new ClientError({
+        message: 'Workspace does not exist',
+        explanation: 'No such workspace exist',
+        status: StatusCodes.NOT_FOUND
+      });
+    }
+    return workspace;
+    
+  },
   getWokspaceByJoinCode: async (joinCode: string) => {
     const workspace = await Workspace.findOne({ joinCode });
     if (!workspace) {

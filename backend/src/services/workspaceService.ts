@@ -99,7 +99,7 @@ export const getWorkspaceByIdService = async (
   userId: mongoose.Types.ObjectId
 ) => {
   try {
-    const workspace = await workspaceRepository.getDocById(workspaceId);
+    const workspace = await workspaceRepository.getWorkspaceWithChannelDetails(workspaceId);
     if (!workspace) {
       throw new ClientError({
         message: 'Invalid data from client',

@@ -13,6 +13,7 @@ import { validator } from '../../middlewares/validator';
 import { isAuthenticated } from '../../middlewares/isAuthenticated';
 import {
   addChannelToWorkspaceSchema,
+  addMemberToWorkspaceSchema,
   createWorkspaceSchema,
   updateWorkspaceSchema
 } from '@itz____mmm/common';
@@ -38,7 +39,7 @@ router.put(
 router.post(
   '/:workspaceId/members',
   isAuthenticated,
-  validator(addChannelToWorkspaceSchema),
+  validator(addMemberToWorkspaceSchema),
   addMemberToWorkspaceController
 );
 router.post(
