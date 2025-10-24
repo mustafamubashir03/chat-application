@@ -79,7 +79,7 @@
   --radius: 0.625rem;
 
   /* Background / Foreground */
-  --background: #02020c; /* your custom bg */
+  --background: #06081b; /* your custom bg */
   --foreground: oklch(0.145 0 0);
 
   /* Gradient stops */
@@ -130,6 +130,7 @@
 body {
   @apply text-foreground;
   @apply bg-background;
+  @apply border-none hover:border-none focus-visible:outline-none  ring-0 ring-offset-0 focus:ring-0 focus-visible:ring-0;
   /* Disable white focus ring and border glow globally */
   button:focus,
   button:focus-visible,

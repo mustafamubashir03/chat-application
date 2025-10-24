@@ -1,4 +1,5 @@
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
+import CreateChannelModal from '@/molecules/CreateChannelModal/CreateChannelModal'
 import WorkspacePreferencesModal from '@/molecules/WorkspacePreferencesModal/WorkspacePreferencesModal'
 import WorkspaceNavbar from '@/organisms/Workspaces/WorkspaceNavbar'
 import WorkspacePanel from '@/organisms/Workspaces/WorkspacePanel'
@@ -12,7 +13,7 @@ const WorkspaceLayout = ({ children }: { children: React.ReactNode }) => {
       <div className="flex h-[calc(100vh-28px)]">
         <WorkspaceSidebar />
         <ResizablePanelGroup autoSaveId={'workspaceId'} direction="horizontal">
-          <ResizablePanel defaultSize={20} minSize={11} className="bg-[#080a15]">
+          <ResizablePanel defaultSize={20} minSize={11} className="bg-[#101325]">
             <WorkspacePanel />
           </ResizablePanel>
           <ResizableHandle withHandle className="bg-[#0000000]" />
@@ -20,6 +21,7 @@ const WorkspaceLayout = ({ children }: { children: React.ReactNode }) => {
         </ResizablePanelGroup>
         {children}
       </div>
+      <CreateChannelModal/>
       <WorkspacePreferencesModal />
     </div>
   )

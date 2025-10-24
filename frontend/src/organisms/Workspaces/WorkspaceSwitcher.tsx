@@ -31,7 +31,7 @@ const WorkspaceSwitcher = () => {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="text-slate-300 bg-gradient-to-r from-[#101321] via-[#151827] to-[#121423] border-none">
+      <DropdownMenuContent className="text-slate-300 bg-gradient-to-r from-[#101321] via-[#151827] to-[#121423] border-slate-400/40 border-1">
         <DropdownMenuLabel>Select Workspace</DropdownMenuLabel>
         <DropdownMenuSeparator className="bg-slate-800" />
         <DropdownMenuItem className="text-blue-400">{workspaceDetails?.name}</DropdownMenuItem>
@@ -45,6 +45,7 @@ const WorkspaceSwitcher = () => {
 
             return (
               <DropdownMenuItem
+              key={workspace._id}
                 onClick={() => handleWorkspaceSwitching(workspace)}
                 className="text-slate-400 truncate cursor-pointer"
               >

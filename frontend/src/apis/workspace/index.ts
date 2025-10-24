@@ -1,11 +1,12 @@
 import axios from '@/config/axiosConfig'
 
+
 export const getWorkspace = async ({ token }: { token: string }) => {
   try {
     console.log('token', token)
     const response = await axios.get('/workspace', {
       headers: {
-        token: token,
+        token
       },
     })
     console.log('Data from axios', response?.data)
@@ -26,7 +27,7 @@ export const createWorkspace = async ({ name, description, token }: any) => {
       },
       {
         headers: {
-          token: token,
+          token
         },
       },
     )
@@ -48,7 +49,7 @@ export const getWorkspaceDetails = async ({
   try {
     const response = await axios.get(`/workspace/${workspaceId}`, {
       headers: {
-        token: token,
+        token
       },
     })
     return response?.data
@@ -68,7 +69,7 @@ export const deleteWorkspace = async ({
   try {
     const response = await axios.delete(`/workspace/${workspaceId}`, {
       headers: {
-        token: token,
+        token
       },
     })
     return response?.data
@@ -95,7 +96,7 @@ export const updateWorkspaceDetails = async ({
       },
       {
         headers: {
-          token: token,
+          token
         },
       },
     )
@@ -104,4 +105,23 @@ export const updateWorkspaceDetails = async ({
     console.log('Error while updating Workspace details')
     throw error.response?.data
   }
+}
+
+
+export const addChannelToWorkspace = async({workspaceId,channelName,token}:{workspaceId:string,channelName:string,token:string})=>{
+  try{
+
+    const response = await axios.post(`/workspace/${workspaceId}/channels`,{
+      channelName
+
+    },{
+      headers:{
+        token
+      }
+    })
+    return response?.data
+} catch (error: any) {
+  console.log('Error while Adding Channel to Workspace ')
+  throw error.response?.data
+}
 }

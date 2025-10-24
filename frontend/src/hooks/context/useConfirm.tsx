@@ -8,10 +8,10 @@ type ConfirmOptions = {
 }
 
 export const useConfirm = ({ title, message }: ConfirmOptions) => {
-  const [promise, setPromise] = useState(null)
+  const [promise, setPromise] = useState<{resolve: (value: boolean) => void} | null>(null)
   async function Confirmation(){
-    return new Promise((resolve)=>{
-      setPromise(()=>({resolve}))
+    return new Promise<boolean>((resolve)=>{
+      setPromise({resolve})
     })
   }
   const handleClose =()=>{

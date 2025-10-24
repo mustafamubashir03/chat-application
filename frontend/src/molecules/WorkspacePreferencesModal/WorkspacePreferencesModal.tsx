@@ -66,7 +66,7 @@ const WorkspacePreferencesModal = () => {
     <UpdateConfirmDialog/>
      <ConfirmDialog/>
     <Dialog open={openPreferences} onOpenChange={setOpenPreferences}>
-      <DialogContent className="bg-gradient-to-r rounded-md from-[#0e111e] via-[#121526] to-[#121423] border-slate-600">
+      <DialogContent className="bg-gradient-to-r rounded-md from-[#0e111e] via-[#121526] to-[#121423] border-slate-600 z-10">
         <DialogHeader>
           <DialogTitle className="text-slate-300 mb-2">Edit Workspace</DialogTitle>
         </DialogHeader>

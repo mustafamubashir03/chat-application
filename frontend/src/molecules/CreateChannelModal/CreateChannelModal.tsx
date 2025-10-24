@@ -2,16 +2,38 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import useCreateChannelModal from "@/hooks/apis/channel/useCreateChannelModal"
+import { useAddChannelToWorkspace } from "@/hooks/apis/workspace/useAddChannelToWorkspace"
+import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
+import { useNavigate, useParams } from "react-router-dom"
 
 const CreateChannelModal = () => {
     const {openCreateChannelModal,setOpenCreateChannelModal} = useCreateChannelModal()
     const [channelName,setChannelName] = useState("")
+    const {workspaceId} = useParams()
+    console.log("workspaceId",workspaceId)
+    const navigate = useNavigate()
+    const queryClient = useQueryClient()
+    const {addChannelToWorkspaceMutation,isPending} = useAddChannelToWorkspace({workspaceId:workspaceId || "",channelName})
     const handleClose = ()=>{
-        setOpenCreateChannelModal(false)
+      setOpenCreateChannelModal(false)
     }
-    const handleChannelFormSubmit = (e:any)=>{
+    const handleChannelFormSubmit = async(e:any)=>{
+      try{
         e.preventDefault()
+        if(!channelName){
+          return
+        }
+       await addChannelToWorkspaceMutation()
+       queryClient.invalidateQueries({queryKey:['getWorkspace',`getWorkspaceDetails-${workspaceId}`]})
+       setOpenCreateChannelModal(false)
+       navigate(`/home`)
+      }catch(e){
+        console.log(e)
+      }finally{
+        setChannelName("")
+        setOpenCreateChannelModal(false)
+      }
 
     }
   return (
@@ -25,6 +47,7 @@ const CreateChannelModal = () => {
           required={true}
           minLength={3}
           placeholder="Enter channel name e.g: job-announcements"
+          disabled={isPending}
           value={channelName}
           onChange={(e) => setChannelName(e.target.value)}
           className="bg-[#212435] border border-neutral-700
@@ -40,6 +63,7 @@ const CreateChannelModal = () => {
             size={'lg'}
             type="submit"
             className="w-full"
+            disabled={isPending}
           >
             Create Channel
           </Button>

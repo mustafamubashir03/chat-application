@@ -24,12 +24,12 @@ const WorkspacePanelHeader = ({ workspace }: { workspace: any }) => {
   }
 
   return (
-    <div className="flex items-center justify-around h-[50px] px-4 gap-0.5">
+    <div className="flex items-center justify-between h-[50px] px-4 gap-0.5 z-10">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
             variant={'transparent'}
-            className="font-semibold text-lg overflow-hidden w-auto p-1.5 cursor-pointer hover:border-none"
+            className="font-semibold text-lg border-none  focus-visible:outline-none  ring-0 ring-offset-0 focus:ring-0 focus-visible:ring-0 overflow-hidden w-auto p-1.5 cursor-pointer hover:border-none"
           >
             <span className="truncate flex items-center justify-center">
               {workspace?.name}
@@ -40,10 +40,10 @@ const WorkspacePanelHeader = ({ workspace }: { workspace: any }) => {
         <DropdownMenuContent
           side="bottom"
           align="start"
-          className="w-64 space-y-2 p-2 hover:border-none text-slate-300 shadow-lg bg-gradient-to-r from-[#101321] via-[#151827] to-[#121423] border-none rounded-lg"
+          className="w-64 space-y-2 p-2 hover:border-none text-slate-300 shadow-lg bg-gradient-to-r from-[#1e2131] via-[#1f2336] to-[#1f2237] border-none rounded-lg"
         >
           <DropdownMenuItem className="flex items-center hover:border-none">
-            <div className="size-9 relateive overflow-hidden rounded-md bg-blue-700 text-slate-300 font-semibold text-sl flex  items-center justify-center mr-2">
+            <div className="size-9 relateive overflow-hidden rounded-md bg-blue-600 text-slate-300 font-semibold text-sl flex  items-center justify-center mr-2">
               {workspace?.name.charAt(0).toUpperCase()}
             </div>
             <div>
