@@ -2,17 +2,20 @@ import { Button } from '@/components/ui/button'
 import { DropdownMenu } from '@/components/ui/dropdown-menu'
 import { useAuth } from '@/hooks/context/useAuth'
 import { useWorkspacePreferences } from '@/hooks/context/useWorkspacePreferences'
+import WorkspaceInviteModal from '@/molecules/WorkspaceInviteModal/WorkspaceInviteModal'
 import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@radix-ui/react-dropdown-menu'
 import { ChevronDown, ListFilterIcon, Settings2, Users } from 'lucide-react'
+import { useState } from 'react'
 
 const WorkspacePanelHeader = ({ workspace }: { workspace: any }) => {
   const members = workspace?.members
   const { auth } = useAuth()
   const { setOpenPreferences, setInitialValue } = useWorkspacePreferences()
+  const [openInviteModal,setOpenInviteModal] = useState(false)
 
   const isLoggedinUserAdminOfWorkspace = members.find(
     (member: any) => member?.memberId?._id === auth?.user?.id && member.role === 'admin',
@@ -24,6 +27,8 @@ const WorkspacePanelHeader = ({ workspace }: { workspace: any }) => {
   }
 
   return (
+    <>
+    <WorkspaceInviteModal openInviteModal={openInviteModal} setOpenInviteModal={setOpenInviteModal} workspaceName={workspace?.name} joinCode={workspace?.joinCode}/>
     <div className="flex items-center justify-between h-[50px] px-4 gap-0.5 z-10">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -59,7 +64,7 @@ const WorkspacePanelHeader = ({ workspace }: { workspace: any }) => {
               >
                 <Settings2 className="size-4 mr-1 text-blue-500" /> Preferences
               </DropdownMenuItem>
-              <DropdownMenuItem className="text-sm cursor-pointer flex justify-center gap-1.5 hover:text-blue-500">
+              <DropdownMenuItem onClick={()=>setOpenInviteModal(true)} className="text-sm cursor-pointer flex justify-center gap-1.5 hover:text-blue-500">
                 <Users className="size-4 mr-1 text-blue-500" /> Invite people to {workspace.name}
               </DropdownMenuItem>
             </div>
@@ -72,6 +77,7 @@ const WorkspacePanelHeader = ({ workspace }: { workspace: any }) => {
         </Button>
       </div>
     </div>
+    </>
   )
 }
 

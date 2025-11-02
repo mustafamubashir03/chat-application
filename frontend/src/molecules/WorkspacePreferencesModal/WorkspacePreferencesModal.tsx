@@ -40,7 +40,8 @@ const WorkspacePreferencesModal = () => {
       }
       await deleteWorkspaceMutation()
       setOpenPreferences(false)
-      await queryClient.invalidateQueries({ queryKey: ['getWorkspace'] })
+      await queryClient.invalidateQueries({queryKey:['getWorkspace']})
+      await queryClient.invalidateQueries({queryKey:[`getWorkspaceDetails-${workspaceId}`]})
       navigate('/home')
     } catch (error) {
       console.log(error)
@@ -57,8 +58,10 @@ const WorkspacePreferencesModal = () => {
     }
     await updateWorkspaceDetailsMutation()
     setEditOpen(false)
+    setRenameValue("")
     setOpenPreferences(false)
-    await queryClient.invalidateQueries({ queryKey: [`getWorkspaceDetails-${workspaceId}`] })
+    await queryClient.invalidateQueries({queryKey:['getWorkspace']})
+    await queryClient.invalidateQueries({queryKey:[`getWorkspaceDetails-${workspaceId}`]})
     navigate(`/workspace/${workspaceId}`)
   }
   return (
@@ -66,7 +69,7 @@ const WorkspacePreferencesModal = () => {
     <UpdateConfirmDialog/>
      <ConfirmDialog/>
     <Dialog open={openPreferences} onOpenChange={setOpenPreferences}>
-      <DialogContent className="bg-gradient-to-r rounded-md from-[#0e111e] via-[#121526] to-[#121423] border-slate-600 z-10">
+      <DialogContent className="bg-gradient-to-r rounded-md from-[#0e111e] via-[#121526] to-[#121423] border-slate-600">
         <DialogHeader>
           <DialogTitle className="text-slate-300 mb-2">Edit Workspace</DialogTitle>
         </DialogHeader>

@@ -25,7 +25,8 @@ const CreateChannelModal = () => {
           return
         }
        await addChannelToWorkspaceMutation()
-       queryClient.invalidateQueries({queryKey:['getWorkspace',`getWorkspaceDetails-${workspaceId}`]})
+       await queryClient.invalidateQueries({queryKey:['getWorkspace']})
+       await queryClient.invalidateQueries({queryKey:[`getWorkspaceDetails-${workspaceId}`]})
        setOpenCreateChannelModal(false)
        navigate(`/home`)
       }catch(e){

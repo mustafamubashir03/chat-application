@@ -27,7 +27,7 @@ const CreateWorkspaceModal = () => {
         name: workspaceName,
         description: workspaceDescription,
       })
-      queryClient.invalidateQueries({queryKey:['getWorkspace']})
+      await queryClient.invalidateQueries({queryKey:['getWorkspace']})
       navigate(`/workspace/${data._id}`)
       setOpenCreateWorkspaceModal(false)
     } catch (error) {
