@@ -1,12 +1,20 @@
 import { Button } from '@/components/ui/button'
 import { useGetWorkspaceById } from '@/hooks/apis/workspace/useGetWorkspaceById'
+import { useCurrentWorkspace } from '@/hooks/context/useCurrentWorkspace'
 import { InfoIcon, LucideLoader2, SearchIcon } from 'lucide-react'
+import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
 const WorkspaceNavbar = () => {
   const { workspaceId } = useParams()
   const { isPending, workspaceDetails } = useGetWorkspaceById({ workspaceId: workspaceId || '' })
-  console.log("workspace details",workspaceDetails)
+  console.log('workspace details', workspaceDetails)
+  const { setCurrentWorkspace } = useCurrentWorkspace()
+  useEffect(() => {
+    if (workspaceDetails) {
+      setCurrentWorkspace(workspaceDetails)
+    }
+  }, [workspaceDetails, setCurrentWorkspace])
   if (isPending) {
     return (
       <div className="flex items-center justify-center h-14 p-2 bg-[#0b0d1a] text-slate-400">
@@ -20,7 +28,7 @@ const WorkspaceNavbar = () => {
         <div>
           <Button variant={'darkBlue'} size={'sm'}>
             <SearchIcon />
-            <span>Search {workspaceDetails.name}</span>
+            <span>Search {workspaceDetails?.name}</span>
           </Button>
         </div>
         <div className="ml-auto flex-1 flex items-center justify-end">

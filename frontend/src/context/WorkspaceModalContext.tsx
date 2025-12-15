@@ -1,6 +1,5 @@
 import { createContext, useState, type Dispatch, type SetStateAction } from 'react'
 
-
 export const workspacePreferencesModalContext = createContext<{
   openPreferences: boolean
   setOpenPreferences: Dispatch<SetStateAction<boolean>>
@@ -15,7 +14,7 @@ export const workspacePreferencesModalContext = createContext<{
 
 const WorkspacePreferencesModalContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [openPreferences, setOpenPreferences] = useState(false)
-  const [initialValue,setInitialValue] = useState("")
+  const [initialValue, setInitialValue] = useState('')
   return (
     <workspacePreferencesModalContext.Provider
       value={{ openPreferences, setOpenPreferences, initialValue, setInitialValue }}

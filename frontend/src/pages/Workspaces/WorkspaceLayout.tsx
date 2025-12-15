@@ -21,7 +21,7 @@ const WorkspaceLayout = ({ children }: { children: React.ReactNode }) => {
         </ResizablePanelGroup>
         {children}
       </div>
-      <CreateChannelModal/>
+      <CreateChannelModal />
       <WorkspacePreferencesModal />
     </div>
   )

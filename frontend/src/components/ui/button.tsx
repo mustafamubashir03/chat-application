@@ -22,9 +22,9 @@ const buttonVariants = cva(
           'bg-transparent text-slate-300 hover:bg-foreground/5 dark:hover:bg-foreground/10 border border-transparent hover:border-border transition-all',
         darkBlue: 'bg-blue-950/30 text-blue-300 hover:bg-blue-900 active:bg-blue-800/30 shadow-sm',
         indigoGlow:
-          'bg-indigo-950/40 text-indigo-300 hover:bg-indigo-900/60 active:bg-indigo-800/40 shadow-sm border border-indigo-800/40',
+          'bg-indigo-800/20 text-indigo-300 hover:bg-indigo-900/60 hover:text-indigo-200 active:bg-indigo-800/40 shadow-sm border border-indigo-800/40 cursor-pointer',
         BlueDark:
-          'bg-blue-950 delay-0.2 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ease-in-out hover:bg-blue-700 hover:text-blue-100 hover:rounded-full transition-all   cursor-pointer rounded-xl text-blue-400  shadow-sm',
+          'bg-blue-950 delay-0.2 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ease-in-out hover:bg-blue-700 hover:text-blue-100 hover:rounded-full transition-all   cursor-pointer rounded-xl text-blue-300  shadow-sm',
         delete:
           'px-6 py-3 rounded-[8px] font-medium bg-red-800/40 text-red-300  transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:bg-red-800/80 active:scale-[0.98] cursor-pointer',
       },

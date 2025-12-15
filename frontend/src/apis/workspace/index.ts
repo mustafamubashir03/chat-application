@@ -1,12 +1,11 @@
 import axios from '@/config/axiosConfig'
 
-
 export const getWorkspace = async ({ token }: { token: string }) => {
   try {
     console.log('token', token)
     const response = await axios.get('/workspace', {
       headers: {
-        token
+        token,
       },
     })
     console.log('Data from axios', response?.data)
@@ -27,7 +26,7 @@ export const createWorkspace = async ({ name, description, token }: any) => {
       },
       {
         headers: {
-          token
+          token,
         },
       },
     )
@@ -49,7 +48,7 @@ export const getWorkspaceDetails = async ({
   try {
     const response = await axios.get(`/workspace/${workspaceId}`, {
       headers: {
-        token
+        token,
       },
     })
     return response?.data
@@ -69,7 +68,7 @@ export const deleteWorkspace = async ({
   try {
     const response = await axios.delete(`/workspace/${workspaceId}`, {
       headers: {
-        token
+        token,
       },
     })
     return response?.data
@@ -96,7 +95,7 @@ export const updateWorkspaceDetails = async ({
       },
       {
         headers: {
-          token
+          token,
         },
       },
     )
@@ -107,21 +106,108 @@ export const updateWorkspaceDetails = async ({
   }
 }
 
+export const addChannelToWorkspace = async ({
+  workspaceId,
+  channelName,
+  token,
+}: {
+  workspaceId: string
+  channelName: string
+  token: string
+}) => {
+  try {
+    const response = await axios.post(
+      `/workspace/${workspaceId}/channels`,
+      {
+        channelName,
+      },
+      {
+        headers: {
+          token,
+        },
+      },
+    )
+    return response?.data
+  } catch (error: any) {
+    console.log('Error while Adding Channel to Workspace ')
+    throw error.response?.data
+  }
+}
 
-export const addChannelToWorkspace = async({workspaceId,channelName,token}:{workspaceId:string,channelName:string,token:string})=>{
+export const addMemberToWorkspace = async ({
+  workspaceId,
+  memberId,
+  role,
+  token,
+}: {
+  workspaceId: string
+  memberId: string
+  role: string
+  token: string
+}) => {
+  try {
+    const response = await axios.post(
+      `/workspace/${workspaceId}/members`,
+      {
+        memberId,
+        role,
+      },
+      {
+        headers: {
+          token,
+        },
+      },
+    )
+    return response?.data
+  } catch (error: any) {
+    console.log('Error while adding member to Workspace')
+    throw error.response?.data
+  }
+}
+export const joinWorkspace = async ({
+  workspaceId,
+  joinCode,
+  token,
+}: {
+  workspaceId: string
+  joinCode: string
+  token: string
+}) => {
+  try {
+    const response = await axios.post(
+      `/workspace/${workspaceId}/join`,
+      {
+        joinCode,
+      },
+      {
+        headers: {
+          token,
+        },
+      },
+    )
+    return response?.data
+  } catch (error: any) {
+    console.log('Error while joining to Workspace')
+    throw error.response?.data
+  }
+}
+
+
+
+export const resetJoinCode = async({token,workspaceId}:{
+  token:string,
+  workspaceId:string
+})=>{
   try{
-
-    const response = await axios.post(`/workspace/${workspaceId}/channels`,{
-      channelName
-
-    },{
+    const response = await axios.put(`/workspace/${workspaceId}/joinCode/reset`,{},{
       headers:{
         token
       }
     })
     return response?.data
-} catch (error: any) {
-  console.log('Error while Adding Channel to Workspace ')
-  throw error.response?.data
-}
+    
+  }catch(error:any){
+    console.log('Error while resetting join code')
+    throw error.response?.data
+  }
 }

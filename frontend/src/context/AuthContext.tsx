@@ -1,4 +1,3 @@
-import { useConfirm } from '@/hooks/context/useConfirm'
 import React, { createContext, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -27,7 +26,7 @@ export const AuthContext = createContext<{
 
 export const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [auth, setAuth] = useState(initialAuth)
-  const logOut = async() => {
+  const logOut = async () => {
     toast('Successfully logged out')
     localStorage.removeItem('token')
     localStorage.removeItem('user')

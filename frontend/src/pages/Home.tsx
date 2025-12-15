@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 
 const Home = () => {
   const { isFetching, workspaces } = useGetWorkspace()
-  const {setOpenCreateWorkspaceModal} = useCreateWorkspaceModal()
+  const { setOpenCreateWorkspaceModal } = useCreateWorkspaceModal()
   const navigate = useNavigate()
   useEffect(() => {
     if (isFetching) {
@@ -17,11 +17,7 @@ const Home = () => {
       navigate(`/workspace/${workspaces[0]._id}`)
     }
   }, [workspaces, isFetching, navigate])
-  return (
-    <div>
-      No workspaces
-    </div>
-  )
+  return <div>No workspaces</div>
 }
 
 export default Home

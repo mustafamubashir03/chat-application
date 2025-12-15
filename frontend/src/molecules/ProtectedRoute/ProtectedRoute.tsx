@@ -6,7 +6,7 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { auth } = useAuth()
   const { user, isLoading, token } = auth
   if (isLoading) {
-    return <div>Loading</div>
+    return <div className="text-slate-300">Loading</div>
   }
   if (!user || !token) {
     return <Navigate to="/auth/signin" />
