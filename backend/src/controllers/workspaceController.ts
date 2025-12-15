@@ -13,6 +13,9 @@ import {
   getWorkspaceByIdService,
   getWorkspaceByJoinCodeService,
   getWorkspacesUserIsMemberOfService,
+  joinWorkspaceService,
+  resetWorkspaceJoinCode,
+  resetWorkspaceJoinCodeService,
   updateWorkspaceService
 } from '../services/workspaceService';
 import { AuthRequest } from '../types/custom';
@@ -171,6 +174,29 @@ export const addMemberToWorkspaceController = async (
     return;
   }
 };
+export const joinWorkspaceController = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    const response = await joinWorkspaceService(
+      new mongoose.Types.ObjectId(req.params.workspaceId),
+      req.body.joinCode,
+      req.user!,
+      'member'
+    );
+    res.status(StatusCodes.OK).json(response);
+  } catch (error: any) {
+    console.log(error);
+    if (error.statusCode) {
+      res.status(error.statusCode).json(customErrorResponse(error.message));
+    }
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json(internalServerErrorResponse(error));
+    return;
+  }
+};
 
 export const addChannelToWorkspaceController = async (
   req: AuthRequest,
@@ -183,6 +209,28 @@ export const addChannelToWorkspaceController = async (
       new mongoose.Types.ObjectId(req.params.workspaceId)
     );
     res.status(StatusCodes.OK).json(response);
+  } catch (error: any) {
+    console.log(error);
+    if (error.statusCode) {
+      res.status(error.statusCode).json(customErrorResponse(error.message));
+    }
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json(internalServerErrorResponse(error));
+    return;
+  }
+};
+
+export const resetJoinCodeController = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    const updatedWorkspace = await resetWorkspaceJoinCodeService(
+      new mongoose.Types.ObjectId(req.params.workspaceId),
+      req.user!
+    );
+    res.status(StatusCodes.OK).json(updatedWorkspace);
   } catch (error: any) {
     console.log(error);
     if (error.statusCode) {

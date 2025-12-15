@@ -11,7 +11,7 @@ import userRepository from '../repository/userRepository';
 
 export const isUserAdminOfWorkspace = (
   userId: mongoose.Types.ObjectId,
-  workspace: any
+  workspace: any 
 ) => {
   return workspace.members.find(
     (member: { memberId: mongoose.Types.ObjectId; role: string }) =>
@@ -99,7 +99,8 @@ export const getWorkspaceByIdService = async (
   userId: mongoose.Types.ObjectId
 ) => {
   try {
-    const workspace = await workspaceRepository.getWorkspaceWithChannelDetails(workspaceId);
+    const workspace =
+      await workspaceRepository.getWorkspaceWithChannelDetails(workspaceId);
     if (!workspace) {
       throw new ClientError({
         message: 'Invalid data from client',
@@ -237,6 +238,59 @@ export const addChannelToWorkspaceService = async (
     const response = await workspaceRepository.addChannelToWorkspace(
       workspaceId,
       channelName
+    );
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const resetWorkspaceJoinCodeService = async (
+  workspaceId: mongoose.Types.ObjectId,
+  userId: mongoose.Types.ObjectId
+) => {
+  try {
+    const newJoinCode = uuidv4().substring(0, 6).toUpperCase();
+    const updatedWorkspace = await updateWorkspaceService(
+      workspaceId,
+      { joinCode: newJoinCode },
+      userId
+    );
+    return updatedWorkspace;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+};
+
+export const joinWorkspaceService = async (
+  workspaceId: mongoose.Types.ObjectId,
+  joinCode: string,
+  memberId: mongoose.Types.ObjectId,
+  role: string
+) => {
+  try {
+    const workspace = await workspaceRepository.getDocById(workspaceId);
+    if (!workspace) {
+      throw new ClientError({
+        message: 'Invalid data from client',
+        explanation: 'No such workspace exists',
+        status: StatusCodes.NOT_FOUND
+      });
+    }
+    const isValidUser = await userRepository.getDocById(memberId);
+    if (!isValidUser) {
+      throw new ClientError({
+        message: 'User is not valid',
+        explanation: 'No such user exist',
+        status: StatusCodes.NOT_FOUND
+      });
+    }
+
+    const response = await workspaceRepository.addMemberToWorkspace(
+      memberId,
+      workspaceId,
+      role
     );
     return response;
   } catch (error) {

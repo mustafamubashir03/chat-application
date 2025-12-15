@@ -21,7 +21,7 @@ createBullBoard({
   queues: [new BullAdapter(mailQueue)],
   serverAdapter
 });
-app.use(cors())
+app.use(cors());
 app.use('/ui', serverAdapter.getRouter());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

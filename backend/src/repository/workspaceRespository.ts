@@ -19,7 +19,7 @@ const workspaceRepository = {
     }
     return workspace;
   },
-  getWorkspaceWithChannelDetails: async(id:mongoose.Types.ObjectId)=>{
+  getWorkspaceWithChannelDetails: async (id: mongoose.Types.ObjectId) => {
     const workspace = await Workspace.findById(id).populate('channels');
     if (!workspace) {
       throw new ClientError({
@@ -29,7 +29,6 @@ const workspaceRepository = {
       });
     }
     return workspace;
-    
   },
   getWokspaceByJoinCode: async (joinCode: string) => {
     const workspace = await Workspace.findOne({ joinCode });

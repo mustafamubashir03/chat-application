@@ -20,7 +20,9 @@ export const signUp = async (req: Request, res: Response) => {
       .json(successResponse(newUser, 'User has been created successfully'));
   } catch (error: any) {
     if (error.code === 11000 && error.keyPattern?.email) {
-      return res.status(400).json({ success: false, message: "Email already exists" })
+      return res
+        .status(400)
+        .json({ success: false, message: 'Email already exists' });
     }
     if (error instanceof MongooseError) {
       res.status(StatusCodes.BAD_REQUEST).json(error);
@@ -60,6 +62,7 @@ export const signIn = async (req: Request, res: Response) => {
       username: userFound.username,
       avatar: userFound.avatar,
       email: userFound.email,
+      id: userFound._id,
       token: jwtGenerate({ id: userFound._id, email: userFound.email })
     });
   } catch (error: any) {
