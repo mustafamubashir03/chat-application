@@ -11,6 +11,7 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import MessageSocketHandler from './controllers/messageSocketController';
 import ChannelSocketHandler from './controllers/channelSocketController';
+import { verifyEmailController } from './controllers/workspaceController';
 
 const app: Express = express();
 const server = createServer(app);
@@ -27,6 +28,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/api', apiRouter);
+app.get('/verify/:token',verifyEmailController)
 
 io.on('connection', (socket) => {
   console.log('client connected :', socket.id);

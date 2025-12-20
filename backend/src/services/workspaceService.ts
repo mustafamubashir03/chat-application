@@ -11,7 +11,7 @@ import userRepository from '../repository/userRepository';
 
 export const isUserAdminOfWorkspace = (
   userId: mongoose.Types.ObjectId,
-  workspace: any 
+  workspace: any
 ) => {
   return workspace.members.find(
     (member: { memberId: mongoose.Types.ObjectId; role: string }) =>

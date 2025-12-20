@@ -1,11 +1,14 @@
 import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
-
+import { v4 as uuidv4 } from 'uuid';
 export interface UserI {
   email: string;
   password: string;
   username: string;
   avatar?: string;
+  isVerified: boolean;
+  verificationToken: string | null;
+  verificationTokenExpiry:number | null;
 }
 
 const userSchema = new mongoose.Schema<UserI>(
@@ -15,7 +18,7 @@ const userSchema = new mongoose.Schema<UserI>(
       unique: [true, 'Email must be unique'],
       required: [true, 'Email is required'],
       match: [
-        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
         'Please fill a valid email address'
       ]
     },
@@ -31,17 +34,30 @@ const userSchema = new mongoose.Schema<UserI>(
     },
     avatar: {
       type: String
+    },
+    isVerified: { 
+      type: Boolean,
+      default: false
+    },
+    verificationToken: {
+      type: String
+    },
+    verificationTokenExpiry:{
+      type:Number
     }
   },
   { timestamps: true }
 );
 
 userSchema.pre('save', async function saveUser(next) {
-  const user = this;
-  const SALT = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(user.password, SALT);
-  user.password = hashedPassword;
-  user.avatar = `https://robohash.org/${user.username}`;
+  if(this.isNew){
+    const SALT = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(this.password, SALT);
+    this.password = hashedPassword;
+    this.avatar = `https://robohash.org/${this.username}`;
+    this.verificationToken = uuidv4().substring(0, 10).toUpperCase();
+    this.verificationTokenExpiry = Date.now() * 3600000;
+  }
   next();
 });
 

@@ -2,8 +2,10 @@ import { Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import mongoose, { MongooseError } from 'mongoose';
 import {
+  ClientError,
   customErrorResponse,
-  internalServerErrorResponse
+  internalServerErrorResponse,
+  successResponse
 } from '../utils/ObjectResponse';
 import {
   addChannelToWorkspaceService,
@@ -19,6 +21,7 @@ import {
   updateWorkspaceService
 } from '../services/workspaceService';
 import { AuthRequest } from '../types/custom';
+import { verifyTokenService } from '../services/userService';
 
 export const createWorkspaceController = async (
   req: AuthRequest,
@@ -242,3 +245,30 @@ export const resetJoinCodeController = async (
     return;
   }
 };
+
+
+export const verifyEmailController = async(req:AuthRequest,res:Response)=>{
+  try {
+    const response = await verifyTokenService(req.params.token);
+    if (!response) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json(customErrorResponse({ message: 'Failed to verify email' }));
+    }
+    res.status(StatusCodes.OK).json(successResponse(response,'Email verified successfully'));
+  } catch (error: any) {
+    console.log(error);
+    // Check for ClientError - it has 'status' property, not 'statusCode'
+    if (error instanceof ClientError || error.status) {
+      const statusCode = error.status || error.statusCode || StatusCodes.BAD_REQUEST;
+      return res.status(statusCode).json(customErrorResponse(error));
+    }
+    if (error.statusCode) {
+      return res.status(error.statusCode).json(customErrorResponse(error.message));
+    }
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json(internalServerErrorResponse(error));
+    return;
+  }
+}

@@ -15,6 +15,12 @@ import { jwtGenerate } from '../auth/auth';
 export const signUp = async (req: Request, res: Response) => {
   try {
     const newUser = await signupService(req.body);
+    // Check if newUser is undefined (which would indicate an error was swallowed)
+    if (!newUser) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'Failed to create user' });
+    }
     res
       .status(StatusCodes.CREATED)
       .json(successResponse(newUser, 'User has been created successfully'));
@@ -27,6 +33,10 @@ export const signUp = async (req: Request, res: Response) => {
     if (error instanceof MongooseError) {
       res.status(StatusCodes.BAD_REQUEST).json(error);
       return;
+    }
+    if (error instanceof ClientError || error.status) {
+      const statusCode = error.status || error.statusCode || StatusCodes.BAD_REQUEST;
+      return res.status(statusCode).json(customErrorResponse(error));
     }
     console.log(error);
     if (error.statusCode) {
