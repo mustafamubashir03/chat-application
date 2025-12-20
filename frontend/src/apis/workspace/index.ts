@@ -192,21 +192,25 @@ export const joinWorkspace = async ({
   }
 }
 
-
-
-export const resetJoinCode = async({token,workspaceId}:{
-  token:string,
-  workspaceId:string
-})=>{
-  try{
-    const response = await axios.put(`/workspace/${workspaceId}/joinCode/reset`,{},{
-      headers:{
-        token
-      }
-    })
+export const resetJoinCode = async ({
+  token,
+  workspaceId,
+}: {
+  token: string
+  workspaceId: string
+}) => {
+  try {
+    const response = await axios.put(
+      `/workspace/${workspaceId}/joinCode/reset`,
+      {},
+      {
+        headers: {
+          token,
+        },
+      },
+    )
     return response?.data
-    
-  }catch(error:any){
+  } catch (error: any) {
     console.log('Error while resetting join code')
     throw error.response?.data
   }

@@ -31,16 +31,16 @@ const WorkspaceInviteModal = ({
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const { currentWorkspace } = useCurrentWorkspace()
-  const {workspaceId} = useParams()
-  const {resetJoinCodeMutatation} = useResetJoinCode({workspaceId:workspaceId ||""})
-  const handleResetJoinCode = async()=>{
+  const { workspaceId } = useParams()
+  const { resetJoinCodeMutatation } = useResetJoinCode({ workspaceId: workspaceId || '' })
+  const handleResetJoinCode = async () => {
     await resetJoinCodeMutatation()
     await queryClient.invalidateQueries({ queryKey: ['getWorkspace'] })
     await queryClient.invalidateQueries({ queryKey: [`getWorkspaceDetails-${workspaceId}`] })
     setOpenInviteModal(false)
     navigate(`/workspace/${workspaceId}`)
   }
-  console.log("current workspace state",currentWorkspace)
+  console.log('current workspace state', currentWorkspace)
 
   return (
     <Dialog open={openInviteModal} onOpenChange={setOpenInviteModal}>
@@ -49,12 +49,14 @@ const WorkspaceInviteModal = ({
           <DialogTitle className="text-slate-300 mb-2 text-center">
             Invite a new member to {workspaceName}
           </DialogTitle>
-          <DialogDescription className="text-slate-400 text-center"> 
+          <DialogDescription className="text-slate-400 text-center">
             Use the code below to invite a new member to {workspaceName}
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col items-center justify-center py-4 gap-2 text-slate-400">
-          <p className="text-xl text-blue-300 uppercase font-semibold">{currentWorkspace?.joinCode}</p>
+          <p className="text-xl text-blue-300 uppercase font-semibold">
+            {currentWorkspace?.joinCode}
+          </p>
           <Button size={'sm'} variant={'BlueDark'} onClick={handleCopy}>
             <CopyIcon className="size-4 ml-2" />
             Copy Invite Code

@@ -15,7 +15,9 @@ export const useSignUp = () => {
       console.log('Successfully signed up', data)
     },
     onError: (error: Error) => {
-      toast.error('Error has occured. Please try again')
+      // Display the specific error message from the backend
+      const errorMessage = error.message || 'An error occurred. Please try again'
+      toast.error(errorMessage)
       console.log('Error occured', error)
     },
   })

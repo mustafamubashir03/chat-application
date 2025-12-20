@@ -38,7 +38,9 @@ const SignupContainer = () => {
         password: signupForm.password,
       })
     } catch (error: any) {
-      setValidationError(error?.response?.data?.message || error?.message || 'Something went wrong')
+      // Extract error message - prioritize error.message (from our Error object)
+      const errorMessage = error?.message || error?.response?.data?.message || 'Something went wrong'
+      setValidationError(errorMessage)
     }
   }
   useEffect(() => {
