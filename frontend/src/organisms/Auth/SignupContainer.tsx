@@ -39,7 +39,8 @@ const SignupContainer = () => {
       })
     } catch (error: any) {
       // Extract error message - prioritize error.message (from our Error object)
-      const errorMessage = error?.message || error?.response?.data?.message || 'Something went wrong'
+      const errorMessage =
+        error?.message || error?.response?.data?.message || 'Something went wrong'
       setValidationError(errorMessage)
     }
   }

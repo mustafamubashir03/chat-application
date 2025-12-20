@@ -13,7 +13,8 @@ export const signupRequest = async ({ email, password, username }: UserSignUpTyp
   } catch (error: any) {
     // Extract error message from backend response
     const errorData = error.response?.data
-    const errorMessage = errorData?.message || errorData?.err || error.message || 'An error occurred'
+    const errorMessage =
+      errorData?.message || errorData?.err || error.message || 'An error occurred'
     throw new Error(errorMessage)
   }
 }

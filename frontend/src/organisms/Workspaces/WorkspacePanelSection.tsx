@@ -15,7 +15,7 @@ const WorkspacePanelSection = ({
 }) => {
   const { setOpenCreateChannelModal } = useCreateChannelModal()
   return (
-    <div className="flex flex-col mt-2 px-2">
+    <div className="flex flex-col gap-1 mt-2 px-2 ">
       <div
         onClick={() => setOpenState(!openState)}
         className="flex items-center px-2 group cursor-pointer transition-all"
