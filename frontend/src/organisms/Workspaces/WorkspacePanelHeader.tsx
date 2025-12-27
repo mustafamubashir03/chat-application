@@ -19,9 +19,8 @@ const WorkspacePanelHeader = ({ workspace }: { workspace: any }) => {
   console.log('workspace total members', members)
 
   const isLoggedinUserAdminOfWorkspace = members.find(
-    (member: any) => member?.memberId === auth?.user?.id && member?.role === 'admin',
+    (member: any) => member?.memberId?._id === auth?.user?.id && member?.role === 'admin',
   )
-
   console.log('is user admin of', isLoggedinUserAdminOfWorkspace)
   const handleSetOpenPreferences = () => {
     setOpenPreferences(true)

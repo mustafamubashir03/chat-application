@@ -35,6 +35,7 @@ const UserItem = ({
   const { currentWorkspace } = useCurrentWorkspace()
   return (
     <Button
+      asChild
       className={`${cn(userItemVariatns({ variant }))} my-3`}
       variant={'transparent'}
       size={'sm'}

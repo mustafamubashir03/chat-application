@@ -5,8 +5,10 @@ import CreateWorkspaceModalContextProvider from './CreateWorkspaceContext'
 import { CreateChannelContextProvider } from './CreateChannelContext'
 import OpenWorkspacePanelSectionProvider from './OpenWorkspacePanelSection'
 import WorkspaceContextProvider from './WorkspaceContext'
+import { SocketContextProvider } from './SocketContextProvider'
 
 export const AppContextProvider = combineContext(
+  SocketContextProvider,
   AuthContextProvider,
   CreateWorkspaceModalContextProvider,
   WorkspacePreferencesModalContextProvider,

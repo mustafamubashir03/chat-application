@@ -10,7 +10,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          'px-6 py-3 rounded-[8px] font-medium text-white bg-gradient-to-r from-[var(--primary-start)] via-[var(--primary-mid)] to-[var(--primary-end)] shadow-md transition duration-300 hover:shadow-lg cursor-pointer',
+          'px-6 py-3 rounded-[8px] font-medium text-white bg-gradient-to-r from-blue-500  to-blue-400 border border-blue-300 shadow-md transition duration-300 hover:shadow-lg cursor-pointer',
         default: 'bg-primary text-primary-foreground hover:bg-primary/90',
         destructive: 'bg-destructive text-white hover:bg-destructive/90 ',
         outline:

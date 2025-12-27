@@ -65,7 +65,13 @@ const WorkspacePanel = () => {
           setOpenState={setOpenChannelPanelSection}
         >
           {workspaceDetails?.channels?.map((channel: any) => (
-            <SidebarItem key={channel._id} label={channel.name} Icon={HashIcon} variant="default" />
+            <SidebarItem
+              key={channel._id}
+              id={channel._id}
+              label={channel.name}
+              Icon={HashIcon}
+              variant="default"
+            />
           ))}
         </WorkspacePanelSection>
         <WorkspacePanelSection
