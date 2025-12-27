@@ -35,7 +35,8 @@ export const signUp = async (req: Request, res: Response) => {
       return;
     }
     if (error instanceof ClientError || error.status) {
-      const statusCode = error.status || error.statusCode || StatusCodes.BAD_REQUEST;
+      const statusCode =
+        error.status || error.statusCode || StatusCodes.BAD_REQUEST;
       return res.status(statusCode).json(customErrorResponse(error));
     }
     console.log(error);

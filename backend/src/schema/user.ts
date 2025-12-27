@@ -8,7 +8,7 @@ export interface UserI {
   avatar?: string;
   isVerified: boolean;
   verificationToken: string | null;
-  verificationTokenExpiry:number | null;
+  verificationTokenExpiry: number | null;
 }
 
 const userSchema = new mongoose.Schema<UserI>(
@@ -35,22 +35,22 @@ const userSchema = new mongoose.Schema<UserI>(
     avatar: {
       type: String
     },
-    isVerified: { 
+    isVerified: {
       type: Boolean,
       default: false
     },
     verificationToken: {
       type: String
     },
-    verificationTokenExpiry:{
-      type:Number
+    verificationTokenExpiry: {
+      type: Number
     }
   },
   { timestamps: true }
 );
 
 userSchema.pre('save', async function saveUser(next) {
-  if(this.isNew){
+  if (this.isNew) {
     const SALT = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(this.password, SALT);
     this.password = hashedPassword;

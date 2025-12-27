@@ -4,11 +4,10 @@ import crudRepository from './crudRepository';
 
 const userRepository = {
   ...crudRepository<any>(User),
-  signupUser: async(data:UserSignUpType)=>{
-    const newUser = new User(data)
-    await newUser.save()
+  signupUser: async (data: UserSignUpType) => {
+    const newUser = new User(data);
+    await newUser.save();
     return newUser;
-
   },
   getUserByEmail: async (email: string) => {
     const user = await User.findOne({ email });
@@ -18,8 +17,8 @@ const userRepository = {
     const user = await User.findOne({ username }).select('-password');
     return user;
   },
-  getUserByToken: async(token:string)=>{
-    const user = await User.findOne({verificationToken:token});
+  getUserByToken: async (token: string) => {
+    const user = await User.findOne({ verificationToken: token });
     return user;
   }
 };

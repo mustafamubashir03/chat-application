@@ -1,6 +1,6 @@
 import mongoose, { ObjectId } from 'mongoose';
 
-interface MessageI extends Document {
+export interface MessageI extends Document {
   messageBody: string;
   image?: string;
   channelId: ObjectId;
@@ -30,6 +30,8 @@ const messageSchema = new mongoose.Schema({
     ref: 'User',
     required: [true, 'Sender id is required']
   }
+},{
+  timestamps:true
 });
 
 const Message = mongoose.model<MessageI>('Message', messageSchema);

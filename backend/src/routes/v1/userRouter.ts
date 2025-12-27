@@ -10,5 +10,4 @@ const router = express.Router();
 router.post('/signup', validator(userSchemaSignUpZod), signUp);
 router.post('/signin', validator(userSchemaSignInZod), signIn);
 
-
 export default router;

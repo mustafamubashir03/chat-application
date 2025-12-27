@@ -17,8 +17,9 @@ export const isUserAdminOfWorkspace = (
     (member: { memberId: mongoose.Types.ObjectId | any; role: string }) => {
       // Handle both populated and unpopulated memberId
       const memberId = member.memberId?._id || member.memberId;
-      return memberId?.toString() === userId.toString() &&
-        member.role === 'admin';
+      return (
+        memberId?.toString() === userId.toString() && member.role === 'admin'
+      );
     }
   );
 };

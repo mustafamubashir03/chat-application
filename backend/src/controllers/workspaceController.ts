@@ -246,8 +246,10 @@ export const resetJoinCodeController = async (
   }
 };
 
-
-export const verifyEmailController = async(req:AuthRequest,res:Response)=>{
+export const verifyEmailController = async (
+  req: AuthRequest,
+  res: Response
+) => {
   try {
     const response = await verifyTokenService(req.params.token);
     if (!response) {
@@ -255,20 +257,25 @@ export const verifyEmailController = async(req:AuthRequest,res:Response)=>{
         .status(StatusCodes.BAD_REQUEST)
         .json(customErrorResponse({ message: 'Failed to verify email' }));
     }
-    res.status(StatusCodes.OK).json(successResponse(response,'Email verified successfully'));
+    res
+      .status(StatusCodes.OK)
+      .json(successResponse(response, 'Email verified successfully'));
   } catch (error: any) {
     console.log(error);
     // Check for ClientError - it has 'status' property, not 'statusCode'
     if (error instanceof ClientError || error.status) {
-      const statusCode = error.status || error.statusCode || StatusCodes.BAD_REQUEST;
+      const statusCode =
+        error.status || error.statusCode || StatusCodes.BAD_REQUEST;
       return res.status(statusCode).json(customErrorResponse(error));
     }
     if (error.statusCode) {
-      return res.status(error.statusCode).json(customErrorResponse(error.message));
+      return res
+        .status(error.statusCode)
+        .json(customErrorResponse(error.message));
     }
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json(internalServerErrorResponse(error));
     return;
   }
-}
+};

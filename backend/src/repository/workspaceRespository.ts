@@ -20,7 +20,9 @@ const workspaceRepository = {
     return workspace;
   },
   getWorkspaceWithChannelDetails: async (id: mongoose.Types.ObjectId) => {
-    const workspace = await Workspace.findById(id).populate('channels').populate({path:"members.memberId",select:"username email avatar"});
+    const workspace = await Workspace.findById(id)
+      .populate('channels')
+      .populate({ path: 'members.memberId', select: 'username email avatar' });
     if (!workspace) {
       throw new ClientError({
         message: 'Workspace does not exist',
