@@ -1,28 +1,70 @@
-import { createContext, useState } from 'react'
-import { io } from 'socket.io-client'
+import { createContext, useEffect, useRef, useState } from 'react'
+import { io, Socket } from 'socket.io-client'
 
-export const SocketContext = createContext<{
-  socket: any
+type SocketContextType = {
+  socket: Socket | null
   joinChannel: (channelId: string) => void
   currentChannel: string
-}>({ socket: null, joinChannel: () => {}, currentChannel: '' })
+  newMessageRecieved: any
+}
 
-export const SocketContextProvider = ({ children }: { children: React.ReactNode }) => {
-  const [currentChannel, setCurrentChannel] = useState<string>('')
-  const socket = io(import.meta.env.VITE_BACKEND_SOCKET_URL)
-  async function joinChannel(channelId: string) {
-    socket.emit(
+export const SocketContext = createContext<SocketContextType>({
+  socket: null,
+  joinChannel: () => {},
+  currentChannel: '',
+  newMessageRecieved: null,
+})
+
+export const SocketContextProvider = ({
+  children,
+}: {
+  children: React.ReactNode
+}) => {
+  const socketRef = useRef<Socket | null>(null) 
+
+  const [currentChannel, setCurrentChannel] = useState('')
+  const [newMessageRecieved, setNewMessageRecieved] = useState<any>(null)
+
+  /* ---------- CREATE SOCKET ONCE ---------- */
+  useEffect(() => {
+    socketRef.current = io(import.meta.env.VITE_BACKEND_SOCKET_URL)
+
+    console.log('✅ Socket connected')
+
+    socketRef.current.on('newMessageRecieved', (data) => {
+      console.log('📩 SOCKET MESSAGE RECEIVED', data)
+      setNewMessageRecieved(data)
+    })
+
+    return () => {
+      socketRef.current?.disconnect()
+      socketRef.current = null
+    }
+  }, [])
+
+  /* ---------- JOIN CHANNEL ---------- */
+  const joinChannel = (channelId: string) => {
+    if (!socketRef.current) return
+
+    socketRef.current.emit(
       'joinChannel',
       { channelId },
-      (data: { success: boolean; message: string; data: string }) => {
-        console.log('Successfully joined the channel', data)
-        setCurrentChannel(data?.data)
-      },
+      (res: { success: boolean; data: string }) => {
+        console.log('✅ Joined channel', res)
+        setCurrentChannel(res.data)
+      }
     )
   }
 
   return (
-    <SocketContext.Provider value={{ socket, joinChannel, currentChannel }}>
+    <SocketContext.Provider
+      value={{
+        socket: socketRef.current,
+        joinChannel,
+        currentChannel,
+        newMessageRecieved,
+      }}
+    >
       {children}
     </SocketContext.Provider>
   )

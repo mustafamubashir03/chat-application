@@ -1,115 +1,133 @@
-import useGetChannelWithWorkspaceDetails from '@/hooks/apis/channel/useGetChannelWithWorkspaceDetails'
-import { LucideLoader2 } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { useEffect, useMemo, useRef, useState } from 'react'
-import QuillEditor from '@/components/ui/quill-editor'
-import useSocket from '@/hooks/context/useSocket'
+import { LucideLoader2 } from 'lucide-react'
+
+import useGetChannelWithWorkspaceDetails from '@/hooks/apis/channel/useGetChannelWithWorkspaceDetails'
 import { useGetMessagesByChannelId } from '@/hooks/apis/channel/useGetMessagesByChannelId'
+import useSocket from '@/hooks/context/useSocket'
+
 import Message from '@/molecules/Message/Message'
+import QuillEditor from '@/components/ui/quill-editor'
 
 const Channel = () => {
-  const { channelId } = useParams()
-  const { channelWithWorkspaceDetails, isFetching, isError } = useGetChannelWithWorkspaceDetails({
+  const { channelId } = useParams<{ channelId: string }>()
+
+  const bottomRef = useRef<HTMLDivElement>(null)
+
+  const { joinChannel, leaveChannel, newMessageRecieved } = useSocket()
+
+  const [messages, setMessages] = useState<any[]>([])
+  const [editorValue, setEditorValue] = useState({})
+
+  /* ---------------- CHANNEL DETAILS ---------------- */
+  const {
+    channelWithWorkspaceDetails,
+    isFetching: isChannelFetching,
+    isError,
+  } = useGetChannelWithWorkspaceDetails({
     channelId: channelId || '',
   })
-  const [editorValue, setEditorValue] = useState({})
-  const { joinChannel } = useSocket()
-  const { messagesByChannelId } = useGetMessagesByChannelId({ channelId: channelId || '' })
-  const containerRef = useRef<HTMLDivElement>(null)
-const bottomRef = useRef<HTMLDivElement>(null)
 
-useEffect(() => {
-  const container = containerRef.current
-  if (!container) return
+  /* ---------------- DB MESSAGES ---------------- */
+  const {
+    messagesByChannelId,
+    isFetching: isMessagesFetching,
+  } = useGetMessagesByChannelId({
+    channelId: channelId || '',
+  })
 
-  const isNearBottom =
-    container.scrollHeight - container.scrollTop - container.clientHeight < 120
-
-  if (isNearBottom) {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
-}, [messagesByChannelId])
-
-useEffect(() => {
-  bottomRef.current?.scrollIntoView({ behavior: 'auto' })
-}, [])
-
-
-const sortedMessages = useMemo(
-  () =>
-    [...(messagesByChannelId ?? [])].sort(
-      (a, b) =>
-        new Date(a.createdAt).getTime() -
-        new Date(b.createdAt).getTime()
-    ),
-  [messagesByChannelId]
-)
-
-  
+  /* ---------------- RESET ON CHANNEL CHANGE ---------------- */
   useEffect(() => {
-    if (!isFetching && !isError) {
-      joinChannel(channelId || '')
+    setMessages([])
+  }, [channelId])
 
+  /* ---------------- JOIN / LEAVE SOCKET CHANNEL ---------------- */
+  useEffect(() => {
+    if (!channelId || isChannelFetching || isError) return
+
+    joinChannel(channelId)
+
+    return () => {
+      leaveChannel?.(channelId)
     }
-  }, [isFetching, isError, channelId])
+  }, [channelId, isChannelFetching, isError, joinChannel, leaveChannel])
 
+  /* ---------------- LOAD DB MESSAGES ---------------- */
+  useEffect(() => {
+    if (!messagesByChannelId) return
+
+    setMessages(
+      [...messagesByChannelId].sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() -
+          new Date(b.createdAt).getTime()
+      )
+    )
+  }, [messagesByChannelId])
+
+  /* ---------------- SOCKET MESSAGE ---------------- */
+  useEffect(() => {
+    if (!newMessageRecieved?._id) return
+    if (newMessageRecieved.channelId !== channelId) return
+
+    setMessages((prev) => {
+      const exists = prev.some(m => m._id === newMessageRecieved._id)
+      if (exists) return prev
+      return [...prev, newMessageRecieved]
+    })
+  }, [newMessageRecieved, channelId])
+
+  /* ---------------- AUTO SCROLL ---------------- */
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+
+  /* ---------------- RENDER ---------------- */
   return (
-    <div className="flex flex-1 overflow-hidden flex-col h-screen bg-background">
+    <div className="flex flex-col h-screen bg-background">
       {/* Header */}
-      <div className="shrink-0 text-slate-300 font-semibold text-lg px-4 py-3 mt-8 border-b border-slate-500/30">
+      <div className="shrink-0 px-4 py-3 mt-8 border-b border-slate-500/30 text-slate-300 font-semibold text-lg">
         #{channelWithWorkspaceDetails?.name}
       </div>
-  
+
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
-        {isFetching && (
+      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4 chat-scroll">
+        {(isChannelFetching || isMessagesFetching) && (
           <div className="flex justify-center py-4">
             <LucideLoader2 className="animate-spin size-6 text-slate-400" />
           </div>
         )}
-  
+
         {isError && (
-          <p className="text-slate-400 text-center">
+          <p className="text-center text-slate-400">
             Couldn't fetch messages
           </p>
         )}
-      <div
-        ref={containerRef}
-        className="flex-1 overflow-y-auto px-4 py-3 space-y-4 chat-scroll"
-      >
-        {sortedMessages.map((message: any) => (
+
+        {messages.map((message) => (
           <Message
             key={message._id}
-            authorImage={message.senderId.avatar}
-            authorName={message.senderId.username}
-            createdAt={new Date(message.createdAt).toLocaleString('en-US', {
-              day: '2-digit',
-              month: 'short',
-              hour: 'numeric',
-              minute: '2-digit',
-              hour12: true,
-            })}
+            authorImage={message.senderId?.avatar}
+            authorName={message.senderId?.username}
+            image={message.image || ''}
             body={message.messageBody}
+            createdAt={new Date(message.createdAt).toLocaleString()}
           />
         ))}
 
         <div ref={bottomRef} />
       </div>
 
-      </div>
-  
       {/* Editor */}
       <div className="shrink-0 border-t border-slate-500/30 bg-background/80 backdrop-blur px-4 py-3">
         <QuillEditor
           value={editorValue}
           onChange={setEditorValue}
           placeholder="Type a message..."
-          className="chat-editor"
         />
       </div>
     </div>
   )
-  
 }
 
 export default Channel

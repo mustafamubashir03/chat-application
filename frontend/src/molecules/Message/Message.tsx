@@ -1,3 +1,4 @@
+import MessageImageThumbnail from '@/atoms/messageImageThumbnail/MessageImageThumbnail'
 import MessageRenderer from '@/atoms/messageRenderer/MessageRenderer'
 import { AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Avatar } from '@radix-ui/react-avatar'
@@ -5,11 +6,13 @@ import { Avatar } from '@radix-ui/react-avatar'
 const Message = ({
   authorImage,
   authorName,
+  image,
   createdAt,
   body,
 }: {
   authorImage: string
   authorName: string
+  image: string
   createdAt: any
   body: any
 }) => {
@@ -20,7 +23,7 @@ const Message = ({
           <Avatar>
             <AvatarImage className="rounded-full size-8 hover:opacity-60 transition-opacity border-2 border-[var(--primary-end)]" src={authorImage} />
             <AvatarFallback className="rounded-md bg-sky-600 text-slate-100 text-sm">
-              {authorName.charAt(0).toUpperCase()}
+              {authorName?.charAt(0)?.toUpperCase()}
             </AvatarFallback>
           </Avatar>
         </button>
@@ -31,6 +34,7 @@ const Message = ({
             <button className="text-sm text-slate-400 hover:underline">{createdAt}</button>
           </div>
           <MessageRenderer value={body} />
+          {image && <MessageImageThumbnail imageURL={image} />}
         </div>
       </div>
     </div>
