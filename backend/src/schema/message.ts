@@ -29,7 +29,7 @@ const messageSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: [true, 'Sender id is required']
-  }
+  },
 },{
   timestamps:true
 });

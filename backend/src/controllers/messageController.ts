@@ -18,7 +18,7 @@ export const getMessagesController = async (
         channelId: req.params.channelId
       },
       Number(req?.query?.page) || 1,
-      Number(req.query.limit) || 20
+      Number(req.query.limit) || 60
     );
     return res.status(StatusCodes.OK).json(messages);
   } catch (error: any) {
