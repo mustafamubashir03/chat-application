@@ -28,3 +28,5 @@ export const createMessageService = async (message: CreateMessageInput) => {
   const newMessage = await messageRepository.createDoc(message);
   return newMessage;
 };
+
+export const getUnsignedImageURLS = () => {};

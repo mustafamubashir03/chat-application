@@ -24,7 +24,10 @@ export default async function messageHandlers(io: Server, socket: Socket) {
       cb: (response: MessageResponse) => void
     ) {
       const messageResponse = await createMessageService(data);
-      const message = await Message.findById(messageResponse._id).populate('senderId', 'username email avatar');
+      const message = await Message.findById(messageResponse._id).populate(
+        'senderId',
+        'username email avatar'
+      );
       const channelId = String(data.channelId);
       // socket.broadcast.emit(NEW_MESSAGE_RECIEVED_EVENT,messageResponse)
       io.to(channelId).emit(NEW_MESSAGE_RECIEVED_EVENT, message);

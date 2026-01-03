@@ -17,7 +17,9 @@ const app: Express = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: '*'
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
   }
 });
 
@@ -32,6 +34,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/api', apiRouter);
+app.get('/health', (_req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
 app.get('/verify/:token', verifyEmailController);
 
 io.on('connection', (socket) => {
