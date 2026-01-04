@@ -14,7 +14,6 @@ const useGetChannelWithWorkspaceDetails = ({ channelId }: { channelId: string })
     queryKey: [`getChannelWithWorkspaceDetails-${channelId}`],
     staleTime: 30000,
   })
-  console.log('channel with workspace details', channelWithWorkspaceDetails)
   return {
     channelWithWorkspaceDetails,
     isFetching,

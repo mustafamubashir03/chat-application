@@ -10,15 +10,13 @@ export const useSignUp = () => {
     mutateAsync: signupMutation,
   } = useMutation({
     mutationFn: signupRequest,
-    onSuccess: (data: any) => {
+    onSuccess: () => {
       toast.success('You have signed up sucessfully.')
-      console.log('Successfully signed up', data)
     },
     onError: (error: Error) => {
       // Display the specific error message from the backend
       const errorMessage = error.message || 'An error occurred. Please try again'
       toast.error(errorMessage)
-      console.log('Error occured', error)
     },
   })
 

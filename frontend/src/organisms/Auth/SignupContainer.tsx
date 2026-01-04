@@ -17,7 +17,6 @@ const SignupContainer = () => {
     try {
       setValidationError(null)
       e.preventDefault()
-      console.log('signup form submitted', signupForm)
       if (
         !signupForm.email ||
         !signupForm.password ||

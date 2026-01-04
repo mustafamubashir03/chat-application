@@ -16,12 +16,10 @@ const WorkspacePanelHeader = ({ workspace }: { workspace: any }) => {
   const { auth } = useAuth()
   const { setOpenPreferences, setInitialValue } = useWorkspacePreferences()
   const [openInviteModal, setOpenInviteModal] = useState(false)
-  console.log('workspace total members', members)
 
   const isLoggedinUserAdminOfWorkspace = members.find(
     (member: any) => member?.memberId?._id === auth?.user?.id && member?.role === 'admin',
   )
-  console.log('is user admin of', isLoggedinUserAdminOfWorkspace)
   const handleSetOpenPreferences = () => {
     setOpenPreferences(true)
     setInitialValue(workspace?.name)

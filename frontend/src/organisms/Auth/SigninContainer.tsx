@@ -15,7 +15,6 @@ const SigninContainer = () => {
     try {
       e.preventDefault()
       if (!signinForm.email || !signinForm.password) {
-        console.log('All fields are required')
         setValidationError('Please fill all the input fields')
       }
       await signinMutation({

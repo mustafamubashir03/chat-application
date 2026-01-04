@@ -19,7 +19,6 @@ export const useJoinWorkspace = ({
   } = useMutation({
     mutationFn: () => joinWorkspace({ workspaceId, joinCode, token: auth?.token || '' }),
     onError: (e: any) => {
-      console.log('error has occured while adding member to workspace', e)
       toast.error('Error occured while joining workspace')
     },
     onSuccess: () => {

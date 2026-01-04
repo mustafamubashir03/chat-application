@@ -15,7 +15,6 @@ const WorkspacePanel = () => {
   const { workspaceDetails, isPending, isSuccess } = useGetWorkspaceById({
     workspaceId: workspaceId || '',
   })
-  console.log(workspaceDetails)
   if (isPending) {
     return (
       <div>

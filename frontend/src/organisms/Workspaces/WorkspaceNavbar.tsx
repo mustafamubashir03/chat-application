@@ -8,7 +8,6 @@ import { useParams } from 'react-router-dom'
 const WorkspaceNavbar = () => {
   const { workspaceId } = useParams()
   const { isPending, workspaceDetails } = useGetWorkspaceById({ workspaceId: workspaceId || '' })
-  console.log('workspace details', workspaceDetails)
   const { setCurrentWorkspace } = useCurrentWorkspace()
   useEffect(() => {
     if (workspaceDetails) {

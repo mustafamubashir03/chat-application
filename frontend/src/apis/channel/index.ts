@@ -13,10 +13,10 @@ export const getChannelWithWorkspaceDetails = async ({
         token,
       },
     })
-    console.log('axios api', response?.data)
+
     return response?.data
   } catch (error: any) {
-    console.log('Error in getting channel details')
+
     throw error.response?.data
   }
 }
@@ -35,7 +35,6 @@ export const getChannelById = async ({
     })
     return response?.data
   } catch (error: any) {
-    console.log('Error in getting channel by id')
     throw error.response?.data
   }
 }
@@ -63,7 +62,6 @@ export const getMessagesByChannelId = async ({
     })
     return response?.data
   } catch (error: any) {
-    console.log('Error in getting messages by id')
     throw error.response?.data
   }
 }

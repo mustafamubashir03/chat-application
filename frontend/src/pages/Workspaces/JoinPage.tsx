@@ -15,8 +15,6 @@ const JoinPage = () => {
   const handleAddMemberToWorkspace = async () => {
     try {
       const response = await joinWorkspaceMutation()
-      console.log(response)
-      console.log('Member added')
       navigate(`/workspace/${response._id}`)
     } catch (e) {
       console.log('Error occured in workspace mutation')

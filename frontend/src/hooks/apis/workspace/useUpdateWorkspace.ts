@@ -18,13 +18,13 @@ export const useUpdateWorkspace = ({
     error,
   } = useMutation({
     mutationFn: () => updateWorkspaceDetails({ workspaceId, name, token: auth?.token || '' }),
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success('Workspace Details updated successfully')
-      console.log(data)
+
     },
-    onError: (error) => {
+    onError: () => {
       toast.error('Error occured while updating workspace')
-      console.log(error)
+
     },
   })
   return {

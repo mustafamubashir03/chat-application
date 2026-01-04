@@ -14,7 +14,6 @@ export const useGetMessagesByChannelId = ({ channelId }: { channelId: string }) 
     queryKey: [`getMessagesByChannelId-${channelId}`],
     staleTime: 30000,
   })
-  console.log('messages', messagesByChannelId)
   return {
     messagesByChannelId,
     isFetching,

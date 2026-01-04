@@ -20,13 +20,11 @@ export const useAddChannelToWorkspace = ({
     isSuccess,
   } = useMutation({
     mutationFn: () => addChannelToWorkspace({ workspaceId, channelName, token: auth?.token || '' }),
-    onError: (error) => {
+    onError: () => {
       toast.error('Error creating the Channel. Please try again later')
-      console.log('error has occured', error)
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success('Channel has been added to the workspace')
-      console.log(data)
       setOpenChannelPanelSection(true)
     },
   })

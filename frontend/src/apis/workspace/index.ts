@@ -2,16 +2,14 @@ import axios from '@/config/axiosConfig'
 
 export const getWorkspace = async ({ token }: { token: string }) => {
   try {
-    console.log('token', token)
+
     const response = await axios.get('/workspace', {
       headers: {
         token,
       },
     })
-    console.log('Data from axios', response?.data)
     return response?.data
   } catch (error: any) {
-    console.log('Error in getting workspace')
     throw error.response?.data
   }
 }
@@ -30,10 +28,8 @@ export const createWorkspace = async ({ name, description, token }: any) => {
         },
       },
     )
-    console.log(response.data)
     return response?.data
   } catch (error: any) {
-    console.log('Error in creating workspace')
     throw error.response?.data
   }
 }
@@ -53,7 +49,6 @@ export const getWorkspaceDetails = async ({
     })
     return response?.data
   } catch (error: any) {
-    console.log('Error in getting Workspace details')
     throw error.response?.data
   }
 }
@@ -73,7 +68,6 @@ export const deleteWorkspace = async ({
     })
     return response?.data
   } catch (error: any) {
-    console.log('Error while deleting Workspace details')
     throw error.response?.data
   }
 }
@@ -101,7 +95,6 @@ export const updateWorkspaceDetails = async ({
     )
     return response?.data
   } catch (error: any) {
-    console.log('Error while updating Workspace details')
     throw error.response?.data
   }
 }
@@ -129,7 +122,6 @@ export const addChannelToWorkspace = async ({
     )
     return response?.data
   } catch (error: any) {
-    console.log('Error while Adding Channel to Workspace ')
     throw error.response?.data
   }
 }
@@ -160,7 +152,6 @@ export const addMemberToWorkspace = async ({
     )
     return response?.data
   } catch (error: any) {
-    console.log('Error while adding member to Workspace')
     throw error.response?.data
   }
 }
@@ -187,7 +178,6 @@ export const joinWorkspace = async ({
     )
     return response?.data
   } catch (error: any) {
-    console.log('Error while joining to Workspace')
     throw error.response?.data
   }
 }
@@ -211,7 +201,6 @@ export const resetJoinCode = async ({
     )
     return response?.data
   } catch (error: any) {
-    console.log('Error while resetting join code')
     throw error.response?.data
   }
 }

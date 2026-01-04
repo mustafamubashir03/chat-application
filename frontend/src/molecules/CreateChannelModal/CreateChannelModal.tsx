@@ -11,7 +11,6 @@ const CreateChannelModal = () => {
   const { openCreateChannelModal, setOpenCreateChannelModal } = useCreateChannelModal()
   const [channelName, setChannelName] = useState('')
   const { workspaceId } = useParams()
-  console.log('workspaceId', workspaceId)
   const queryClient = useQueryClient()
   const { addChannelToWorkspaceMutation, isPending } = useAddChannelToWorkspace({
     workspaceId: workspaceId || '',

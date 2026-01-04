@@ -5,20 +5,16 @@ import { toast } from 'sonner'
 
 export const useResetJoinCode = ({ workspaceId }: { workspaceId: string }) => {
   const { auth } = useAuth()
-  console.log('useReset ran')
   const {
     mutateAsync: resetJoinCodeMutatation,
     error,
     isPending,
   } = useMutation({
     mutationFn: () => resetJoinCode({ token: auth?.token || '', workspaceId }),
-    onSuccess: (data) => {
-      console.log(data)
-      console.log('This is success')
+    onSuccess: () => {
       toast.success('Join code has been reset')
     },
-    onError: (err) => {
-      console.log(err)
+    onError: () => {
       toast.error('Error resetting join code')
     },
   })

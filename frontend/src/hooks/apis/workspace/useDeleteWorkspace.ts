@@ -14,11 +14,9 @@ export const useDeleteWorkspace = ({ workspaceId }: { workspaceId: string }) => 
     mutationFn: () => deleteWorkspace({ workspaceId, token: auth?.token || '' }),
     onError: (error: any) => {
       toast.error('Error has occured while deleting your workspace')
-      console.log(error)
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success('Workspace have been deleted successfully')
-      console.log(data)
     },
   })
   return {

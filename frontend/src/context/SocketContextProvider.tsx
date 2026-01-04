@@ -27,10 +27,10 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
   useEffect(() => {
     socketRef.current = io(import.meta.env.VITE_BACKEND_SOCKET_URL)
 
-    console.log('✅ Socket connected')
+
 
     socketRef.current.on('newMessageRecieved', (data) => {
-      console.log('📩 SOCKET MESSAGE RECEIVED', data)
+
       setNewMessageRecieved(data)
     })
 
@@ -48,7 +48,6 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
       'joinChannel',
       { channelId },
       (res: { success: boolean; data: string }) => {
-        console.log('✅ Joined channel', res)
         setCurrentChannel(res.data)
       },
     )
