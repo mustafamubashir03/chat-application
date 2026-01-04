@@ -17,7 +17,7 @@ const Channel = () => {
   const { joinChannel, newMessageRecieved } = useSocket()
 
   const [messages, setMessages] = useState<any[]>([])
-  const [editorValue, setEditorValue] = useState({})
+  const [editorValue, setEditorValue] = useState("")
 
   /* ---------------- CHANNEL DETAILS ---------------- */
   const {
@@ -45,9 +45,8 @@ const Channel = () => {
     joinChannel(channelId)
 
     return () => {
-      leaveChannel?.(channelId)
     }
-  }, [channelId, isChannelFetching, isError, joinChannel, leaveChannel])
+  }, [channelId, isChannelFetching, isError, joinChannel])
 
   /* ---------------- LOAD DB MESSAGES ---------------- */
   useEffect(() => {
