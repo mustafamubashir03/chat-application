@@ -3,7 +3,7 @@ import ReactQuill from 'react-quill-new'
 import 'react-quill-new/dist/quill.snow.css'
 import { cn } from '@/lib/utils'
 import { Button } from './button'
-import { SendIcon} from 'lucide-react'
+import { SendIcon } from 'lucide-react'
 import useSocket from '@/hooks/context/useSocket'
 import { useAuth } from '@/hooks/context/useAuth'
 import { useCurrentWorkspace } from '@/hooks/context/useCurrentWorkspace'
@@ -108,7 +108,7 @@ const QuillEditor = ({
               ['clean'],
             ],
             handlers: {
-              image: function (this:any) {
+              image: function (this: any) {
                 handleQuillImage(this.quill)
               },
             },
@@ -157,9 +157,9 @@ const QuillEditor = ({
       .ql-editor::-webkit-scrollbar { width: 4px; }
       .ql-editor::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.35); border-radius: 6px; }
     `
-  
+
     document.head.appendChild(style)
-  
+
     // Cleanup function must return void
     return (): void => {
       if (style.parentNode) {
@@ -167,7 +167,6 @@ const QuillEditor = ({
       }
     }
   }, [])
-  
 
   return (
     <div className={cn('relative w-full', className)}>

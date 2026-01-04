@@ -24,11 +24,7 @@ export const AppRoutes = () => {
       <Route
         path="/"
         element={
-          isLoggedIn ? (
-            <Navigate to="/home" replace />
-          ) : (
-            <Navigate to="/auth/signin" replace />
-          )
+          isLoggedIn ? <Navigate to="/home" replace /> : <Navigate to="/auth/signin" replace />
         }
       />
 
