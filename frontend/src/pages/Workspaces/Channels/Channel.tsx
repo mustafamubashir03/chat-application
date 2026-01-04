@@ -14,7 +14,7 @@ const Channel = () => {
 
   const bottomRef = useRef<HTMLDivElement>(null)
 
-  const { joinChannel, leaveChannel, newMessageRecieved } = useSocket()
+  const { joinChannel, newMessageRecieved } = useSocket()
 
   const [messages, setMessages] = useState<any[]>([])
   const [editorValue, setEditorValue] = useState({})
