@@ -34,17 +34,19 @@ const SidebarItem = ({
   const { workspaceId } = useParams()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
-  const handleItemChange = ()=>{
-   queryClient.invalidateQueries({ queryKey: [`getMessagesByChannelId-${id}`] })
-   navigate(`/workspace/${workspaceId}/channels/${id}`)
-
+  const handleItemChange = () => {
+    queryClient.invalidateQueries({ queryKey: [`getMessagesByChannelId-${id}`] })
+    navigate(`/workspace/${workspaceId}/channels/${id}`)
   }
 
   return (
-    <Button onClick={handleItemChange} className={cn(sidebarItemVariants({ variant }))} variant={'transparent'} size={'sm'}>
-      <div
-        className="flex items-center justify-center gap-2"
-      >
+    <Button
+      onClick={handleItemChange}
+      className={cn(sidebarItemVariants({ variant }))}
+      variant={'transparent'}
+      size={'sm'}
+    >
+      <div className="flex items-center justify-center gap-2">
         <Icon className="size-3.5 mr-1" />
         <span className="text-md">{label}</span>
       </div>

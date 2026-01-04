@@ -29,10 +29,7 @@ const Channel = () => {
   })
 
   /* ---------------- DB MESSAGES ---------------- */
-  const {
-    messagesByChannelId,
-    isFetching: isMessagesFetching,
-  } = useGetMessagesByChannelId({
+  const { messagesByChannelId, isFetching: isMessagesFetching } = useGetMessagesByChannelId({
     channelId: channelId || '',
   })
 
@@ -58,10 +55,8 @@ const Channel = () => {
 
     setMessages(
       [...messagesByChannelId].sort(
-        (a, b) =>
-          new Date(a.createdAt).getTime() -
-          new Date(b.createdAt).getTime()
-      )
+        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+      ),
     )
   }, [messagesByChannelId])
 
@@ -71,7 +66,7 @@ const Channel = () => {
     if (newMessageRecieved.channelId !== channelId) return
 
     setMessages((prev) => {
-      const exists = prev.some(m => m._id === newMessageRecieved._id)
+      const exists = prev.some((m) => m._id === newMessageRecieved._id)
       if (exists) return prev
       return [...prev, newMessageRecieved]
     })
@@ -98,11 +93,7 @@ const Channel = () => {
           </div>
         )}
 
-        {isError && (
-          <p className="text-center text-slate-400">
-            Couldn't fetch messages
-          </p>
-        )}
+        {isError && <p className="text-center text-slate-400">Couldn't fetch messages</p>}
 
         {messages.map((message) => (
           <Message

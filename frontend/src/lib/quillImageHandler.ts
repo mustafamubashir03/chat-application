@@ -1,5 +1,4 @@
-import { uploadImageToCloudinary } from "@/apis/cloudinary"
-
+import { uploadImageToCloudinary } from '@/apis/cloudinary'
 
 export const quillImageHandler = (quill: any) => {
   const input = document.createElement('input')

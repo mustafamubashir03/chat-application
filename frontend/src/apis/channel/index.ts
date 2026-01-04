@@ -44,19 +44,18 @@ export const getMessagesByChannelId = async ({
   channelId,
   token,
   limit,
-  page
+  page,
 }: {
   channelId: string
   token: string
-  limit?:string
-  page?:string
+  limit?: string
+  page?: string
 }) => {
   try {
     const response = await axios.get(`/messages/${channelId}`, {
-      params:{
-        limit:limit || 60,
-        page: page || 0
-
+      params: {
+        limit: limit || 60,
+        page: page || 0,
       },
       headers: {
         token,

@@ -12,7 +12,7 @@ export const useGetMessagesByChannelId = ({ channelId }: { channelId: string }) 
   } = useQuery({
     queryFn: () => getMessagesByChannelId({ channelId, token: auth.token || '' }),
     queryKey: [`getMessagesByChannelId-${channelId}`],
-    staleTime: 30000,  
+    staleTime: 30000,
   })
   console.log('messages', messagesByChannelId)
   return {

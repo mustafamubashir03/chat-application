@@ -6,6 +6,7 @@ type SocketContextType = {
   joinChannel: (channelId: string) => void
   currentChannel: string
   newMessageRecieved: any
+  leaveChannel: () => void
 }
 
 export const SocketContext = createContext<SocketContextType>({
@@ -13,14 +14,11 @@ export const SocketContext = createContext<SocketContextType>({
   joinChannel: () => {},
   currentChannel: '',
   newMessageRecieved: null,
+  leaveChannel: () => {},
 })
 
-export const SocketContextProvider = ({
-  children,
-}: {
-  children: React.ReactNode
-}) => {
-  const socketRef = useRef<Socket | null>(null) 
+export const SocketContextProvider = ({ children }: { children: React.ReactNode }) => {
+  const socketRef = useRef<Socket | null>(null)
 
   const [currentChannel, setCurrentChannel] = useState('')
   const [newMessageRecieved, setNewMessageRecieved] = useState<any>(null)
@@ -52,8 +50,12 @@ export const SocketContextProvider = ({
       (res: { success: boolean; data: string }) => {
         console.log('✅ Joined channel', res)
         setCurrentChannel(res.data)
-      }
+      },
     )
+  }
+
+  const leaveChannel = () => {
+    socketRef.current?.disconnect()
   }
 
   return (
@@ -63,6 +65,7 @@ export const SocketContextProvider = ({
         joinChannel,
         currentChannel,
         newMessageRecieved,
+        leaveChannel,
       }}
     >
       {children}

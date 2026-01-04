@@ -1,21 +1,21 @@
-import { useMemo, useRef, useEffect, useState } from 'react';
-import ReactQuill from 'react-quill-new';
-import 'react-quill-new/dist/quill.snow.css';
-import { cn } from '@/lib/utils';
-import { Button } from './button';
-import { SendIcon } from 'lucide-react';
-import useSocket from '@/hooks/context/useSocket';
-import { useAuth } from '@/hooks/context/useAuth';
-import { useCurrentWorkspace } from '@/hooks/context/useCurrentWorkspace';
-import { useQueryClient } from '@tanstack/react-query';
-import { uploadImageToCloudinary } from '@/apis/cloudinary';
+import { useMemo, useRef, useEffect, useState } from 'react'
+import ReactQuill from 'react-quill-new'
+import 'react-quill-new/dist/quill.snow.css'
+import { cn } from '@/lib/utils'
+import { Button } from './button'
+import { SendIcon} from 'lucide-react'
+import useSocket from '@/hooks/context/useSocket'
+import { useAuth } from '@/hooks/context/useAuth'
+import { useCurrentWorkspace } from '@/hooks/context/useCurrentWorkspace'
+import { useQueryClient } from '@tanstack/react-query'
+import { uploadImageToCloudinary } from '@/apis/cloudinary'
 
 interface QuillEditorProps {
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  className?: string;
-  readOnly?: boolean;
+  value: string
+  onChange: (value: string) => void
+  placeholder?: string
+  className?: string
+  readOnly?: boolean
 }
 
 const QuillEditor = ({
@@ -25,55 +25,59 @@ const QuillEditor = ({
   className,
   readOnly = false,
 }: QuillEditorProps) => {
-  const quillRef = useRef<ReactQuill | null>(null);
-  const { currentChannel, socket } = useSocket();
-  const { currentWorkspace } = useCurrentWorkspace();
-  const { auth } = useAuth();
-  const queryClient = useQueryClient();
+  const quillRef = useRef<ReactQuill | null>(null)
+  const { currentChannel, socket } = useSocket()
+  const { currentWorkspace } = useCurrentWorkspace()
+  const { auth } = useAuth()
+  const queryClient = useQueryClient()
 
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
 
   /** Custom image handler for Quill toolbar */
   const handleQuillImage = async (quill: any) => {
-    const input = document.createElement('input');
-    input.setAttribute('type', 'file');
-    input.setAttribute('accept', 'image/*');
-    input.click();
+    const input = document.createElement('input')
+    input.setAttribute('type', 'file')
+    input.setAttribute('accept', 'image/*')
+    input.click()
 
     input.onchange = async () => {
-      const file = input.files?.[0];
-      if (!file) return;
+      const file = input.files?.[0]
+      if (!file) return
 
       try {
-        const uploadedUrl = await uploadImageToCloudinary(file);
+        const uploadedUrl = await uploadImageToCloudinary(file)
 
         // Set the uploaded URL in separate image state
-        setImageUrl(uploadedUrl);
+        setImageUrl(uploadedUrl)
 
         // Do NOT insert image into editor
         // Optionally insert placeholder text if you want user feedback
-        // quill.insertText(quill.getSelection(true).index, '[image]');
+        const range = quill.getSelection(true)
+        if (range) {
+          quill.insertEmbed(range.index, 'image', uploadedUrl)
+          quill.setSelection(range.index + 1)
+        }
       } catch (err) {
-        console.error('Image upload failed', err);
+        console.error('Image upload failed', err)
       }
-    };
-  };
+    }
+  }
 
   /** Send message */
   const handleMessageSubmit = () => {
-    if (!quillRef.current) return;
-    const editor = quillRef.current.getEditor();
-    const delta = editor.getContents();
+    if (!quillRef.current) return
+    const editor = quillRef.current.getEditor()
+    const delta = editor.getContents()
 
     // Only send if there is text or image
-    if (!delta.ops?.some((op: any) => op.insert?.trim?.()) && !imageUrl) return;
+    if (!delta.ops?.some((op: any) => op.insert?.trim?.()) && !imageUrl) return
 
     // Clean text (remove images if any sneaked in)
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = editor.root.innerHTML;
-    const images = tempDiv.querySelectorAll('img');
-    images.forEach((img) => img.remove());
-    const textOnly = tempDiv.innerHTML;
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = editor.root.innerHTML
+    const images = tempDiv.querySelectorAll('img')
+    images.forEach((img) => img.remove())
+    const textOnly = tempDiv.innerHTML
 
     socket?.emit('newMessage', {
       messageBody: textOnly,
@@ -81,12 +85,13 @@ const QuillEditor = ({
       channelId: currentChannel,
       workspaceId: currentWorkspace,
       senderId: auth.user?.id,
-    });
+    })
 
-    editor.setText('');
-    setImageUrl(null);
-    queryClient.invalidateQueries({ queryKey: ['getMessagesByChannelId'] });
-  };
+    editor.setText('')
+
+    setImageUrl(null)
+    queryClient.invalidateQueries({ queryKey: ['getMessagesByChannelId'] })
+  }
 
   /** Quill modules */
   const modules = useMemo(
@@ -103,19 +108,20 @@ const QuillEditor = ({
               ['clean'],
             ],
             handlers: {
-              image: function () {
-                handleQuillImage(this.quill);
+              image: function (this:any) {
+                handleQuillImage(this.quill)
               },
             },
           },
       clipboard: { matchVisual: false },
     }),
     [readOnly],
-  );
+  )
 
   /** Custom styling */
   useEffect(() => {
-    const style = document.createElement('style');
+    // Create the style element
+    const style = document.createElement('style')
     style.textContent = `
       .quill { font-family: 'Plus Jakarta Sans', sans-serif; }
       .ql-toolbar {
@@ -124,6 +130,14 @@ const QuillEditor = ({
         border-bottom: none;
         border-radius: 14px 14px 0 0;
       }
+      .ql-editor img {
+        max-width: 200px !important;
+        width: 100% !important;
+        height: auto !important;
+        margin: 12px auto;
+        display: block;
+      }
+  
       .ql-container {
         border-radius: 0 0 14px 14px;
         border: 1px solid rgba(71,85,105,0.3);
@@ -142,10 +156,18 @@ const QuillEditor = ({
       .ql-editor.ql-blank::before { color: rgb(148 163 184); left: 14px; font-style: normal; }
       .ql-editor::-webkit-scrollbar { width: 4px; }
       .ql-editor::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.35); border-radius: 6px; }
-    `;
-    document.head.appendChild(style);
-    return () => document.head.removeChild(style);
-  }, []);
+    `
+  
+    document.head.appendChild(style)
+  
+    // Cleanup function must return void
+    return (): void => {
+      if (style.parentNode) {
+        style.parentNode.removeChild(style)
+      }
+    }
+  }, [])
+  
 
   return (
     <div className={cn('relative w-full', className)}>
@@ -168,7 +190,7 @@ const QuillEditor = ({
         </Button>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default QuillEditor;
+export default QuillEditor

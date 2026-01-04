@@ -127,5 +127,3 @@ button.group::after {
 button.group:hover svg path {
   animation: dash 0.8s linear forwards;
 }
-
-
