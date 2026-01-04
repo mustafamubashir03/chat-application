@@ -16,7 +16,6 @@ import {
   getWorkspaceByJoinCodeService,
   getWorkspacesUserIsMemberOfService,
   joinWorkspaceService,
-  resetWorkspaceJoinCode,
   resetWorkspaceJoinCodeService,
   updateWorkspaceService
 } from '../services/workspaceService';

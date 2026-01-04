@@ -1,9 +1,9 @@
 import { createBullBoard } from '@bull-board/api';
-import { BullAdapter } from '@bull-board/api/bullAdapter';
+import { BullAdapter } from '@bull-board/api/bullAdapter.js';
 import { ExpressAdapter } from '@bull-board/express';
 import cors from 'cors';
 import express, { Express } from 'express';
-import connectDB from './config/dbConfig';
+import connectDB from './config/dbConfig.js';
 import { PORT } from './config/serverConfig';
 import apiRouter from './routes/apiRouter';
 import { mailQueue } from './queues/mailQueue';

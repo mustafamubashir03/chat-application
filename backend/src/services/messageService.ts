@@ -5,7 +5,6 @@ import { MessageI } from '../schema/message';
 
 export type CreateMessageInput = Omit<MessageI, keyof Document>;
 type MessageQueryParams = {
-  message: string;
   channelId?: string | import('mongoose').Types.ObjectId;
   workspaceId?: string | import('mongoose').Types.ObjectId;
   senderId?: string | import('mongoose').Types.ObjectId;
