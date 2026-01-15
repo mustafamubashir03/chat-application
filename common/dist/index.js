@@ -24,7 +24,10 @@ exports.userSchemaSignInZod = zod_1.default.object({
 exports.createWorkspaceSchema = zod_1.default.object({
     name: zod_1.default.string()
 });
-exports.updateWorkspaceSchema = exports.createWorkspaceSchema;
+exports.updateWorkspaceSchema = zod_1.default.object({
+    name: zod_1.default.string().optional(),
+    joinCode: zod_1.default.string().optional()
+});
 exports.addChannelToWorkspaceSchema = zod_1.default.object({
     channelName: zod_1.default.string()
 });
