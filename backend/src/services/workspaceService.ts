@@ -1,13 +1,13 @@
-import workspaceRepository from '../repository/workspaceRespository';
+import workspaceRepository from '../repository/workspaceRespository.js';
 import { v4 as uuidv4 } from 'uuid';
-import { ClientError } from '../utils/ObjectResponse';
+import { ClientError } from '../utils/ObjectResponse.js';
 import { StatusCodes } from 'http-status-codes';
 import mongoose from 'mongoose';
-import channelRepository from '../repository/channelRepository';
+import channelRepository from '../repository/channelRepository.js';
 import { UpdateWorkspaceType } from '@itz____mmm/common';
-import { addEmailtoMailQueue } from '../producers/mailQueueProducer';
-import mailObject from '../utils/mailObject';
-import userRepository from '../repository/userRepository';
+import { addEmailtoMailQueue } from '../producers/mailQueueProducer.js';
+import mailObject from '../utils/mailObject.js';
+import userRepository from '../repository/userRepository.js';
 
 export const isUserAdminOfWorkspace = (
   userId: mongoose.Types.ObjectId,

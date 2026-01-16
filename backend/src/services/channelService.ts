@@ -1,9 +1,9 @@
 import { StatusCodes } from 'http-status-codes';
-import channelRepository from '../repository/channelRepository';
-import { ClientError } from '../utils/ObjectResponse';
+import channelRepository from '../repository/channelRepository.js';
+import { ClientError } from '../utils/ObjectResponse.js';
 import mongoose from 'mongoose';
-import { isUserPartOfWorkspace } from './workspaceService';
-import messageRepository from '../repository/messageRepository';
+import { isUserPartOfWorkspace } from './workspaceService.js';
+import messageRepository from '../repository/messageRepository.js';
 
 export const getChannelByIdService = async (
   channelId: mongoose.Types.ObjectId

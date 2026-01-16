@@ -1,10 +1,10 @@
 import mongoose from 'mongoose';
-import Workspace from '../schema/workspace';
-import crudRepository from './crudRepository';
-import User from '../schema/user';
-import { ClientError } from '../utils/ObjectResponse';
+import Workspace from '../schema/workspace.js';
+import crudRepository from './crudRepository.js';
+import User from '../schema/user.js';
+import { ClientError } from '../utils/ObjectResponse.js';
 import { StatusCodes } from 'http-status-codes';
-import channelRepository from './channelRepository';
+import channelRepository from './channelRepository.js';
 
 const workspaceRepository = {
   ...crudRepository<any>(Workspace),

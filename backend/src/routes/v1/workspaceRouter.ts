@@ -10,9 +10,9 @@ import {
   joinWorkspaceController,
   resetJoinCodeController,
   updateWorkspaceController
-} from '../../controllers/workspaceController';
-import { validator } from '../../middlewares/validator';
-import { isAuthenticated } from '../../middlewares/isAuthenticated';
+} from '../../controllers/workspaceController.js';
+import { validator } from '../../middlewares/validator.js';
+import { isAuthenticated } from '../../middlewares/isAuthenticated.js';
 import {
   addChannelToWorkspaceSchema,
   addMemberToWorkspaceSchema,

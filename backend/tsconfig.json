@@ -6,7 +6,20 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "allowJs": true,
-    "rootDir": "./src"
-  }
+    "allowJs": false,
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": false
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.js",
+    "src/**/*.js",
+    "env-params.js",
+    "eslint.config.js"
+  ]
 }

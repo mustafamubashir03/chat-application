@@ -2,7 +2,7 @@ import { StatusCodes } from 'http-status-codes';
 import {
   customErrorResponse,
   internalServerErrorResponse
-} from '../utils/ObjectResponse';
+} from '../utils/ObjectResponse.js';
 import { Request, Response, NextFunction } from 'express';
 import { ZodSchema } from 'zod';
 import { MongooseError } from 'mongoose';

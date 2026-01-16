@@ -1,5 +1,5 @@
-import crudRepository from './crudRepository';
-import Message from '../schema/message';
+import crudRepository from './crudRepository.js';
+import Message from '../schema/message.js';
 import mongoose from 'mongoose';
 
 const messageRepository = {

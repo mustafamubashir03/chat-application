@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
-import { isUserPartOfWorkspace } from './workspaceService';
-import workspaceRepository from '../repository/workspaceRespository';
+import { isUserPartOfWorkspace } from './workspaceService.js';
+import workspaceRepository from '../repository/workspaceRespository.js';
 import { StatusCodes } from 'http-status-codes';
-import { ClientError } from '../utils/ObjectResponse';
-import userRepository from '../repository/userRepository';
+import { ClientError } from '../utils/ObjectResponse.js';
+import userRepository from '../repository/userRepository.js';
 
 export const isMemberPartOfWorkspaceService = async (
   workspaceId: mongoose.Types.ObjectId,

@@ -1,6 +1,6 @@
 import { Server, Socket } from 'socket.io';
 
-import { JOIN_CHANNEL } from '../utils/eventConstant';
+import { JOIN_CHANNEL } from '../utils/eventConstant.js';
 
 type JoinChannelData = {
   channelId: string;

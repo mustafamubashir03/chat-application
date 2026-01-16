@@ -2,15 +2,15 @@ import bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { signinService, signupService } from '../services/userService';
+import { signinService, signupService } from '../services/userService.js';
 import {
   ClientError,
   customErrorResponse,
   internalServerErrorResponse,
   successResponse
-} from '../utils/ObjectResponse';
+} from '../utils/ObjectResponse.js';
 import { MongooseError } from 'mongoose';
-import { jwtGenerate } from '../auth/auth';
+import { jwtGenerate } from '../auth/auth.js';
 
 export const signUp = async (req: Request, res: Response) => {
   try {

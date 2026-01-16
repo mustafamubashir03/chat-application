@@ -1,7 +1,7 @@
 import { Document } from 'mongoose';
 
-import messageRepository from '../repository/messageRepository';
-import { MessageI } from '../schema/message';
+import messageRepository from '../repository/messageRepository.js';
+import { MessageI } from '../schema/message.js';
 
 export type CreateMessageInput = Omit<MessageI, keyof Document>;
 type MessageQueryParams = {

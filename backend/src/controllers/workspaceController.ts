@@ -6,7 +6,7 @@ import {
   customErrorResponse,
   internalServerErrorResponse,
   successResponse
-} from '../utils/ObjectResponse';
+} from '../utils/ObjectResponse.js';
 import {
   addChannelToWorkspaceService,
   addMemberToWorkspaceService,
@@ -18,9 +18,9 @@ import {
   joinWorkspaceService,
   resetWorkspaceJoinCodeService,
   updateWorkspaceService
-} from '../services/workspaceService';
-import { AuthRequest } from '../types/custom';
-import { verifyTokenService } from '../services/userService';
+} from '../services/workspaceService.js';
+import { AuthRequest } from '../types/custom.js';
+import { verifyTokenService } from '../services/userService.js';
 
 export const createWorkspaceController = async (
   req: AuthRequest,

@@ -1,12 +1,12 @@
 import { Response } from 'express';
-import { AuthRequest } from '../types/custom';
-import { getMessageService } from '../services/messageService';
+import { AuthRequest } from '../types/custom.js';
+import { getMessageService } from '../services/messageService.js';
 import { StatusCodes } from 'http-status-codes';
 import { MongooseError } from 'mongoose';
 import {
   customErrorResponse,
   internalServerErrorResponse
-} from '../utils/ObjectResponse';
+} from '../utils/ObjectResponse.js';
 
 export const getMessagesController = async (
   req: AuthRequest,

@@ -1,14 +1,14 @@
 import { Response } from 'express';
-import { AuthRequest } from '../types/custom';
+import { AuthRequest } from '../types/custom.js';
 import {
   getChannelByIdService,
   getChannelWithWorkspaceDetailsService
-} from '../services/channelService';
+} from '../services/channelService.js';
 import mongoose from 'mongoose';
 import {
   customErrorResponse,
   internalServerErrorResponse
-} from '../utils/ObjectResponse';
+} from '../utils/ObjectResponse.js';
 import { StatusCodes } from 'http-status-codes';
 
 export const getChannelByIdController = async (

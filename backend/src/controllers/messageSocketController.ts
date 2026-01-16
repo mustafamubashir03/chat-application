@@ -3,12 +3,12 @@ import { Server, Socket } from 'socket.io';
 import {
   CreateMessageInput,
   createMessageService
-} from '../services/messageService';
+} from '../services/messageService.js';
 import {
   NEW_MESSAGE_EVENT,
   NEW_MESSAGE_RECIEVED_EVENT
-} from '../utils/eventConstant';
-import Message from '../schema/message';
+} from '../utils/eventConstant.js';
+import Message from '../schema/message.js';
 
 type MessageResponse = {
   success: boolean;

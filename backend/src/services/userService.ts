@@ -1,10 +1,10 @@
 import { UserSignInType, UserSignUpType } from '@itz____mmm/common';
 
-import userRepository from '../repository/userRepository';
-import { APP_URL, ENABLE_EMAIL_VERIFICATION } from '../config/serverConfig';
-import { addEmailtoMailQueue } from '../producers/mailQueueProducer';
-import mailObject from '../utils/mailObject';
-import { ClientError } from '../utils/ObjectResponse';
+import userRepository from '../repository/userRepository.js';
+import { APP_URL, ENABLE_EMAIL_VERIFICATION } from '../config/serverConfig.js';
+import { addEmailtoMailQueue } from '../producers/mailQueueProducer.js';
+import mailObject from '../utils/mailObject.js';
+import { ClientError } from '../utils/ObjectResponse.js';
 import { StatusCodes } from 'http-status-codes';
 
 export const signupService = async (data: UserSignUpType) => {

@@ -1,9 +1,9 @@
 import express from 'express';
 
-import { signIn, signUp } from '../../controllers/userController';
-import { validator } from '../../middlewares/validator';
+import { signIn, signUp } from '../../controllers/userController.js';
+import { validator } from '../../middlewares/validator.js';
 import { userSchemaSignInZod, userSchemaSignUpZod } from '@itz____mmm/common';
-import { verifyEmailController } from '../../controllers/workspaceController';
+import { verifyEmailController } from '../../controllers/workspaceController.js';
 
 const router = express.Router();
 

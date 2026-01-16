@@ -4,14 +4,14 @@ import { ExpressAdapter } from '@bull-board/express';
 import cors from 'cors';
 import express, { Express } from 'express';
 import connectDB from './config/dbConfig.js';
-import { PORT } from './config/serverConfig';
-import apiRouter from './routes/apiRouter';
-import { mailQueue } from './queues/mailQueue';
+import { PORT } from './config/serverConfig.js';
+import apiRouter from './routes/apiRouter.js';
+import { mailQueue } from './queues/mailQueue.js';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import MessageSocketHandler from './controllers/messageSocketController';
-import ChannelSocketHandler from './controllers/channelSocketController';
-import { verifyEmailController } from './controllers/workspaceController';
+import MessageSocketHandler from './controllers/messageSocketController.js';
+import ChannelSocketHandler from './controllers/channelSocketController.js';
+import { verifyEmailController } from './controllers/workspaceController.js';
 
 const app: Express = express();
 const server = createServer(app);
@@ -48,4 +48,14 @@ io.on('connection', (socket) => {
 server.listen(PORT, async () => {
   console.log('Server has been started at ', PORT);
   connectDB();
+}).on('error', (err: NodeJS.ErrnoException) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`\n❌ Port ${PORT} is already in use.`);
+    console.log(`\n💡 Try running: npm run kill:port`);
+    console.log(`   Or manually kill the process using port ${PORT}\n`);
+    process.exit(1);
+  } else {
+    console.error('Server error:', err);
+    process.exit(1);
+  }
 });

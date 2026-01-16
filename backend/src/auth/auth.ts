@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import { JWT_EXPIRY, JWT_SECRET } from '../config/serverConfig';
+import { JWT_EXPIRY, JWT_SECRET } from '../config/serverConfig.js';
 
 dotenv.config();
 
