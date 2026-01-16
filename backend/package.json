@@ -6,7 +6,7 @@
   "scripts": {
     "clean": "rimraf dist",
     "clean:src": "node -e \"require('fs').readdirSync('src', {recursive: true, withFileTypes: true}).filter(f => f.isFile() && f.name.endsWith('.js')).forEach(f => require('fs').unlinkSync(f.fullPath()))\"",
-    "kill:port": "node scripts/kill-port.js",
+    "kill:port": "node -e \"import('fs').then(fs=>fs.existsSync('scripts/kill-port.js')?import('child_process').then(cp=>cp.execSync('node scripts/kill-port.js',{stdio:'inherit'})):null).catch(()=>{})\" || exit 0",
     "prestart": "npm run kill:port",
     "build": "npm run clean && tsc -b",
     "dev": "tsx watch src/index.ts",
