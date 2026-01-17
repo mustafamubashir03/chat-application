@@ -13,14 +13,12 @@ const MessageRenderer = ({ value }: { value: string }) => {
 
     let html = ''
     try {
-      // Try Delta JSON
       const content = JSON.parse(value)
       quill.setContents(content)
       const isContentEmpty = quill.getText().trim().length === 0
       setIsEmpty(isContentEmpty)
       html = quill.root.innerHTML
     } catch {
-      // Fallback: assume raw HTML
       html = value
       const temp = document.createElement('div')
       temp.innerHTML = value

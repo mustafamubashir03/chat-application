@@ -10,6 +10,8 @@ import WorkspaceLayout from './pages/Workspaces/WorkspaceLayout'
 import JoinPage from './pages/Workspaces/JoinPage'
 import Channel from './pages/Workspaces/Channels/Channel'
 import AuthContext from './context/AuthContext'
+import PlaceHolderChannel from './atoms/PlaceHolderChannel/PlaceHolderChannel'
+import VideoRoom from './pages/Workspaces/VideoRoom/VideoRoom'
 
 export const AppRoutes = () => {
   const { auth } = useContext(AuthContext)
@@ -69,7 +71,9 @@ export const AppRoutes = () => {
         path="/workspace/:workspaceId"
         element={
           <ProtectedRoute>
-            <WorkspaceLayout>Hello World</WorkspaceLayout>
+            <WorkspaceLayout>
+              <PlaceHolderChannel/>
+              </WorkspaceLayout>
           </ProtectedRoute>
         }
       />
@@ -83,6 +87,7 @@ export const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
+      <Route path='/workspace/:workspaceId/videoRoom' element={<ProtectedRoute><VideoRoom/></ProtectedRoute>}/>
 
       {/* Catch-all unknown routes */}
       <Route

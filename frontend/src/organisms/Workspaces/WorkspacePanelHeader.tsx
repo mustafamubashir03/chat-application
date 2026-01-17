@@ -40,7 +40,7 @@ const WorkspacePanelHeader = ({ workspace }: { workspace: any }) => {
               variant={'transparent'}
               className="font-semibold text-lg border-none  focus-visible:outline-none  ring-0 ring-offset-0 focus:ring-0 focus-visible:ring-0 overflow-hidden w-auto p-1.5 cursor-pointer hover:border-none"
             >
-              <span className="truncate flex items-center justify-center">
+              <span className="truncate flex items-center bg-gradient-to-b from-blue-100 text-transparent to-blue-400 bg-clip-text font-semibold justify-center">
                 {workspace?.name}
                 <ChevronDown className="size-5 ml-2 text-slate-400" />
               </span>

@@ -1,19 +1,27 @@
 import { Button } from '@/components/ui/button'
+import { SocketContext } from '@/context/SocketContextProvider'
 import { useGetWorkspaceById } from '@/hooks/apis/workspace/useGetWorkspaceById'
 import { useCurrentWorkspace } from '@/hooks/context/useCurrentWorkspace'
-import { InfoIcon, LucideLoader2, SearchIcon } from 'lucide-react'
-import { useEffect } from 'react'
+import { LucideLoader2, SearchIcon, VideoIcon } from 'lucide-react'
+import { useContext, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
 const WorkspaceNavbar = () => {
   const { workspaceId } = useParams()
   const { isPending, workspaceDetails } = useGetWorkspaceById({ workspaceId: workspaceId || '' })
   const { setCurrentWorkspace } = useCurrentWorkspace()
+  const {joinVideoCall} = useContext(SocketContext)
   useEffect(() => {
     if (workspaceDetails) {
       setCurrentWorkspace(workspaceDetails)
     }
   }, [workspaceDetails, setCurrentWorkspace])
+  const handleJoinVideoCall = ()=>{
+    console.log("button clicked")
+    if(workspaceId){
+      joinVideoCall(workspaceId)
+    }
+  }
   if (isPending) {
     return (
       <div className="flex items-center justify-center h-14 p-2 bg-[#0b0d1a] text-slate-400">
@@ -22,7 +30,7 @@ const WorkspaceNavbar = () => {
     )
   } else {
     return (
-      <nav className="flex items-center  justify-between h-14 p-2 bg-[#0b0d1a]">
+      <nav className="flex items-center  justify-between h-14 p-6 bg-[#0b0d1a]">
         <div className="flex-1"></div>
         <div>
           <Button variant={'darkBlue'} size={'sm'}>
@@ -31,8 +39,9 @@ const WorkspaceNavbar = () => {
           </Button>
         </div>
         <div className="ml-auto flex-1 flex items-center justify-end">
-          <Button variant={'indigoGlow'} size={'icon'}>
-            <InfoIcon className="cursor-pointer" />
+          <Button onClick={handleJoinVideoCall} variant={'indigoGlow'}>
+            <VideoIcon className='cursor-pointer'/>
+            Start a New Meeting
           </Button>
         </div>
       </nav>
