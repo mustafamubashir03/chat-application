@@ -12,6 +12,7 @@ import { Server } from 'socket.io';
 import MessageSocketHandler from './controllers/messageSocketController.js';
 import ChannelSocketHandler from './controllers/channelSocketController.js';
 import { verifyEmailController } from './controllers/workspaceController.js';
+import { videoCallRoomHandler } from './controllers/videoCallRoomController.js';
 
 const app: Express = express();
 const server = createServer(app);
@@ -22,7 +23,7 @@ const io = new Server(server, {
     credentials: true
   }
 });
-
+console.log('🔥 RUNNING SRC INDEX 🔥');
 const serverAdapter = new ExpressAdapter();
 createBullBoard({
   queues: [new BullAdapter(mailQueue)],
@@ -43,19 +44,22 @@ io.on('connection', (socket) => {
   console.log('client connected :', socket.id);
   MessageSocketHandler(io, socket);
   ChannelSocketHandler(io, socket);
+  videoCallRoomHandler(io, socket);
 });
 
-server.listen(PORT, async () => {
-  console.log('Server has been started at ', PORT);
-  connectDB();
-}).on('error', (err: NodeJS.ErrnoException) => {
-  if (err.code === 'EADDRINUSE') {
-    console.error(`\n❌ Port ${PORT} is already in use.`);
-    console.log(`\n💡 Try running: npm run kill:port`);
-    console.log(`   Or manually kill the process using port ${PORT}\n`);
-    process.exit(1);
-  } else {
-    console.error('Server error:', err);
-    process.exit(1);
-  }
-});
+server
+  .listen(PORT, async () => {
+    console.log('Server has been started at ', PORT);
+    connectDB();
+  })
+  .on('error', (err: NodeJS.ErrnoException) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`\n❌ Port ${PORT} is already in use.`);
+      console.log(`\n💡 Try running: npm run kill:port`);
+      console.log(`   Or manually kill the process using port ${PORT}\n`);
+      process.exit(1);
+    } else {
+      console.error('Server error:', err);
+      process.exit(1);
+    }
+  });
