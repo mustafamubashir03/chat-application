@@ -29,9 +29,8 @@ export const videoCallRoomHandler = (io: Server, socket: Socket) => {
     }
 
     socket.join(roomId);
-    socket.on('ready',()=>{
-       socket.to(roomId).emit(USER_JOINED,{peerId})
-    })
+    socket.to(roomId).emit(USER_JOINED, { peerId })
+
 
     console.log(
       `${socket.id} joined room ${roomId} with peer ${peerId}`
