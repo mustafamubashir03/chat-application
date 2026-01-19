@@ -4,9 +4,13 @@ import useSocket from '@/hooks/context/useSocket'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
+interface PeerData {
+  stream: MediaStream
+}
+
 const VideoRoom = () => {
   const { joinVideoCall, socket, peer, stream, peers } = useSocket()
-  const { workspaceId } = useParams()
+  const { workspaceId } = useParams<{ workspaceId: string }>()
   const meetingUrl = `${window.location.origin}/workspace/${workspaceId}/videoRoom`
   const [showInvite, setShowInvite] = useState(false)
 
@@ -29,7 +33,6 @@ const VideoRoom = () => {
     socket.on('get-users', handleGetUsers)
 
     return () => {
-      // cleanup
       socket.off('get-users', handleGetUsers)
     }
   }, [socket])
@@ -39,8 +42,10 @@ const VideoRoom = () => {
     joinVideoCall(workspaceId, peer)
   }, [workspaceId, socket, peer?.id])
 
+  const peerEntries = peers ? Object.entries(peers) as [string, PeerData][] : []
+
   return (
-    <div className="w-full min-h-screen flex flex-col  text-slate-200">
+    <div className="w-full min-h-screen flex flex-col text-slate-200">
       {/* ===== HEADER ===== */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700">
         <div>
@@ -48,11 +53,12 @@ const VideoRoom = () => {
           <p className="text-xs text-slate-400">Room • Live</p>
         </div>
         <div className="text-xs text-slate-400">
-          {Object.keys(peers).length + 1} participant{Object.keys(peers).length + 1 > 1 ? 's' : ''}
+          {peerEntries.length + (stream ? 1 : 0)} participant
+          {peerEntries.length + (stream ? 1 : 0) > 1 ? 's' : ''}
         </div>
       </div>
 
-      {/* ===== COLLAPSIBLE INVITE LINK ===== */}
+      {/* ===== INVITE LINK COLLAPSIBLE ===== */}
       <div className="px-4 py-2 border-b border-slate-700 bg-slate-800/50">
         <button
           className="text-xs text-blue-400 underline hover:text-blue-300"
@@ -83,7 +89,7 @@ const VideoRoom = () => {
 
       {/* ===== MAIN VIDEO CONTENT ===== */}
       <div className="flex-1 flex flex-col gap-6 px-2 py-2 overflow-y-auto">
-        {/* ===== YOUR VIDEO ===== */}
+        {/* YOUR VIDEO */}
         {stream && (
           <div className="flex justify-center">
             <div className="w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl">
@@ -92,15 +98,12 @@ const VideoRoom = () => {
           </div>
         )}
 
-        {/* ===== PARTICIPANTS ===== */}
-        {Object.keys(peers).length > 0 ? (
+        {/* PARTICIPANTS */}
+        {peerEntries.length > 0 ? (
           <div className="flex flex-col gap-4">
-            {Object.keys(peers).map((peerId) => (
-              <div
-                key={peerId}
-                className="w-full max-w-md mx-auto" // max width to avoid huge video
-              >
-                <UserVideoFeedPlayer stream={peers[peerId].stream} />
+            {peerEntries.map(([peerId, peerData]) => (
+              <div key={peerId} className="w-full max-w-md mx-auto">
+                {peerData?.stream && <UserVideoFeedPlayer stream={peerData.stream} />}
               </div>
             ))}
           </div>
