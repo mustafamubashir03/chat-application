@@ -111,16 +111,6 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
   useEffect(() => {
     if (!peer || !socket || !stream) return
 
-    const handleUserJoined = ({ peerId }: { peerId: string }) => {
-      if (!stream) return
-      if (peerId === peer.id || peers[peerId]) return
-
-      const call = peer.call(peerId, stream)
-      console.log('Calling new peer:', peerId)
-      call.on('stream', (remoteStream) => {
-        dispatch(addPeerAction(peerId, remoteStream))
-      })
-    }
 
     peer.on('call', (call) => {
       if (!stream) return
