@@ -56,7 +56,7 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
   useEffect(() => {
     if (!auth?.user) return
 
-    const newPeer = new Peer(auth.user.id, {
+    const newPeer = new Peer(`${auth.user.id}-${Math.floor(Math.random() * 10000)}`, {
       host: backendUrl.includes('localhost') ? 'localhost' : backendUrl.replace(/^https?:\/\//, ''),
       port: backendUrl.includes('localhost')
         ? 3000
