@@ -59,7 +59,9 @@ export const videoCallRoomHandler = (io: Server, socket: Socket) => {
         roomId,
         participants: rooms[roomId],
       });
+      socket.to(roomId).emit('user-left', { peerId })
       console.log(`${peerId} left room ${roomId}`);
     });
+    
   });
 };
