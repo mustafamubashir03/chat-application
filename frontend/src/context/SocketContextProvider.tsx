@@ -44,15 +44,18 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
   const { auth } = useAuth()
   const [newMessageRecieved, setNewMessageRecieved] = useState<any>(null)
 
-  const fetchUserFeedStream = async () => {
+  const fetchUserFeedStream = async (): Promise<MediaStream | null> => {
     try {
       const localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
       console.log('MediaStream obtained:', localStream)
       setStream(localStream)
+      return localStream
     } catch (err) {
       console.error('Error accessing camera/mic:', err)
+      return null
     }
   }
+  
 
   useEffect(() => {
     if (!auth?.user) return
@@ -64,12 +67,19 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
       path: '/peerjs/peer',
     })
 
-    newPeer.on('open', (id) => {
+    newPeer.on('open', async (id) => {
       console.log('PeerJS ready with ID:', id)
       setPeer(newPeer)
       setPeerReady(true)
-      fetchUserFeedStream()
+      
+      const localStream = await fetchUserFeedStream()
+      
+      // Only join video call after stream is ready
+      if (localStream && socketRef.current) {
+        socketRef.current.emit('ready', { peerId: id })
+      }
     })
+    
 
     newPeer.on('error', (err) => console.error('PeerJS error:', err))
 
@@ -104,13 +114,15 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
 
     // When a new user joins, call them
     const handleUserJoined = ({ peerId }: { peerId: string }) => {
-      if (peerId === peer.id || peers[peerId]) return // ignore self or already connected
+      if (!stream) return  // ❌ must check stream
+      if (peerId === peer.id || peers[peerId]) return
       const call = peer.call(peerId, stream)
       console.log('calling new peer:', peerId)
       call.on('stream', (remoteStream) => {
         dispatch(addPeerAction(peerId, remoteStream))
       })
     }
+    
 
     socket.on('user-joined', handleUserJoined)
 
