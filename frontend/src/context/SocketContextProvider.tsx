@@ -13,9 +13,9 @@ type SocketContextType = {
   leaveChannel: (channelId: string) => void
   joinVideoCall: (workspaceId: string, peer: Peer) => void
   peer: Peer | null
-  peerReady: Boolean
+  peerReady: boolean
   stream: MediaStream | null
-  peers: any
+  peers: Record<string, { stream: MediaStream }>
 }
 
 const backendUrl = import.meta.env.VITE_BACKEND_SOCKET_URL.replace(/^https?:\/\//, '')
@@ -28,9 +28,9 @@ export const SocketContext = createContext<SocketContextType>({
   leaveChannel: () => {},
   joinVideoCall: () => {},
   peer: null,
-  stream: null,
   peerReady: false,
-  peers: null,
+  stream: null,
+  peers: {},
 })
 
 export const SocketContextProvider = ({ children }: { children: React.ReactNode }) => {
@@ -44,10 +44,10 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
   const { auth } = useAuth()
   const [newMessageRecieved, setNewMessageRecieved] = useState<any>(null)
 
-  const fetchUserFeedStream = async (): Promise<MediaStream | null> => {
+  // ---- Get local media ----
+  const fetchLocalStream = async (): Promise<MediaStream | null> => {
     try {
       const localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-      console.log('MediaStream obtained:', localStream)
       setStream(localStream)
       return localStream
     } catch (err) {
@@ -55,35 +55,19 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
       return null
     }
   }
-  
 
   useEffect(() => {
     if (!auth?.user) return
 
-    // ----- Initialize PeerJS -----
+    // ---- Initialize PeerJS ----
     const newPeer = new Peer(`${auth.user.id}-${Math.floor(Math.random() * 10000)}`, {
       host: backendUrl.includes('localhost') ? 'localhost' : backendUrl.replace(/^https?:\/\//, ''),
       port: backendUrl.includes('localhost') ? 3000 : window.location.protocol === 'https:' ? 443 : 80,
       path: '/peerjs/peer',
     })
+    setPeer(newPeer)
 
-    newPeer.on('open', async (id) => {
-      console.log('PeerJS ready with ID:', id)
-      setPeer(newPeer)
-      setPeerReady(true)
-      
-      const localStream = await fetchUserFeedStream()
-      
-      // Only join video call after stream is ready
-      if (localStream && socketRef.current) {
-        socketRef.current.emit('ready', { peerId: id })
-      }
-    })
-    
-
-    newPeer.on('error', (err) => console.error('PeerJS error:', err))
-
-    // ----- Initialize Socket -----
+    // ---- Initialize Socket ----
     const newSocket = io(import.meta.env.VITE_BACKEND_SOCKET_URL, {
       auth: { token: auth.token },
     })
@@ -93,59 +77,69 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
     newSocket.on('connect', () => console.log('🟢 Socket connected:', newSocket.id))
     newSocket.on('newMessageRecieved', setNewMessageRecieved)
 
-    // ----- Handle users leaving -----
+    // Handle when a peer leaves
     newSocket.on('user-left', ({ peerId }) => {
       console.log('user-left received:', peerId)
       dispatch(removePeerAction(peerId))
     })
 
+    // ---- PeerJS open ----
+    newPeer.on('open', async (id) => {
+      console.log('PeerJS ready with ID:', id)
+
+      const localStream = await fetchLocalStream()
+      if (localStream) {
+        setPeerReady(true)
+        // emit ready only after local stream exists
+        newSocket.emit('ready', { peerId: id })
+      }
+    })
+
+    newPeer.on('error', (err) => console.error('PeerJS error:', err))
+
     return () => {
+      // ---- Cleanup ----
       newSocket.disconnect()
       socketRef.current = null
       setSocket(null)
+      stream?.getTracks().forEach((track) => track.stop())
       newPeer.destroy()
     }
   }, [auth?.user])
 
-  // ----- Peer Connections -----
+  // ---- Handle peer connections ----
   useEffect(() => {
-    if (!peer || !stream) return
-    if (!socket) return
+    if (!peer || !socket || !stream) return
 
-    // When a new user joins, call them
     const handleUserJoined = ({ peerId }: { peerId: string }) => {
-      if (!stream) return  // ❌ must check stream
+      if (!stream) return
       if (peerId === peer.id || peers[peerId]) return
+
       const call = peer.call(peerId, stream)
-      console.log('calling new peer:', peerId)
+      console.log('Calling new peer:', peerId)
       call.on('stream', (remoteStream) => {
         dispatch(addPeerAction(peerId, remoteStream))
       })
     }
-    
 
-    socket.on('user-joined', handleUserJoined)
-
-    // When receiving a call
     peer.on('call', (call) => {
-      console.log('receiving a call from:', call.peer)
+      if (!stream) return
+      console.log('Receiving call from:', call.peer)
       call.answer(stream)
       call.on('stream', (remoteStream) => {
-        dispatch(addPeerAction(call.peer, remoteStream))
+        dispatch(addPeerAction(call.peer, remoteStream)) // use remote stream
       })
     })
 
+    socket.on('user-joined', handleUserJoined)
+
     return () => {
-      socket?.off('user-joined', handleUserJoined)
-      socket?.off('user-left')
-      peer?.removeAllListeners('call')
-      stream?.getTracks().forEach(track => track.stop())
-      peer?.destroy()
+      socket.off('user-joined', handleUserJoined)
+      peer.removeAllListeners('call')
     }
-    
   }, [peer, stream, socket, peers])
 
-  // ----- Channels -----
+  // ---- Channels ----
   const joinChannel = (channelId: string) => {
     if (!socketRef.current) return
     socketRef.current.emit('joinChannel', { channelId }, (res: { success: boolean; data: string }) => {
@@ -159,9 +153,9 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
     setCurrentChannel('')
   }
 
-  // ----- Video Call -----
+  // ---- Video call ----
   const joinVideoCall = (roomId: string, peer: Peer) => {
-    if (!socketRef.current || !peer || !peerReady) return
+    if (!socketRef.current || !peer || !peerReady || !stream) return
 
     const emitJoin = () => {
       socketRef.current!.emit('joinVideoCall', { roomId, peerId: peer.id }, (response: any) => {
