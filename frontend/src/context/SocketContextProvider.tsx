@@ -136,9 +136,13 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
     })
 
     return () => {
-      socket.off('user-joined', handleUserJoined)
-      peer.removeAllListeners('call')
+      socket?.off('user-joined', handleUserJoined)
+      socket?.off('user-left')
+      peer?.removeAllListeners('call')
+      stream?.getTracks().forEach(track => track.stop())
+      peer?.destroy()
     }
+    
   }, [peer, stream, socket, peers])
 
   // ----- Channels -----
