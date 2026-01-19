@@ -1,9 +1,8 @@
 import { Button } from '@/components/ui/button'
-import { SocketContext } from '@/context/SocketContextProvider'
 import { useGetWorkspaceById } from '@/hooks/apis/workspace/useGetWorkspaceById'
 import { useCurrentWorkspace } from '@/hooks/context/useCurrentWorkspace'
 import { LucideLoader2, SearchIcon, VideoIcon } from 'lucide-react'
-import { useContext, useEffect } from 'react'
+import { useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 const WorkspaceNavbar = () => {
