@@ -20,11 +20,9 @@ export const useUpdateWorkspace = ({
     mutationFn: () => updateWorkspaceDetails({ workspaceId, name, token: auth?.token || '' }),
     onSuccess: () => {
       toast.success('Workspace Details updated successfully')
-
     },
     onError: () => {
       toast.error('Error occured while updating workspace')
-
     },
   })
   return {

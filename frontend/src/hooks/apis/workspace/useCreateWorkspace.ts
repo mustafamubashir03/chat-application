@@ -14,7 +14,6 @@ const useCreateWorkspace = () => {
     mutationFn: (data: Object) => createWorkspace({ ...data, token: auth?.token }),
     onError: () => {
       toast.error('Error occurred while creating workspace')
-
     },
     onSuccess: () => {
       toast.success('Workspace have been created')

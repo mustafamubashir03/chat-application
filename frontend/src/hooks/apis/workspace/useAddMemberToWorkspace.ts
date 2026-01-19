@@ -20,12 +20,8 @@ export const useAddMemberToWorkspace = ({
   } = useMutation({
     mutationFn: () =>
       addMemberToWorkspace({ workspaceId, memberId, role, token: auth?.token || '' }),
-    onError: () => {
-
-    },
-    onSuccess: () => {
-
-    },
+    onError: () => {},
+    onSuccess: () => {},
   })
 
   return {

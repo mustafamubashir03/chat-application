@@ -8,8 +8,8 @@ import WorkspaceContextProvider from './WorkspaceContext'
 import { SocketContextProvider } from './SocketContextProvider'
 
 export const AppContextProvider = combineContext(
-  SocketContextProvider,
   AuthContextProvider,
+  SocketContextProvider,
   CreateWorkspaceModalContextProvider,
   WorkspacePreferencesModalContextProvider,
   WorkspaceContextProvider,

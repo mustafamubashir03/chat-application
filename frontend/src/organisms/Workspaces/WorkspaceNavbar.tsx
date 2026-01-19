@@ -4,23 +4,22 @@ import { useGetWorkspaceById } from '@/hooks/apis/workspace/useGetWorkspaceById'
 import { useCurrentWorkspace } from '@/hooks/context/useCurrentWorkspace'
 import { LucideLoader2, SearchIcon, VideoIcon } from 'lucide-react'
 import { useContext, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 const WorkspaceNavbar = () => {
   const { workspaceId } = useParams()
   const { isPending, workspaceDetails } = useGetWorkspaceById({ workspaceId: workspaceId || '' })
   const { setCurrentWorkspace } = useCurrentWorkspace()
-  const {joinVideoCall} = useContext(SocketContext)
+  const navigate = useNavigate()
+
   useEffect(() => {
     if (workspaceDetails) {
       setCurrentWorkspace(workspaceDetails)
     }
   }, [workspaceDetails, setCurrentWorkspace])
-  const handleJoinVideoCall = ()=>{
-    console.log("button clicked")
-    if(workspaceId){
-      joinVideoCall(workspaceId)
-    }
+  const handleStartMeeting = () => {
+    navigate(`/workspace/${workspaceId}/videoRoom`)
+    console.log('Joining Video Call event emitted')
   }
   if (isPending) {
     return (
@@ -39,8 +38,8 @@ const WorkspaceNavbar = () => {
           </Button>
         </div>
         <div className="ml-auto flex-1 flex items-center justify-end">
-          <Button onClick={handleJoinVideoCall} variant={'indigoGlow'}>
-            <VideoIcon className='cursor-pointer'/>
+          <Button onClick={handleStartMeeting} variant={'indigoGlow'}>
+            <VideoIcon className="cursor-pointer" />
             Start a New Meeting
           </Button>
         </div>

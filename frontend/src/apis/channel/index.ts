@@ -16,7 +16,6 @@ export const getChannelWithWorkspaceDetails = async ({
 
     return response?.data
   } catch (error: any) {
-
     throw error.response?.data
   }
 }

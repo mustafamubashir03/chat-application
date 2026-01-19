@@ -2,7 +2,6 @@ import axios from '@/config/axiosConfig'
 
 export const getWorkspace = async ({ token }: { token: string }) => {
   try {
-
     const response = await axios.get('/workspace', {
       headers: {
         token,

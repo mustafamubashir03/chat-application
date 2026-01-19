@@ -72,8 +72,8 @@ export const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <WorkspaceLayout>
-              <PlaceHolderChannel/>
-              </WorkspaceLayout>
+              <PlaceHolderChannel />
+            </WorkspaceLayout>
           </ProtectedRoute>
         }
       />
@@ -87,7 +87,14 @@ export const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
-      <Route path='/workspace/:workspaceId/videoRoom' element={<ProtectedRoute><VideoRoom/></ProtectedRoute>}/>
+      <Route
+        path="/workspace/:workspaceId/videoRoom"
+        element={
+          <ProtectedRoute>
+            <VideoRoom />
+          </ProtectedRoute>
+        }
+      />
 
       {/* Catch-all unknown routes */}
       <Route
