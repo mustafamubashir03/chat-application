@@ -124,19 +124,33 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
 
     peer.on('call', (call) => {
       if (!stream) return
-      console.log('Receiving call from:', call.peer)
       call.answer(stream)
       call.on('stream', (remoteStream) => {
-        dispatch(addPeerAction(call.peer, remoteStream)) // use remote stream
+        dispatch(addPeerAction(call.peer, remoteStream))
       })
     })
-
-    socket.on('user-joined', handleUserJoined)
+    
+    socket.on('user-joined', ({ peerId }) => {
+      if (!peerId || peerId === peer?.id || peers[peerId] || !stream) return
+    
+      const call = peer.call(peerId, stream)
+      call.on('stream', (remoteStream) => {
+        dispatch(addPeerAction(peerId, remoteStream))
+      })
+    })
+    socket.on('user-left', ({ peerId }) => {
+      if (!peerId) return
+      dispatch(removePeerAction(peerId))
+    })
+    
+    
 
     return () => {
-      socket.off('user-joined', handleUserJoined)
-      peer.removeAllListeners('call')
+      socket?.disconnect()
+      peer?.destroy()
+      stream?.getTracks().forEach(track => track.stop())
     }
+    
   }, [peer, stream, socket, peers])
 
   // ---- Channels ----
@@ -154,22 +168,33 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
   }
 
   // ---- Video call ----
-  const joinVideoCall = (roomId: string, peer: Peer) => {
-    if (!socketRef.current || !peer || !peerReady || !stream) return
-
+  const joinVideoCall = async (roomId: string, peer: Peer) => {
+    if (!socket || !peer || !peerReady || !stream) return
+  
     const emitJoin = () => {
-      socketRef.current!.emit('joinVideoCall', { roomId, peerId: peer.id }, (response: any) => {
+      socket.emit('joinVideoCall', { roomId, peerId: peer.id }, (response: { participants: string[] }) => {
         console.log('after joining emission', response)
+  
+        // Call existing participants
+        response.participants.forEach((otherPeerId) => {
+          if (otherPeerId !== peer.id && !peers[otherPeerId]) {
+            const call = peer.call(otherPeerId, stream)
+            call.on('stream', (remoteStream) => {
+              dispatch(addPeerAction(otherPeerId, remoteStream))
+            })
+          }
+        })
       })
     }
-
-    if (!socketRef.current.connected) {
-      socketRef.current.once('connect', emitJoin)
+  
+    if (!socket.connected) {
+      socket.once('connect', emitJoin)
       return
     }
-
+  
     emitJoin()
   }
+  
 
   return (
     <SocketContext.Provider
