@@ -7,7 +7,7 @@ import { useParams } from 'react-router-dom'
 const VideoRoom = () => {
   const { joinVideoCall, socket, peer, stream, peers } = useSocket()
   const { workspaceId } = useParams()
-  const meetingUrl = `${window.location.origin}/video/${workspaceId}`
+  const meetingUrl = `${window.location.origin}/workspace/${workspaceId}/videoRoom`
   const [showInvite, setShowInvite] = useState(false)
 
   const copyMeetingLink = async () => {
