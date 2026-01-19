@@ -3,3 +3,6 @@ export const NEW_MESSAGE_RECIEVED_EVENT = 'newMessageRecieved';
 export const JOIN_CHANNEL = 'joinChannel';
 export const LEAVE_CHANNEL = 'leaveChannel';
 export const JOIN_VIDEO_CALL = 'joinVideoCall';
+export const GET_USERS ='get-users';
+export const USER_JOINED ="user-joined";
+ 

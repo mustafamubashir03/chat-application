@@ -13,6 +13,7 @@ import MessageSocketHandler from './controllers/messageSocketController.js';
 import ChannelSocketHandler from './controllers/channelSocketController.js';
 import { verifyEmailController } from './controllers/workspaceController.js';
 import { videoCallRoomHandler } from './controllers/videoCallRoomController.js';
+import { ExpressPeerServer } from 'peer';
 
 const app: Express = express();
 const server = createServer(app);
@@ -23,7 +24,26 @@ const io = new Server(server, {
     credentials: true
   }
 });
+const peerServer = ExpressPeerServer(server,{
+  path:"/peer",
+  allow_discovery:true,
+})
 console.log('🔥 RUNNING SRC INDEX 🔥');
+peerServer.on("connection", (client) => {
+  console.log("🟢 Peer connected:", {
+    id: client.getId(),
+    token: client.getToken(),
+    ip: client.getSocket(),
+  })
+})
+
+peerServer.on("disconnect", (client) => {
+  console.log("🔴 Peer disconnected:", {
+    id: client.getId(),
+    token: client.getToken(),
+  })
+})
+
 const serverAdapter = new ExpressAdapter();
 createBullBoard({
   queues: [new BullAdapter(mailQueue)],
@@ -31,6 +51,7 @@ createBullBoard({
 });
 app.use(cors());
 app.use('/ui', serverAdapter.getRouter());
+app.use('/peerjs',peerServer)
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -46,6 +67,8 @@ io.on('connection', (socket) => {
   ChannelSocketHandler(io, socket);
   videoCallRoomHandler(io, socket);
 });
+console.log("videoCallRoomHandler =", videoCallRoomHandler);
+
 
 server
   .listen(PORT, async () => {
