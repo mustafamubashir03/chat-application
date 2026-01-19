@@ -110,8 +110,8 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
     socket?.on('user-joined', ({ peerId }: { peerId: string }) => {
       const call = peer.call(peerId, stream)
       console.log('calling the new peer', peerId)
-      call.on('stream', () => {
-        dispatch(addPeerAction(peerId, stream))
+      call.on('stream', (remoteStream) => {
+        dispatch(addPeerAction(peerId, remoteStream))
       })
     })
     peer.on('call', (call) => {

@@ -17,9 +17,11 @@ export const peerReducer = (state: PeerState, action: PeerAction) => {
     case ADD_PEER:
       return { ...state, [action.payload.peerId]: { stream: action.payload.stream } }
 
-    case REMOVE_PEER:
-      //
-      return { ...state }
+      case REMOVE_PEER: {
+        const { [action.payload.peerId]: _, ...rest } = state
+        return rest
+      }
+      
 
     default:
       return { ...state }
