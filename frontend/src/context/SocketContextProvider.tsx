@@ -6,6 +6,18 @@ import { peerReducer } from '@/Reducers/peerReducer'
 import { addPeerAction, removePeerAction } from '@/Actions/peerAction'
 
 type PeerMap = Record<string, { stream: MediaStream }>
+export interface SocketMessage {
+  _id: string
+  channelId: string
+  messageBody: string
+  image?: string
+  createdAt: string
+  senderId?: {
+    _id: string
+    username: string
+    avatar?: string
+  }
+}
 
 type JoinVideoAck = {
   success: boolean
@@ -22,7 +34,7 @@ type SocketContextType = {
   joinChannel: (channelId: string) => void
   leaveChannel: (channelId: string) => void
   currentChannel: string
-  newMessageRecieved: unknown
+  newMessageRecieved: SocketMessage | null
   joinVideoCall: (roomId: string) => void
   peer: Peer | null
   peerReady: boolean
@@ -54,7 +66,7 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
   const [stream, setStream] = useState<MediaStream | null>(null)
   const [peers, dispatch] = useReducer(peerReducer, {})
   const [currentChannel, setCurrentChannel] = useState('')
-  const [newMessageRecieved, setNewMessageRecieved] = useState<unknown>(null)
+  const [newMessageRecieved, setNewMessageRecieved] = useState<SocketMessage | null>(null)
 
   /* =======================
      LOCAL MEDIA
