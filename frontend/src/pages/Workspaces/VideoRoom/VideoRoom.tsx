@@ -39,7 +39,7 @@ const VideoRoom = () => {
 
   useEffect(() => {
     if (!workspaceId || !socket || !peer?.id) return
-    joinVideoCall(workspaceId, peer)
+    joinVideoCall(workspaceId)
   }, [workspaceId, socket, peer?.id])
 
   const peerEntries = peers ? Object.entries(peers) as [string, PeerData][] : []
