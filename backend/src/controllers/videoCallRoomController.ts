@@ -1,67 +1,115 @@
-import { Server, Socket } from 'socket.io';
-import { JOIN_VIDEO_CALL, GET_USERS, USER_JOINED } from '../utils/eventConstant.js';
+import { Server, Socket } from 'socket.io'
 
 interface JoinParams {
-  roomId: string;
-  peerId: string;
+  roomId: string
+  peerId: string
 }
 
-const rooms: Record<string, string[]> = {};
-
+/**
+ * roomId -> peerIds[]
+ */
+const rooms: Record<string, string[]> = {}
 
 export const videoCallRoomHandler = (io: Server, socket: Socket) => {
-  console.log('VIDEO CALL HANDLER ATTACHED');
+  console.log('📹 Video call handler attached:', socket.id)
 
-  socket.on(JOIN_VIDEO_CALL, (data: JoinParams, cb) => {
-    console.log("📞 JOIN_VIDEO_CALL event received!", data);
-    const roomId = String(data.roomId);
-    const peerId = String(data.peerId);
+  let currentRoomId: string | null = null
+  let currentPeerId: string | null = null
 
-    if (!roomId || !peerId) {
-      return cb?.({ success: false, message: 'Invalid payload' });
+  // ================================
+  // JOIN VIDEO CALL
+  // ================================
+  socket.on(
+    'joinVideoCall',
+    (data: JoinParams, cb?: (res: any) => void) => {
+      const roomId = String(data?.roomId)
+      const peerId = String(data?.peerId)
+
+      if (!roomId || !peerId) {
+        cb?.({ success: false, message: 'Invalid payload' })
+        return
+      }
+
+      currentRoomId = roomId
+      currentPeerId = peerId
+
+      if (!rooms[roomId]) {
+        rooms[roomId] = []
+      }
+
+      /**
+       * IMPORTANT:
+       * Remove any old peer from same user (refresh / reconnect case)
+       * peerId format: userId-random
+       */
+      const userId = peerId.split('-')[0]
+      rooms[roomId] = rooms[roomId].filter(
+        (p) => !p.startsWith(`${userId}-`)
+      )
+
+      // Add current peer
+      rooms[roomId].push(peerId)
+
+      socket.join(roomId)
+
+      console.log(
+        `✅ Peer ${peerId} joined room ${roomId}`,
+        rooms[roomId]
+      )
+
+      // 1️⃣ Notify OTHERS that a new peer joined
+      socket.to(roomId).emit('user-joined', { peerId })
+
+      // 2️⃣ Emit updated participants list (slight delay avoids race)
+      setTimeout(() => {
+        io.to(roomId).emit('get-users', {
+          roomId,
+          participants: rooms[roomId],
+        })
+      }, 50)
+
+      // 3️⃣ Ack to joining client
+      cb?.({
+        success: true,
+        message: 'Successfully joined the video room',
+        data: {
+          roomId,
+          peerId,
+          participants: rooms[roomId],
+        },
+      })
     }
-    console.log("rooms",rooms)
+  )
 
-    if (!rooms[roomId]) rooms[roomId] = [];
-
-    if (!rooms[roomId].includes(peerId)) {
-      rooms[roomId].push(peerId);
-    }
-
-    socket.join(roomId);
-    socket.to(roomId).emit(USER_JOINED, { peerId })
-
+  // ================================
+  // DISCONNECT (ONLY ONCE)
+  // ================================
+  socket.on('disconnect', () => {
+    if (!currentRoomId || !currentPeerId) return
 
     console.log(
-      `${socket.id} joined room ${roomId} with peer ${peerId}`
-    );
+      `❌ Peer ${currentPeerId} disconnected from room ${currentRoomId}`
+    )
 
-    // emit room state to everyone IN THE ROOM
-    io.to(roomId).emit(GET_USERS, {
-      roomId, 
-      participants: rooms[roomId],
-    });
+    rooms[currentRoomId] =
+      rooms[currentRoomId]?.filter((p) => p !== currentPeerId) ?? []
 
-    cb?.({
-      success: true,
-      message: 'Successfully joined the video room',
-      data: {
-        roomId,
-        peerId,
-        participants: rooms[roomId],
-      },
-    });
+    // Notify remaining users
+    socket.to(currentRoomId).emit('user-left', {
+      peerId: currentPeerId,
+    })
 
-    // cleanup on disconnect
-    socket.on('disconnect', () => {
-      rooms[roomId] = rooms[roomId]?.filter(p => p !== peerId);
-      io.to(roomId).emit(GET_USERS, {
-        roomId,
-        participants: rooms[roomId],
-      });
-      socket.to(roomId).emit('user-left', { peerId })
-      console.log(`${peerId} left room ${roomId}`);
-    });
-    
-  });
-};
+    io.to(currentRoomId).emit('get-users', {
+      roomId: currentRoomId,
+      participants: rooms[currentRoomId],
+    })
+
+    // Cleanup empty room
+    if (rooms[currentRoomId].length === 0) {
+      delete rooms[currentRoomId]
+    }
+
+    currentRoomId = null
+    currentPeerId = null
+  })
+}
