@@ -10,8 +10,9 @@ const useSocket = () => {
     newMessageRecieved,
     peer,
     stream,
-    peerReady,
+    setStream,
     peers,
+    dispatch
   } = useContext(SocketContext)
 
   return {
@@ -19,11 +20,12 @@ const useSocket = () => {
     socket,
     currentChannel,
     newMessageRecieved,
+    setStream,
     joinVideoCall,
     peer,
     stream,
-    peerReady,
     peers,
+    dispatch
   }
 }
 
