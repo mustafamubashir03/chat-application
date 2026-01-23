@@ -17,72 +17,68 @@ import { ExpressPeerServer } from 'peer';
 
 const app: Express = express();
 const server = createServer(app);
+const peerApp = express();
+const peerHttpServer = createServer(peerApp);
+// ---- Socket.IO ----
 const io = new Server(server, {
+  path: '/socket.io',
   cors: {
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
   }
 });
-const peerServer = ExpressPeerServer(server,{
-  path:"/peer",
-  allow_discovery:true,
-})
-console.log('🔥 RUNNING SRC INDEX 🔥');
-peerServer.on("connection", (client) => {
-  console.log("🟢 Peer connected:", {
-    id: client.getId(),
-    token: client.getToken(),
-    ip: client.getSocket(),
-  })
-})
 
-peerServer.on("disconnect", (client) => {
-  console.log("🔴 Peer disconnected:", {
-    id: client.getId(),
-    token: client.getToken(),
-  })
-})
 
+// ---- Bull Board ----
 const serverAdapter = new ExpressAdapter();
 createBullBoard({
   queues: [new BullAdapter(mailQueue)],
-  serverAdapter
+  serverAdapter,
 });
-app.use(cors());
 app.use('/ui', serverAdapter.getRouter());
-app.use('/peerjs',peerServer)
+
+// ---- Middlewares ----
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// ---- Routes ----
 app.use('/api', apiRouter);
-app.get('/health', (_req, res) => {
-  res.status(200).json({ status: 'ok' });
-});
+app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 app.get('/verify/:token', verifyEmailController);
 
+// ---- Socket.IO handlers ----
 io.on('connection', (socket) => {
   console.log('client connected :', socket.id);
   MessageSocketHandler(io, socket);
   ChannelSocketHandler(io, socket);
   videoCallRoomHandler(io, socket);
 });
-console.log("videoCallRoomHandler =", videoCallRoomHandler);
+
+// ---- Start server ----
+
+const peerServer = ExpressPeerServer(peerHttpServer, {
+  path: '/peer',
+  allow_discovery: true,
+});
+
+app.use('/peerjs', peerServer);
+
+peerServer.on('connection', (client) => {
+  console.log('🟢 Peer connected', client.getId());
+});
+
+peerServer.on('disconnect', (client) => {
+  console.log('🔴 Peer disconnected', client.getId());
+});
+
+server.listen(PORT, async () => {
+    console.log('🔥 Server running at', PORT);
+    await connectDB();
+  });
 
 
-server
-  .listen(PORT, async () => {
-    console.log('Server has been started at ', PORT);
-    connectDB();
-  })
-  .on('error', (err: NodeJS.ErrnoException) => {
-    if (err.code === 'EADDRINUSE') {
-      console.error(`\n❌ Port ${PORT} is already in use.`);
-      console.log(`\n💡 Try running: npm run kill:port`);
-      console.log(`   Or manually kill the process using port ${PORT}\n`);
-      process.exit(1);
-    } else {
-      console.error('Server error:', err);
-      process.exit(1);
-    }
+peerHttpServer.listen(3001, () => {
+    console.log('🟢 PeerJS running on 3001');
   });

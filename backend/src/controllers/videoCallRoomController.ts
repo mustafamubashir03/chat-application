@@ -1,115 +1,73 @@
-import { Server, Socket } from 'socket.io'
+import { Server, Socket } from 'socket.io';
+import { GET_USERS, JOIN_VIDEO_CALL, USER_JOINED } from '../utils/eventConstant.js';
 
 interface JoinParams {
-  roomId: string
-  peerId: string
+  roomId: string;
+  peerId: string;
 }
 
-/**
- * roomId -> peerIds[]
- */
-const rooms: Record<string, string[]> = {}
+
+// In-memory room store (OK for now)
+const rooms: Record<string,Set<string>> = {};
+
+
 
 export const videoCallRoomHandler = (io: Server, socket: Socket) => {
-  console.log('📹 Video call handler attached:', socket.id)
-
-  let currentRoomId: string | null = null
-  let currentPeerId: string | null = null
-
-  // ================================
-  // JOIN VIDEO CALL
-  // ================================
-  socket.on(
-    'joinVideoCall',
-    (data: JoinParams, cb?: (res: any) => void) => {
-      const roomId = String(data?.roomId)
-      const peerId = String(data?.peerId)
-
-      if (!roomId || !peerId) {
-        cb?.({ success: false, message: 'Invalid payload' })
-        return
-      }
-
-      currentRoomId = roomId
-      currentPeerId = peerId
-
-      if (!rooms[roomId]) {
-        rooms[roomId] = []
-      }
-
-      /**
-       * IMPORTANT:
-       * Remove any old peer from same user (refresh / reconnect case)
-       * peerId format: userId-random
-       */
-      const userId = peerId.split('-')[0]
-      rooms[roomId] = rooms[roomId].filter(
-        (p) => !p.startsWith(`${userId}-`)
-      )
-
-      // Add current peer
-      rooms[roomId].push(peerId)
-
-      socket.join(roomId)
-
-      console.log(
-        `✅ Peer ${peerId} joined room ${roomId}`,
-        rooms[roomId]
-      )
-
-      // 1️⃣ Notify OTHERS that a new peer joined
-      socket.to(roomId).emit('user-joined', { peerId })
-
-      // 2️⃣ Emit updated participants list (slight delay avoids race)
-      setTimeout(() => {
-        io.to(roomId).emit('get-users', {
-          roomId,
-          participants: rooms[roomId],
-        })
-      }, 50)
-
-      // 3️⃣ Ack to joining client
-      cb?.({
-        success: true,
-        message: 'Successfully joined the video room',
-        data: {
-          roomId,
-          peerId,
-          participants: rooms[roomId],
-        },
-      })
+  const createRoom = (data:JoinParams, cb?:any)=>{
+    const roomId = String(data.roomId)
+    const peerId = String(data.peerId)
+    if(!rooms[roomId]){
+      rooms[roomId] = new Set()
     }
-  )
-
-  // ================================
-  // DISCONNECT (ONLY ONCE)
-  // ================================
-  socket.on('disconnect', () => {
-    if (!currentRoomId || !currentPeerId) return
-
-    console.log(
-      `❌ Peer ${currentPeerId} disconnected from room ${currentRoomId}`
+    rooms[roomId].add(peerId)
+    socket.join(roomId);
+    console.log(rooms)
+    socket.data.roomId = roomId
+    socket.data.peerId = peerId
+    socket.emit("room-created",roomId, Array.from(rooms[roomId]))
+    console.log("room created with roomId",roomId)
+    cb?.(
+      {
+        success:true,
+        message:"Room has been created",
+        data:roomId
+      }
     )
 
-    rooms[currentRoomId] =
-      rooms[currentRoomId]?.filter((p) => p !== currentPeerId) ?? []
-
-    // Notify remaining users
-    socket.to(currentRoomId).emit('user-left', {
-      peerId: currentPeerId,
-    })
-
-    io.to(currentRoomId).emit('get-users', {
-      roomId: currentRoomId,
-      participants: rooms[currentRoomId],
-    })
-
-    // Cleanup empty room
-    if (rooms[currentRoomId].length === 0) {
-      delete rooms[currentRoomId]
+  }
+  const joinedRoom = (data:JoinParams)=>{
+    const roomId = String(data.roomId);
+    const peerId = String(data.peerId);
+    if(!rooms[roomId]){
+      return
     }
+    rooms[roomId].add(peerId)
+    socket.join(roomId)
+    console.log("New user has joined room",roomId,"with peer Id",peerId)
+    socket.data.roomId = roomId
+    socket.data.peerId = peerId
+    console.log("joinedRoom called",rooms,roomId,peerId)
+    socket.emit(GET_USERS,{
+      roomId,
+      participants: Array.from(rooms[roomId])
+    })   
+  }
+  socket.on("create-room",createRoom)
+  socket.on("joined-room",joinedRoom)
+  socket.on("ready",(data:JoinParams)=>{
+    const roomId = data.roomId
+    const peerId = data.peerId
+    if (socket.data.roomId !== roomId) return
 
-    currentRoomId = null
-    currentPeerId = null
+    socket.to(roomId).emit(USER_JOINED, { peerId })
   })
+ socket.on('disconnect',()=>{
+  const {roomId, peerId} = socket.data as {roomId?:string, peerId?:string}
+  if (!roomId || !peerId) return
+  const room = rooms[roomId]
+  if (!room) return
+  room.delete(peerId)
+  socket.to(roomId).emit("user-left",{peerId})
+  console.log("peer left: ", peerId)
+ })
 }
