@@ -1,15 +1,9 @@
-import {
-  createContext,
-  useEffect,
-  useReducer,
-  useRef,
-  useState,
-} from 'react'
+import { createContext, useEffect, useReducer, useRef, useState } from 'react'
 import { io, Socket } from 'socket.io-client'
 import Peer from 'peerjs'
 import { useAuth } from '@/hooks/context/useAuth'
 import { peerReducer } from '@/Reducers/peerReducer'
-import { addPeerAction, removePeerAction } from '@/Actions/peerAction'
+import { addPeerAction } from '@/Actions/peerAction'
 import { fetchParticipantsList } from '@/utils/fetchingFunction'
 
 /* ================= TYPES ================= */
@@ -30,14 +24,7 @@ type SocketContextType = {
   dispatch: any
 }
 
-/* ================= CONFIG ================= */
-
-const backendUrl = import.meta.env.VITE_BACKEND_SOCKET_URL.replace(
-  /^https?:\/\//,
-  ''
-)
-
-/* ================= CONTEXT ================= */
+const backendUrl = import.meta.env.VITE_BACKEND_SOCKET_URL.replace(/^https?:\/\//, '')
 
 export const SocketContext = createContext<SocketContextType>({
   socket: null,
@@ -54,13 +41,7 @@ export const SocketContext = createContext<SocketContextType>({
   dispatch: {},
 })
 
-/* ================= PROVIDER ================= */
-
-export const SocketContextProvider = ({
-  children,
-}: {
-  children: React.ReactNode
-}) => {
+export const SocketContextProvider = ({ children }: { children: React.ReactNode }) => {
   const socketRef = useRef<Socket | null>(null)
 
   const [socket, setSocket] = useState<Socket | null>(null)
@@ -73,8 +54,6 @@ export const SocketContextProvider = ({
   const [peers, dispatch] = useReducer(peerReducer, {})
 
   const { auth } = useAuth()
-
-  /* ================= INIT ================= */
 
   useEffect(() => {
     if (!auth?.user) return
@@ -91,17 +70,12 @@ export const SocketContextProvider = ({
       setStream(localStream)
 
       /* -------- PEER -------- */
-      const newPeer = new Peer(
-        `${auth?.user?.id}`,
-        {
-          host: backendUrl.includes('localhost')
-            ? 'localhost'
-            : backendUrl,
-          port: backendUrl.includes('localhost') ? 3001 : 443,
-          path: '/peerjs/peer',
-          secure: !backendUrl.includes('localhost'),
-        }
-      )
+      const newPeer = new Peer(`${auth?.user?.id}`, {
+        host: backendUrl.includes('localhost') ? 'localhost' : backendUrl,
+        port: backendUrl.includes('localhost') ? 3001 : 443,
+        path: '/peerjs/peer',
+        secure: !backendUrl.includes('localhost'),
+      })
 
       setPeer(newPeer)
 
@@ -114,14 +88,9 @@ export const SocketContextProvider = ({
       socketRef.current = newSocket
       setSocket(newSocket)
 
-      /* -------- EXISTING LOGIC (UNTOUCHED) -------- */
-      newSocket.on('connect', () =>
-        console.log('🟢 Socket connected:', newSocket.id)
-      )
+      newSocket.on('connect', () => console.log('🟢 Socket connected:', newSocket.id))
       newSocket.on('newMessageRecieved', setNewMessageRecieved)
       newSocket.on('get-users', fetchParticipantsList)
-
-      /* -------- VIDEO EVENTS -------- */
 
       newPeer.on('call', (call) => {
         console.log('📥 incoming call from', call.peer)
@@ -146,8 +115,6 @@ export const SocketContextProvider = ({
     }
   }, [auth?.user])
 
-  /* ================= CHANNELS (UNCHANGED) ================= */
-
   const joinChannel = (channelId: string) => {
     if (!socketRef.current) return
     socketRef.current.emit(
@@ -155,7 +122,7 @@ export const SocketContextProvider = ({
       { channelId },
       (res: { success: boolean; data: string }) => {
         setCurrentChannel(res.data)
-      }
+      },
     )
   }
 
@@ -164,8 +131,6 @@ export const SocketContextProvider = ({
     socketRef.current.emit('leaveChannel', { channelId })
     setCurrentChannel('')
   }
-
-  /* ================= VIDEO CALL (FIXED) ================= */
 
   const joinVideoCall = (roomId: string) => {
     if (!socket || !peer || !stream) return
@@ -185,11 +150,9 @@ export const SocketContextProvider = ({
             dispatch(addPeerAction(otherPeerId, remoteStream))
           })
         })
-      }
+      },
     )
   }
-
-  /* ================= PROVIDER ================= */
 
   return (
     <SocketContext.Provider

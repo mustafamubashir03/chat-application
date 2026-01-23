@@ -8,10 +8,10 @@ import { useNavigate, useParams } from 'react-router-dom'
 
 const WorkspaceNavbar = () => {
   const { workspaceId } = useParams()
-  console.log("workspace Id",workspaceId)
+  console.log('workspace Id', workspaceId)
   const { isPending, workspaceDetails } = useGetWorkspaceById({ workspaceId: workspaceId || '' })
   const { setCurrentWorkspace } = useCurrentWorkspace()
-  const {socket,peer} = useSocket()
+  const { socket, peer } = useSocket()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -19,11 +19,12 @@ const WorkspaceNavbar = () => {
       setCurrentWorkspace(workspaceDetails)
     }
   }, [workspaceDetails, setCurrentWorkspace])
-  const handleCreateVideoRoom = () =>{
-    if (workspaceId && peer?.id) socket?.emit("create-room",{roomId:workspaceId,peerId:peer?.id})
+  const handleCreateVideoRoom = () => {
+    if (workspaceId && peer?.id)
+      socket?.emit('create-room', { roomId: workspaceId, peerId: peer?.id })
     workspaceId && navigate(`/workspace/${workspaceId}/videoRoom`)
     console.log('Video Room created from frontend')
-  } 
+  }
   if (isPending) {
     return (
       <div className="flex items-center justify-center h-14 p-2 bg-[#0b0d1a] text-slate-400">

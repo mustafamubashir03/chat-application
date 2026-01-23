@@ -34,12 +34,7 @@ const VideoRoom = () => {
     if (!socket || !peer || !stream) return
 
     // Existing users
-    const handleGetUsers = ({
-      participants,
-    }: {
-      roomId: string
-      participants: string[]
-    }) => {
+    const handleGetUsers = ({ participants }: { roomId: string; participants: string[] }) => {
       participants.forEach((id) => {
         if (id === peer.id) return
         if (peers[id]) return
@@ -124,10 +119,7 @@ const VideoRoom = () => {
         {stream && <UserVideoFeedPlayer stream={stream} />}
 
         {Object.keys(peers).map((peerId) => (
-          <UserVideoFeedPlayer
-            key={peerId}
-            stream={peers[peerId].stream}
-          />
+          <UserVideoFeedPlayer key={peerId} stream={peers[peerId].stream} />
         ))}
       </div>
     </div>

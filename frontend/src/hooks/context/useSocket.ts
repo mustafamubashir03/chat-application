@@ -12,7 +12,7 @@ const useSocket = () => {
     stream,
     setStream,
     peers,
-    dispatch
+    dispatch,
   } = useContext(SocketContext)
 
   return {
@@ -25,7 +25,7 @@ const useSocket = () => {
     peer,
     stream,
     peers,
-    dispatch
+    dispatch,
   }
 }
 
