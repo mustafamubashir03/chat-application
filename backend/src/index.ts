@@ -22,6 +22,9 @@ const peerHttpServer = createServer(peerApp);
 // ---- Socket.IO ----
 const io = new Server(server, {
   path: '/socket.io',
+  transports: ['websocket', 'polling'],
+  pingTimeout: 20000,
+  pingInterval: 25000,
   cors: {
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
