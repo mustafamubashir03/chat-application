@@ -75,9 +75,14 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
       // PeerJS connection
       const newPeer = new Peer(`${auth?.user?.id}`, {
         host: 'chat-application-lrll.onrender.com',
-        path: '/peerjs',
-        secure: true,
+        path: '/peerjs',      // just /peerjs
+        secure: true,          // WSS
+        port: 443,             // default for WSS
+        config: {
+          iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
+        },
       });
+      
       setPeer(newPeer)
 
       /* -------- SOCKET -------- */
