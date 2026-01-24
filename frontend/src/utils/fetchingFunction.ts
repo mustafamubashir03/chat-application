@@ -7,7 +7,7 @@ export const fetchLocalStream = async (): Promise<MediaStream | null> => {
     setStream(localStream)
     return localStream
   } catch (err) {
-    console.error('Error accessing camera/mic:', err) 
+    console.error('Error accessing camera/mic:', err)
     return null
   }
 }

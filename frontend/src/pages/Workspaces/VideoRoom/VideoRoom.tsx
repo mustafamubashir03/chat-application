@@ -33,24 +33,27 @@ const VideoRoom = () => {
   useEffect(() => {
     if (!socket || !peer || !stream) return
 
-    // Existing users
-    const handleGetUsers = ({ participants }: { roomId: string; participants: string[] }) => {
+    // Existing users already in room
+    const handleGetUsers = ({ participants }: { participants: string[] }) => {
       participants.forEach((id) => {
         if (id === peer.id) return
-        if (peers[id]) return
+        if (peers[id]) return // 🔒 already connected
 
         const call = peer.call(id, stream)
+
         call.on('stream', (remoteStream) => {
           dispatch(addPeerAction(call.peer, remoteStream))
         })
       })
     }
 
-    // New user joined
+    // New user joins AFTER you
     const handleUserJoined = ({ peerId }: { peerId: string }) => {
       if (peerId === peer.id) return
+      if (peers[peerId]) return // 🔒 prevent double-offer
 
       const call = peer.call(peerId, stream)
+
       call.on('stream', (remoteStream) => {
         dispatch(addPeerAction(call.peer, remoteStream))
       })
@@ -69,12 +72,18 @@ const VideoRoom = () => {
   useEffect(() => {
     if (!peer || !stream || !socket || !workspaceId) return
 
-    peer.on('call', (call) => {
+    // Incoming call
+    const handleCall = (call: any) => {
+      if (peers[call.peer]) return // 🔒 already connected
+
       call.answer(stream)
-      call.on('stream', (remoteStream) => {
+
+      call.on('stream', (remoteStream: MediaStream) => {
         dispatch(addPeerAction(call.peer, remoteStream))
       })
-    })
+    }
+
+    peer.on('call', handleCall)
 
     peer.on('open', (id) => {
       if (readyRef.current) return
@@ -86,8 +95,13 @@ const VideoRoom = () => {
 
       readyRef.current = true
     })
-  }, [peer, stream, socket, workspaceId, dispatch])
-  console.log("all current peers",peers)
+
+    return () => {
+      peer.off('call', handleCall)
+    }
+  }, [peer, stream, socket, workspaceId, peers, dispatch])
+
+  console.log('all current peers', peers)
 
   /* ================= UI ================= */
   return (
@@ -117,7 +131,7 @@ const VideoRoom = () => {
       </div>
 
       <div className="flex-1 p-4 space-y-4">
-        {stream && <UserVideoFeedPlayer stream={stream} />}
+        {stream && <UserVideoFeedPlayer stream={stream} isLocal />}
 
         {Object.keys(peers).map((peerId) => (
           <UserVideoFeedPlayer key={peerId} stream={peers[peerId].stream} />

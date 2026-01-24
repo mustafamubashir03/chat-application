@@ -6,8 +6,6 @@ import { peerReducer } from '@/Reducers/peerReducer'
 import { addPeerAction } from '@/Actions/peerAction'
 import { fetchParticipantsList } from '@/utils/fetchingFunction'
 
-/* ================= TYPES ================= */
-
 type SocketContextType = {
   socket: Socket | null
   joinChannel: (channelId: string) => void
@@ -23,8 +21,6 @@ type SocketContextType = {
   peers: Record<string, { stream: MediaStream }>
   dispatch: any
 }
-
-
 
 export const SocketContext = createContext<SocketContextType>({
   socket: null,
@@ -54,6 +50,9 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
   const [peers, dispatch] = useReducer(peerReducer, {})
 
   const { auth } = useAuth()
+  const PEERJS_HOST = import.meta.env.PEERJS_HOST
+  const PEERJS_PORT = import.meta.env.PEERJS_PORT
+  const PEERJS_PATH = import.meta.env.PEERJS_PATH
 
   useEffect(() => {
     if (!auth?.user) return
@@ -61,7 +60,6 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
     let active = true
 
     const init = async () => {
-      /* -------- MEDIA (FIX #1) -------- */
       const localStream = await navigator.mediaDevices.getUserMedia({
         video: true,
         audio: true,
@@ -69,37 +67,24 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
       if (!active) return
       setStream(localStream)
 
-      /* -------- PEER -------- */
+      const newPeer = new Peer(`${auth?.user?.id}`, {
+        host: PEERJS_HOST,
+        port: PEERJS_PORT,
+        path: PEERJS_PATH,
+        secure: true,
+        config: {
+          iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' },
+          ],
+        },
+      })
 
-
-      // PeerJS connection
-// Determine protocol, host, and port dynamically
-// Use your Render backend URL here
-const PEERJS_HOST = 'chat-application-lrll.onrender.com'; // Render URL
-const PEERJS_PORT = 443; // WSS default port
-const PEERJS_PATH = '/peerjs/peerjs'; // match backend
-
-const newPeer = new Peer(`${auth?.user?.id}`, {
-  host: PEERJS_HOST,
-  port: PEERJS_PORT,
-  path: PEERJS_PATH,
-  secure: true, // WSS because Render is HTTPS
-  config: {
-    iceServers: [
-      { urls: 'stun:stun.l.google.com:19302' },
-      { urls: 'stun:stun1.l.google.com:19302' },
-    ],
-  },
-});
-
-
-      
       setPeer(newPeer)
 
-      /* -------- SOCKET -------- */
       const newSocket = io(import.meta.env.VITE_BACKEND_SOCKET_URL, {
         path: '/socket.io',
-        withCredentials: false, 
+        withCredentials: false,
       })
 
       socketRef.current = newSocket
