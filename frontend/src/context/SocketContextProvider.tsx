@@ -24,7 +24,7 @@ type SocketContextType = {
   dispatch: any
 }
 
-const backendUrl = import.meta.env.VITE_BACKEND_SOCKET_URL;
+
 
 export const SocketContext = createContext<SocketContextType>({
   socket: null,
@@ -82,7 +82,7 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
 
       /* -------- SOCKET -------- */
       const newSocket = io(import.meta.env.VITE_BACKEND_SOCKET_URL, {
-        transports: ['websocket'],
+        transports: ['websocket','polling'],
         withCredentials: false, 
       })
 
