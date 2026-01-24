@@ -17,8 +17,7 @@ import { ExpressPeerServer } from 'peer';
 
 const app: Express = express();
 const server = createServer(app);
-const peerApp = express();
-const peerHttpServer = createServer(peerApp);
+
 // ---- Socket.IO ----
 const io = new Server(server, {
   path: '/socket.io',
@@ -31,7 +30,6 @@ const io = new Server(server, {
     credentials: true
   }
 });
-
 
 // ---- Bull Board ----
 const serverAdapter = new ExpressAdapter();
@@ -59,11 +57,11 @@ io.on('connection', (socket) => {
   videoCallRoomHandler(io, socket);
 });
 
-// ---- Start server ----
-
-const peerServer = ExpressPeerServer(peerHttpServer, {
-  path: '/peer',
+// ---- PeerJS (FIXED ONLY THIS PART) ----
+const peerServer = ExpressPeerServer(server, {
+  path: '/peerjs',
   allow_discovery: true,
+  proxied: true,
 });
 
 app.use('/peerjs', peerServer);
@@ -76,12 +74,8 @@ peerServer.on('disconnect', (client) => {
   console.log('🔴 Peer disconnected', client.getId());
 });
 
+// ---- Start server ----
 server.listen(PORT, async () => {
-    console.log('🔥 Server running at', PORT);
-    await connectDB();
-  });
-
-
-peerHttpServer.listen(3001, () => {
-    console.log('🟢 PeerJS running on 3001');
-  });
+  console.log('🔥 Server running at', PORT);
+  await connectDB();
+});
