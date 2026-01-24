@@ -24,7 +24,7 @@ type SocketContextType = {
   dispatch: any
 }
 
-const backendUrl = import.meta.env.VITE_BACKEND_SOCKET_URL.replace(/^https?:\/\//, '')
+const backendUrl = import.meta.env.VITE_BACKEND_SOCKET_URL;
 
 export const SocketContext = createContext<SocketContextType>({
   socket: null,
@@ -64,25 +64,26 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
       /* -------- MEDIA (FIX #1) -------- */
       const localStream = await navigator.mediaDevices.getUserMedia({
         video: true,
-        audio: true,
+        audio: false,
       })
       if (!active) return
       setStream(localStream)
 
       /* -------- PEER -------- */
-      const newPeer = new Peer(`${auth?.user?.id}`, {
-        host: backendUrl.includes('localhost') ? 'localhost' : backendUrl,
-        port: backendUrl.includes('localhost') ? 3001 : 443,
-        path: '/peerjs/peer',
-        secure: !backendUrl.includes('localhost'),
-      })
 
+
+      // PeerJS connection
+      const newPeer = new Peer(`${auth?.user?.id}`, {
+        host: 'chat-application-lrll.onrender.com',
+        path: '/peerjs',
+        secure: true,
+      });
       setPeer(newPeer)
 
       /* -------- SOCKET -------- */
       const newSocket = io(import.meta.env.VITE_BACKEND_SOCKET_URL, {
         transports: ['websocket'],
-        withCredentials: false,
+        withCredentials: false, 
       })
 
       socketRef.current = newSocket
