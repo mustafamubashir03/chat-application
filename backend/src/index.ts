@@ -20,14 +20,12 @@ const server = createServer(app);
 
 // ---- Socket.IO ----
 const io = new Server(server, {
-  path: '/socket.io',
   transports: ['websocket', 'polling'],
-  pingTimeout: 20000,
-  pingInterval: 25000,
+  path: '/socket.io', 
   cors: {
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true
+    credentials: false
   }
 });
 
@@ -61,7 +59,6 @@ io.on('connection', (socket) => {
 const peerServer = ExpressPeerServer(server, {
   path: '/peerjs',
   allow_discovery: true,
-  proxied: true,
 });
 
 app.use('/peerjs', peerServer);
