@@ -64,7 +64,7 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
       /* -------- MEDIA (FIX #1) -------- */
       const localStream = await navigator.mediaDevices.getUserMedia({
         video: true,
-        audio: false,
+        audio: true,
       })
       if (!active) return
       setStream(localStream)
