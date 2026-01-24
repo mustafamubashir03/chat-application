@@ -87,6 +87,7 @@ const VideoRoom = () => {
       readyRef.current = true
     })
   }, [peer, stream, socket, workspaceId, dispatch])
+  console.log("all current peers",peers)
 
   /* ================= UI ================= */
   return (
