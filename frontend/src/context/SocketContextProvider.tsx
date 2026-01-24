@@ -73,21 +73,32 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
 
 
       // PeerJS connection
-      const newPeer = new Peer(`${auth?.user?.id}`, {
-        host: 'chat-application-lrll.onrender.com',
-        path: '/peerjs',      // just /peerjs
-        secure: true,          // WSS
-        port: 443,             // default for WSS
-        config: {
-          iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
-        },
-      });
+// Determine protocol, host, and port dynamically
+// Use your Render backend URL here
+const PEERJS_HOST = 'chat-application-lrll.onrender.com'; // Render URL
+const PEERJS_PORT = 443; // WSS default port
+const PEERJS_PATH = '/peerjs/peerjs'; // match backend
+
+const newPeer = new Peer(`${auth?.user?.id}`, {
+  host: PEERJS_HOST,
+  port: PEERJS_PORT,
+  path: PEERJS_PATH,
+  secure: true, // WSS because Render is HTTPS
+  config: {
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' },
+    ],
+  },
+});
+
+
       
       setPeer(newPeer)
 
       /* -------- SOCKET -------- */
       const newSocket = io(import.meta.env.VITE_BACKEND_SOCKET_URL, {
-        transports: ['websocket','polling'],
+        path: '/socket.io',
         withCredentials: false, 
       })
 
