@@ -53,7 +53,14 @@ const UserVideoFeedPlayer = ({ stream, isLocal = false, username = 'You' }: Prop
   return (
     <div className="relative w-full aspect-video max-w-[800px] rounded-xl overflow-hidden bg-black shadow-lg border-blue-500 border-2">
       {/* VIDEO — NEVER UNMOUNT */}
-      <video ref={videoRef} className="w-full h-full object-cover" autoPlay playsInline muted />
+      <video
+  ref={videoRef}
+  className="w-full h-full object-cover"
+  autoPlay
+  playsInline
+  muted={isLocal}
+/>
+
 
       {/* Camera OFF overlay */}
       {!videoEnabled && (
