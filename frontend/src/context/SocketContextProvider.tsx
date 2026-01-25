@@ -12,7 +12,7 @@ type SocketContextType = {
   currentChannel: string
   newMessageRecieved: any
   leaveChannel: (channelId: string) => void
-
+  
   // video
   joinVideoCall: (roomId: string) => void
   peer: Peer | null
@@ -28,7 +28,7 @@ export const SocketContext = createContext<SocketContextType>({
   currentChannel: '',
   newMessageRecieved: null,
   leaveChannel: () => {},
-
+  
   joinVideoCall: () => {},
   peer: null,
   stream: null,
@@ -37,8 +37,15 @@ export const SocketContext = createContext<SocketContextType>({
   dispatch: {},
 })
 
+const PEERJS_HOST = import.meta.env.VITE_PEERJS_HOST
+const PEERJS_PORT = import.meta.env.VITE_PEERJS_PORT
+const PEERJS_PATH = import.meta.env.VITE_PEERJS_PATH
+
 export const SocketContextProvider = ({ children }: { children: React.ReactNode }) => {
   const socketRef = useRef<Socket | null>(null)
+
+  // ✅ NEW: queue for calls that arrive before stream is ready
+  const pendingCallsRef = useRef<any[]>([])
 
   const [socket, setSocket] = useState<Socket | null>(null)
   const [currentChannel, setCurrentChannel] = useState('')
@@ -50,9 +57,6 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
   const [peers, dispatch] = useReducer(peerReducer, {})
 
   const { auth } = useAuth()
-  const PEERJS_HOST = import.meta.env.PEERJS_HOST
-  const PEERJS_PORT = import.meta.env.PEERJS_PORT
-  const PEERJS_PATH = import.meta.env.PEERJS_PATH
 
   useEffect(() => {
     if (!auth?.user) return
@@ -90,12 +94,20 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
       socketRef.current = newSocket
       setSocket(newSocket)
 
-      newSocket.on('connect', () => console.log('🟢 Socket connected:', newSocket.id))
+      newSocket.on('connect', () => console.log('Socket connected:', newSocket.id))
       newSocket.on('newMessageRecieved', setNewMessageRecieved)
       newSocket.on('get-users', fetchParticipantsList)
 
+      // 🔧 MODIFIED (minimal): guard against stream not ready
       newPeer.on('call', (call) => {
-        console.log('📥 incoming call from', call.peer)
+        console.log('incoming call from', call.peer)
+
+        if (!localStream) {
+          console.log('stream not ready, queueing call')
+          pendingCallsRef.current.push(call)
+          return
+        }
+
         call.answer(localStream)
 
         call.on('stream', (remoteStream) => {
@@ -116,6 +128,21 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
       peer?.destroy()
     }
   }, [auth?.user])
+
+  // ✅ NEW: answer queued calls once stream exists
+  useEffect(() => {
+    if (!stream) return
+
+    pendingCallsRef.current.forEach((call) => {
+      call.answer(stream)
+
+      call.on('stream', (remoteStream: MediaStream) => {
+        dispatch(addPeerAction(call.peer, remoteStream))
+      })
+    })
+
+    pendingCallsRef.current = []
+  }, [stream])
 
   const joinChannel = (channelId: string) => {
     if (!socketRef.current) return
@@ -145,7 +172,7 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
           if (otherPeerId === peer.id) return
           if (peers[otherPeerId]) return
 
-          console.log('📞 calling', otherPeerId)
+          console.log('calling', otherPeerId)
           const call = peer.call(otherPeerId, stream)
 
           call.on('stream', (remoteStream) => {
@@ -164,7 +191,6 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
         currentChannel,
         newMessageRecieved,
         leaveChannel,
-
         joinVideoCall,
         peer,
         stream,
