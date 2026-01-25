@@ -137,7 +137,7 @@ const VideoRoom = () => {
               className="flex-1 px-2 py-1 bg-slate-700 text-xs rounded"
             />
             <Button
-              size="sm"
+              variant={'darkBlue'}
               onClick={async () => {
                 await navigator.clipboard.writeText(meetingUrl)
                 setCopied(true)
