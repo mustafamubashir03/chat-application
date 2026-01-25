@@ -10,13 +10,15 @@ const VideoRoom = () => {
   const { socket, peer, peers, stream, dispatch } = useSocket()
 
   const [showInvite, setShowInvite] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const [joinNotice, setJoinNotice] = useState<string | null>(null)
 
   const joinedRef = useRef(false)
   const readyRef = useRef(false)
 
   const meetingUrl = `${window.location.origin}/workspace/${workspaceId}/videoRoom`
 
-  /* ================= JOIN ROOM ================= */
+
   useEffect(() => {
     if (!socket || !peer?.id || !workspaceId) return
     if (joinedRef.current) return
@@ -29,15 +31,14 @@ const VideoRoom = () => {
     joinedRef.current = true
   }, [socket, peer?.id, workspaceId])
 
-  /* ================= SOCKET EVENTS ================= */
+
   useEffect(() => {
     if (!socket || !peer || !stream) return
 
-    // Existing users already in room
     const handleGetUsers = ({ participants }: { participants: string[] }) => {
       participants.forEach((id) => {
         if (id === peer.id) return
-        if (peers[id]) return // 🔒 already connected
+        if (peers[id]) return
 
         const call = peer.call(id, stream)
 
@@ -47,10 +48,12 @@ const VideoRoom = () => {
       })
     }
 
-    // New user joins AFTER you
     const handleUserJoined = ({ peerId }: { peerId: string }) => {
       if (peerId === peer.id) return
-      if (peers[peerId]) return // 🔒 prevent double-offer
+      if (peers[peerId]) return
+
+      setJoinNotice('Someone joined the meeting')
+      setTimeout(() => setJoinNotice(null), 3000)
 
       const call = peer.call(peerId, stream)
 
@@ -68,13 +71,12 @@ const VideoRoom = () => {
     }
   }, [socket, peer, stream, peers, dispatch])
 
-  /* ================= PEER EVENTS ================= */
+
   useEffect(() => {
     if (!peer || !stream || !socket || !workspaceId) return
 
-    // Incoming call
     const handleCall = (call: any) => {
-      if (peers[call.peer]) return // 🔒 already connected
+      if (peers[call.peer]) return
 
       call.answer(stream)
 
@@ -101,14 +103,23 @@ const VideoRoom = () => {
     }
   }, [peer, stream, socket, workspaceId, peers, dispatch])
 
-  console.log('all current peers', peers)
+  const totalParticipants = 1 + Object.keys(peers).length
 
   /* ================= UI ================= */
   return (
     <div className="w-full min-h-screen flex flex-col text-slate-200">
-      <div className="px-4 py-3 border-b border-slate-700">
+      <div className="px-4 py-3 border-b border-slate-700 flex justify-between items-center">
         <h1 className="text-sm font-semibold">Video Meeting</h1>
+        <span className="text-xs text-slate-400">
+          {totalParticipants} participant{totalParticipants > 1 ? 's' : ''}
+        </span>
       </div>
+
+      {joinNotice && (
+        <div className="px-4 py-2 text-xs bg-green-900/30 text-green-400 border-b border-green-700">
+          {joinNotice}
+        </div>
+      )}
 
       <div className="px-4 py-2 border-b border-slate-700 bg-slate-800/50">
         <button
@@ -125,7 +136,16 @@ const VideoRoom = () => {
               readOnly
               className="flex-1 px-2 py-1 bg-slate-700 text-xs rounded"
             />
-            <Button size="sm">Copy</Button>
+            <Button
+              size="sm"
+              onClick={async () => {
+                await navigator.clipboard.writeText(meetingUrl)
+                setCopied(true)
+                setTimeout(() => setCopied(false), 1500)
+              }}
+            >
+              {copied ? 'Copied!' : 'Copy'}
+            </Button>
           </div>
         )}
       </div>
