@@ -1,12 +1,12 @@
 import { Response } from 'express';
-import { AuthRequest } from '../types/custom';
-import { getMessageService } from '../services/messageService';
+import { AuthRequest } from '../types/custom.js';
+import { getMessageService } from '../services/messageService.js';
 import { StatusCodes } from 'http-status-codes';
 import { MongooseError } from 'mongoose';
 import {
   customErrorResponse,
   internalServerErrorResponse
-} from '../utils/ObjectResponse';
+} from '../utils/ObjectResponse.js';
 
 export const getMessagesController = async (
   req: AuthRequest,
@@ -18,7 +18,7 @@ export const getMessagesController = async (
         channelId: req.params.channelId
       },
       Number(req?.query?.page) || 1,
-      Number(req.query.limit) || 20
+      Number(req.query.limit) || 60
     );
     return res.status(StatusCodes.OK).json(messages);
   } catch (error: any) {

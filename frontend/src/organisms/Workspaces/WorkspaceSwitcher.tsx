@@ -27,7 +27,7 @@ const WorkspaceSwitcher = () => {
           {isPending ? (
             <LucideLoader2 className="size-5 spin" />
           ) : (
-            workspaceDetails.name[0].toUpperCase()
+            workspaceDetails?.name[0].toUpperCase()
           )}
         </Button>
       </DropdownMenuTrigger>
@@ -45,7 +45,7 @@ const WorkspaceSwitcher = () => {
 
             return (
               <DropdownMenuItem
-              key={workspace._id}
+                key={workspace._id}
                 onClick={() => handleWorkspaceSwitching(workspace)}
                 className="text-slate-400 truncate cursor-pointer"
               >

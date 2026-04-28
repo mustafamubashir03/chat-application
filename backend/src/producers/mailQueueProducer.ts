@@ -1,5 +1,5 @@
-import { mailQueue } from '../queues/mailQueue';
-import '../processors/mainProcessor.ts';
+import { mailQueue } from '../queues/mailQueue.js';
+import '../processors/mainProcessor.js';
 
 export const addEmailtoMailQueue = async (emailData: any) => {
   try {

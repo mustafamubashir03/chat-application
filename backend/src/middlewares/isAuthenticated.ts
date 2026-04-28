@@ -1,14 +1,14 @@
 import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from '../config/serverConfig';
+import { JWT_SECRET } from '../config/serverConfig.js';
 import { Response, NextFunction } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import {
   customErrorResponse,
   internalServerErrorResponse
-} from '../utils/ObjectResponse';
-import userRepository from '../repository/userRepository';
+} from '../utils/ObjectResponse.js';
+import userRepository from '../repository/userRepository.js';
 import mongoose from 'mongoose';
-import { AuthRequest } from '../types/custom';
+import { AuthRequest } from '../types/custom.js';
 
 export const isAuthenticated = async (
   req: AuthRequest,

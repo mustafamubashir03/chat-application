@@ -1,11 +1,11 @@
 import mongoose from 'mongoose';
-import { isMemberPartOfWorkspaceService } from '../services/memberService';
-import { AuthRequest } from '../types/custom';
+import { isMemberPartOfWorkspaceService } from '../services/memberService.js';
+import { AuthRequest } from '../types/custom.js';
 import { StatusCodes } from 'http-status-codes';
 import {
   customErrorResponse,
   internalServerErrorResponse
-} from '../utils/ObjectResponse';
+} from '../utils/ObjectResponse.js';
 import { Response } from 'express';
 
 export const isMemberPartOfWorkspaceController = async (

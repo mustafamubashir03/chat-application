@@ -23,7 +23,10 @@ export const createWorkspaceSchema = z.object({
     name:z.string()
 })
 
-export const updateWorkspaceSchema = createWorkspaceSchema;
+export const updateWorkspaceSchema = z.object({
+    name:z.string().optional(),
+    joinCode:z.string().optional()
+});
 
 export  const addChannelToWorkspaceSchema = z.object({
     channelName:z.string()

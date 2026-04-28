@@ -1,10 +1,10 @@
 import mongoose from 'mongoose';
-import Workspace from '../schema/workspace';
-import crudRepository from './crudRepository';
-import User from '../schema/user';
-import { ClientError } from '../utils/ObjectResponse';
+import Workspace from '../schema/workspace.js';
+import crudRepository from './crudRepository.js';
+import User from '../schema/user.js';
+import { ClientError } from '../utils/ObjectResponse.js';
 import { StatusCodes } from 'http-status-codes';
-import channelRepository from './channelRepository';
+import channelRepository from './channelRepository.js';
 
 const workspaceRepository = {
   ...crudRepository<any>(Workspace),
@@ -19,8 +19,10 @@ const workspaceRepository = {
     }
     return workspace;
   },
-  getWorkspaceWithChannelDetails: async(id:mongoose.Types.ObjectId)=>{
-    const workspace = await Workspace.findById(id).populate('channels');
+  getWorkspaceWithChannelDetails: async (id: mongoose.Types.ObjectId) => {
+    const workspace = await Workspace.findById(id)
+      .populate('channels')
+      .populate({ path: 'members.memberId', select: 'username email avatar' });
     if (!workspace) {
       throw new ClientError({
         message: 'Workspace does not exist',
@@ -29,7 +31,6 @@ const workspaceRepository = {
       });
     }
     return workspace;
-    
   },
   getWokspaceByJoinCode: async (joinCode: string) => {
     const workspace = await Workspace.findOne({ joinCode });

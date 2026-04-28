@@ -1,5 +1,5 @@
-import { transporter } from '../config/mailConfig';
-import { mailQueue } from '../queues/mailQueue';
+import { transporter } from '../config/mailConfig.js';
+import { mailQueue } from '../queues/mailQueue.js';
 
 mailQueue.process(async function (job: any) {
   const emailData = job.data;

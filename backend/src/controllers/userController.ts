@@ -2,29 +2,42 @@ import bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
-import { signinService, signupService } from '../services/userService';
+import { signinService, signupService } from '../services/userService.js';
 import {
   ClientError,
   customErrorResponse,
   internalServerErrorResponse,
   successResponse
-} from '../utils/ObjectResponse';
+} from '../utils/ObjectResponse.js';
 import { MongooseError } from 'mongoose';
-import { jwtGenerate } from '../auth/auth';
+import { jwtGenerate } from '../auth/auth.js';
 
 export const signUp = async (req: Request, res: Response) => {
   try {
     const newUser = await signupService(req.body);
+    // Check if newUser is undefined (which would indicate an error was swallowed)
+    if (!newUser) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ success: false, message: 'Failed to create user' });
+    }
     res
       .status(StatusCodes.CREATED)
       .json(successResponse(newUser, 'User has been created successfully'));
   } catch (error: any) {
     if (error.code === 11000 && error.keyPattern?.email) {
-      return res.status(400).json({ success: false, message: "Email already exists" })
+      return res
+        .status(400)
+        .json({ success: false, message: 'Email already exists' });
     }
     if (error instanceof MongooseError) {
       res.status(StatusCodes.BAD_REQUEST).json(error);
       return;
+    }
+    if (error instanceof ClientError || error.status) {
+      const statusCode =
+        error.status || error.statusCode || StatusCodes.BAD_REQUEST;
+      return res.status(statusCode).json(customErrorResponse(error));
     }
     console.log(error);
     if (error.statusCode) {
@@ -60,6 +73,7 @@ export const signIn = async (req: Request, res: Response) => {
       username: userFound.username,
       avatar: userFound.avatar,
       email: userFound.email,
+      id: userFound._id,
       token: jwtGenerate({ id: userFound._id, email: userFound.email })
     });
   } catch (error: any) {

@@ -8,10 +8,13 @@ export const signupRequest = async ({ email, password, username }: UserSignUpTyp
       password,
       username,
     })
-    console.log(response.data)
     return response.data
   } catch (error: any) {
-    throw error.response?.data
+    // Extract error message from backend response
+    const errorData = error.response?.data
+    const errorMessage =
+      errorData?.message || errorData?.err || error.message || 'An error occurred'
+    throw new Error(errorMessage)
   }
 }
 export const signinRequest = async ({ email, password }: UserSignInType) => {
@@ -20,7 +23,6 @@ export const signinRequest = async ({ email, password }: UserSignInType) => {
       email,
       password,
     })
-    console.log(response.data)
     return response
   } catch (error: any) {
     throw error.response?.data || error.message

@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
-import Channel from '../schema/channel';
-import crudRepository from './crudRepository';
+import Channel from '../schema/channel.js';
+import crudRepository from './crudRepository.js';
 
 const channelRepository = {
   ...crudRepository<any>(Channel),

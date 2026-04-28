@@ -19,9 +19,8 @@ const WorkspaceLayout = ({ children }: { children: React.ReactNode }) => {
           <ResizableHandle withHandle className="bg-[#0000000]" />
           <ResizablePanel minSize={20}>{children}</ResizablePanel>
         </ResizablePanelGroup>
-        {children}
       </div>
-      <CreateChannelModal/>
+      <CreateChannelModal />
       <WorkspacePreferencesModal />
     </div>
   )

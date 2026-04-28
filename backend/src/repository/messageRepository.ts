@@ -1,5 +1,5 @@
-import crudRepository from './crudRepository';
-import Message from '../schema/message';
+import crudRepository from './crudRepository.js';
+import Message from '../schema/message.js';
 import mongoose from 'mongoose';
 
 const messageRepository = {
@@ -21,7 +21,7 @@ const messageRepository = {
       }
 
       const messages = await Message.find(messageParams)
-        .sort({ createdAt: -1 })
+        .sort({ createdAt: 1 })
         .skip((page - 1) * limit)
         .limit(limit)
         .populate('senderId', 'username email avatar');

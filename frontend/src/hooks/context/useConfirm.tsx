@@ -1,6 +1,13 @@
-import { useState } from "react"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Button } from "@/components/ui/button"
+import { useState } from 'react'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 
 type ConfirmOptions = {
   title: string
@@ -8,20 +15,19 @@ type ConfirmOptions = {
 }
 
 export const useConfirm = ({ title, message }: ConfirmOptions) => {
-  const [promise, setPromise] = useState<{resolve: (value: boolean) => void} | null>(null)
-  async function Confirmation(){
-    return new Promise<boolean>((resolve)=>{
-      setPromise({resolve})
+  const [promise, setPromise] = useState<{ resolve: (value: boolean) => void } | null>(null)
+  async function Confirmation() {
+    return new Promise<boolean>((resolve) => {
+      setPromise({ resolve })
     })
   }
-  const handleClose =()=>{
+  const handleClose = () => {
     setPromise(null)
   }
-  const  handleConfirm = ()=>{
+  const handleConfirm = () => {
     promise?.resolve(true)
     handleClose()
   }
-
 
   const ConfirmDialog = () => (
     <Dialog open={promise !== null}>
@@ -31,8 +37,12 @@ export const useConfirm = ({ title, message }: ConfirmOptions) => {
           <DialogDescription className="text-slate-400">{message}</DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant={"secondary"} onClick={handleClose}>Cancel</Button>
-          <Button variant={"primary"} onClick={handleConfirm}>Confirm</Button>
+          <Button variant={'secondary'} onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button variant={'primary'} onClick={handleConfirm}>
+            Confirm
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

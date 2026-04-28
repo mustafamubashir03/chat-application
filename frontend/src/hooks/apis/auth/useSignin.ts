@@ -22,9 +22,8 @@ const useSignin = () => {
         isLoading: false,
       })
     },
-    onError: (error: Error) => {
+    onError: () => {
       toast.error('Error has occured while signing in. Please try again')
-      console.log('Error occured', error)
     },
   })
   return {

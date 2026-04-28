@@ -59,11 +59,14 @@ export declare const createWorkspaceSchema: z.ZodObject<{
     name: string;
 }>;
 export declare const updateWorkspaceSchema: z.ZodObject<{
-    name: z.ZodString;
+    name: z.ZodOptional<z.ZodString>;
+    joinCode: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    name: string;
+    name?: string | undefined;
+    joinCode?: string | undefined;
 }, {
-    name: string;
+    name?: string | undefined;
+    joinCode?: string | undefined;
 }>;
 export declare const addChannelToWorkspaceSchema: z.ZodObject<{
     channelName: z.ZodString;

@@ -1,7 +1,17 @@
-import messageRepository from '../repository/messageRepository';
+import { Document } from 'mongoose';
+
+import messageRepository from '../repository/messageRepository.js';
+import { MessageI } from '../schema/message.js';
+
+export type CreateMessageInput = Omit<MessageI, keyof Document>;
+type MessageQueryParams = {
+  channelId?: string | import('mongoose').Types.ObjectId;
+  workspaceId?: string | import('mongoose').Types.ObjectId;
+  senderId?: string | import('mongoose').Types.ObjectId;
+};
 
 export const getMessageService = async (
-  messageParams: any,
+  messageParams: MessageQueryParams,
   page: number,
   limit: number
 ) => {
@@ -13,7 +23,9 @@ export const getMessageService = async (
   return messages;
 };
 
-export const createMessageService = async (message: any) => {
+export const createMessageService = async (message: CreateMessageInput) => {
   const newMessage = await messageRepository.createDoc(message);
   return newMessage;
 };
+
+export const getUnsignedImageURLS = () => {};

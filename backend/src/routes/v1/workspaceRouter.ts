@@ -7,10 +7,12 @@ import {
   getWokspaceByJoinCodeController,
   getWorkspaceByIdController,
   getWorkspacesUserisMemberOfController,
+  joinWorkspaceController,
+  resetJoinCodeController,
   updateWorkspaceController
-} from '../../controllers/workspaceController';
-import { validator } from '../../middlewares/validator';
-import { isAuthenticated } from '../../middlewares/isAuthenticated';
+} from '../../controllers/workspaceController.js';
+import { validator } from '../../middlewares/validator.js';
+import { isAuthenticated } from '../../middlewares/isAuthenticated.js';
 import {
   addChannelToWorkspaceSchema,
   addMemberToWorkspaceSchema,
@@ -36,12 +38,18 @@ router.put(
   validator(updateWorkspaceSchema),
   updateWorkspaceController
 );
+router.put(
+  '/:workspaceId/joinCode/reset',
+  isAuthenticated,
+  resetJoinCodeController
+);
 router.post(
   '/:workspaceId/members',
   isAuthenticated,
   validator(addMemberToWorkspaceSchema),
   addMemberToWorkspaceController
 );
+router.post('/:workspaceId/join', isAuthenticated, joinWorkspaceController);
 router.post(
   '/:workspaceId/channels',
   isAuthenticated,

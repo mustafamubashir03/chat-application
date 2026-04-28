@@ -1,10 +1,10 @@
 import express from 'express';
 
-import userRouter from './userRouter';
-import workspaceRouter from './workspaceRouter';
-import channelRouter from './channelRouter';
-import memberRouter from './memberRouter';
-import messageRouter from './messageRouter';
+import userRouter from './userRouter.js';
+import workspaceRouter from './workspaceRouter.js';
+import channelRouter from './channelRouter.js';
+import memberRouter from './memberRouter.js';
+import messageRouter from './messageRouter.js';
 const router = express.Router();
 
 router.use('/user', userRouter);
