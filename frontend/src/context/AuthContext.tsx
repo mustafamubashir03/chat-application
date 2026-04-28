@@ -1,4 +1,4 @@
-import { useConfirm } from '@/hooks/context/useConfirm'
+
 import React, { createContext, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -21,13 +21,13 @@ export const AuthContext = createContext<{
   logOut: () => void
 }>({
   auth: initialAuth,
-  setAuth: () => {},
-  logOut: () => {},
+  setAuth: () => { },
+  logOut: () => { },
 })
 
 export const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [auth, setAuth] = useState(initialAuth)
-  const logOut = async() => {
+  const logOut = async () => {
     toast('Successfully logged out')
     localStorage.removeItem('token')
     localStorage.removeItem('user')
@@ -39,15 +39,44 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
   }
 
   useEffect(() => {
-    const user = localStorage.getItem('user')
-    const token = localStorage.getItem('token')
+    const userStr = localStorage.getItem('user')
+    const tokenStr = localStorage.getItem('token')
 
-    if (user && token) {
-      setAuth({
-        user: JSON.parse(user),
-        token: JSON.parse(token),
-        isLoading: false,
-      })
+    const isTokenExpired = (token: string) => {
+      if (!token) return true
+      try {
+        const payloadBase64 = token.split('.')[1]
+        const decodedJson = atob(payloadBase64)
+        const decoded = JSON.parse(decodedJson)
+        const exp = decoded.exp
+        if (!exp) return false
+        return exp * 1000 < Date.now()
+      } catch (error) {
+        return true
+      }
+    }
+
+    if (userStr && tokenStr) {
+      try {
+        const user = JSON.parse(userStr)
+        const token = JSON.parse(tokenStr)
+
+        if (isTokenExpired(token)) {
+          localStorage.removeItem('token')
+          localStorage.removeItem('user')
+          setAuth((prev) => ({ ...prev, isLoading: false }))
+        } else {
+          setAuth({
+            user,
+            token,
+            isLoading: false,
+          })
+        }
+      } catch (e) {
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        setAuth((prev) => ({ ...prev, isLoading: false }))
+      }
     } else {
       setAuth((prev) => ({ ...prev, isLoading: false }))
     }
