@@ -14,6 +14,7 @@ A full-stack real-time chat application built with React, TypeScript, Node.js, E
 - **Image Upload**: Support for image attachments via Cloudinary integration
 - **Member Management**: Add members to workspaces with role-based access (admin/member)
 - **Join Codes**: Workspace join codes for easy member invitation
+- **Real-time Video Calling**: High-quality peer-to-peer video conferencing within workspaces
 
 ### Technical Features
 - **Real-time Updates**: Live message delivery and channel updates
@@ -23,6 +24,7 @@ A full-stack real-time chat application built with React, TypeScript, Node.js, E
 - **WebSocket Support**: Socket.io for bidirectional real-time communication
 - **Responsive Design**: Modern UI built with Tailwind CSS and Radix UI components
 - **Type Safety**: Full TypeScript implementation across frontend and backend
+- **WebRTC Integration**: Seamless video and audio communication using PeerJS
 
 ## 🛠️ Tech Stack
 
@@ -38,6 +40,7 @@ A full-stack real-time chat application built with React, TypeScript, Node.js, E
 - **Radix UI** - Accessible component primitives
 - **Axios** - HTTP client
 - **Zod** - Schema validation
+- **PeerJS** - WebRTC peer-to-peer communication
 
 ### Backend
 - **Node.js** - Runtime environment
@@ -51,6 +54,7 @@ A full-stack real-time chat application built with React, TypeScript, Node.js, E
 - **Redis** - Queue backend and caching
 - **Nodemailer** - Email service
 - **Zod** - Schema validation
+- **ExpressPeerServer** - PeerJS server for WebRTC signaling
 
 ### Infrastructure
 - **MongoDB** - Primary database
@@ -189,6 +193,11 @@ VITE_API_URL=http://localhost:3000/api
 VITE_SOCKET_URL=http://localhost:3000
 VITE_CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name
 VITE_CLOUDINARY_UPLOAD_PRESET=your-upload-preset
+
+# PeerJS Configuration
+VITE_PEERJS_HOST=localhost
+VITE_PEERJS_PORT=3000
+VITE_PEERJS_PATH=/peerjs
 ```
 
 ## 🚀 Running the Application
@@ -301,12 +310,18 @@ The production build will be in `frontend/dist/`
 - `createChannel` - Create a new channel
 - `updateChannel` - Update channel details
 - `deleteChannel` - Delete a channel
+- `create-room` - Initialize a video call room
+- `joined-room` - Join an existing video call room
+- `ready` - Signal that the peer is ready for connections
 
 ### Server → Client
 - `messageReceived` - New message broadcast
 - `channelCreated` - Channel creation notification
 - `channelUpdated` - Channel update notification
 - `channelDeleted` - Channel deletion notification
+- `user-joined` - Notification when a new peer joins the video call
+- `user-left` - Notification when a peer leaves the video call
+- `room-created` - Confirmation of video room creation
 
 ## 🏗️ Architecture
 
