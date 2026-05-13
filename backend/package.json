@@ -9,6 +9,7 @@
     "kill:port": "node -e \"import('fs').then(fs=>fs.existsSync('scripts/kill-port.js')?import('child_process').then(cp=>cp.execSync('node scripts/kill-port.js',{stdio:'inherit'})):null).catch(()=>{})\" || exit 0",
     "prestart": "npm run kill:port",
     "build": "npm run clean && tsc -b",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
     "format": "prettier --write .",
@@ -40,6 +41,7 @@
     "@types/bull": "^3.15.9",
     "@types/express": "^5.0.1",
     "@types/ioredis": "^4.28.10",
+    "@types/jest": "^30.0.0",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/mongoose": "^5.11.96",
     "@types/node": "^22.19.3",
@@ -48,8 +50,11 @@
     "@types/uuid": "^10.0.0",
     "eslint": "^9.25.1",
     "eslint-plugin-simple-import-sort": "^12.1.1",
+    "jest": "^30.4.2",
     "prettier": "^3.5.3",
     "rimraf": "^6.1.2",
+    "ts-jest": "^29.4.9",
+    "ts-node": "^10.9.2",
     "tsx": "^3.12.7",
     "typescript": "^5.9.3"
   }
