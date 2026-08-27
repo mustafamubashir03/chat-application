@@ -2,7 +2,7 @@
 
 A full-stack real-time chat and video calling application built with React, TypeScript, Node.js, Express, Socket.io, and MongoDB. This application enables users to create workspaces, channels, and communicate in real-time with rich text messaging capabilities.
 
-## 🚀 Features
+## Features
 
 ### Core Features
 - **User Authentication**: Secure signup and signin with JWT-based authentication
@@ -26,7 +26,7 @@ A full-stack real-time chat and video calling application built with React, Type
 - **Type Safety**: Full TypeScript implementation across frontend and backend
 - **WebRTC Integration**: Seamless video and audio communication using PeerJS
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Frontend
 - **React 19** - UI library
@@ -61,7 +61,7 @@ A full-stack real-time chat and video calling application built with React, Type
 - **Redis** - Queue backend
 - **Cloudinary** - Image hosting (frontend integration)
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 chat-application/
@@ -109,7 +109,7 @@ chat-application/
     └── package.json
 ```
 
-## 📋 Prerequisites
+## Prerequisites
 
 Before you begin, ensure you have the following installed:
 
@@ -118,7 +118,7 @@ Before you begin, ensure you have the following installed:
 - **MongoDB** (local or cloud instance)
 - **Redis** (for queue management)
 
-## 🔧 Installation
+## Installation
 
 1. **Clone the repository**
    ```bash
@@ -152,7 +152,7 @@ Before you begin, ensure you have the following installed:
    pnpm install
    ```
 
-## ⚙️ Environment Variables
+## Environment Variables
 
 ### Backend Environment Variables
 
@@ -200,7 +200,7 @@ VITE_PEERJS_PORT=3000
 VITE_PEERJS_PATH=/peerjs
 ```
 
-## 🚀 Running the Application
+## Running the Application
 
 ### Development Mode
 
@@ -323,7 +323,7 @@ The production build will be in `frontend/dist/`
 - `user-left` - Notification when a peer leaves the video call
 - `room-created` - Confirmation of video room creation
 
-## 🏗️ Architecture
+## Architecture
 
 ### Backend Architecture
 - **MVC Pattern**: Controllers handle requests, Services contain business logic, Repositories handle data access
@@ -339,7 +339,7 @@ The production build will be in `frontend/dist/`
 - **Routing**: React Router with protected routes
 - **API Layer**: Axios-based API client with interceptors
 
-## 🔐 Authentication
+##  Authentication
 
 The application uses JWT (JSON Web Tokens) for authentication:
 
@@ -349,7 +349,7 @@ The application uses JWT (JSON Web Tokens) for authentication:
 4. Token is sent in `Authorization` header for protected routes
 5. Middleware validates token on each request
 
-## 📝 Database Schema
+## Database Schema
 
 ### User
 - `email` (unique, required)
@@ -380,7 +380,7 @@ The application uses JWT (JSON Web Tokens) for authentication:
 - `senderId` (reference to User)
 - `createdAt`, `updatedAt` (timestamps)
 
-## 🧪 Development
+## Development
 
 ### Code Formatting
 ```bash
@@ -405,7 +405,7 @@ cd frontend
 npm run lint
 ```
 
-## 📦 Deployment
+## Deployment
 
 ### Backend Deployment
 1. Set `NODE_ENV=production`
@@ -419,7 +419,7 @@ npm run lint
 2. Run `npm run build`
 3. Deploy `dist/` folder to static hosting (Vercel, Netlify, etc.)
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
@@ -427,21 +427,14 @@ npm run lint
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📄 License
+##  License
 
 This project is licensed under the ISC License.
 
-## 👥 Authors
+## Authors
 
 - Mustafa Mubashir
 
-## 🙏 Acknowledgments
-
-- React Team
-- Express.js Team
-- Socket.io Team
-- MongoDB Team
-- All open-source contributors
 
 ---
 
