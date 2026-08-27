@@ -8,6 +8,7 @@ import { UpdateWorkspaceType } from '@itz____mmm/common';
 import { addEmailtoMailQueue } from '../producers/mailQueueProducer.js';
 import mailObject from '../utils/mailObject.js';
 import userRepository from '../repository/userRepository.js';
+import Workspace from '../schema/workspace.js';
 
 export const isUserAdminOfWorkspace = (
   userId: mongoose.Types.ObjectId,
@@ -38,11 +39,11 @@ export const isUserPartOfWorkspace = (
 
 export const generateUniqueJoinCode = async (): Promise<string> => {
   let joinCode = uuidv4().substring(0, 6).toUpperCase();
-  let existing = await workspaceRepository.getWokspaceByJoinCode(joinCode);
+  let existing = await Workspace.findOne({ joinCode });
   let attempts = 0;
   while (existing && attempts < 10) {
     joinCode = uuidv4().substring(0, 6).toUpperCase();
-    existing = await workspaceRepository.getWokspaceByJoinCode(joinCode);
+    existing = await Workspace.findOne({ joinCode });
     attempts++;
   }
   return joinCode;
@@ -66,12 +67,15 @@ export const createWorkspaceService = async (workspaceData: any) => {
     const channelAddedWorkspace =
       await workspaceRepository.addChannelToWorkspace(response._id, 'general');
     return channelAddedWorkspace;
-  } catch (error) {
-    throw new ClientError({
-      message: 'Invalid data from client',
-      explanation: 'Workspace name already exists',
-      status: StatusCodes.FORBIDDEN
-    });
+  } catch (error: any) {
+    if (error?.code === 11000) {
+      throw new ClientError({
+        message: 'Invalid data from client',
+        explanation: 'Workspace name already exists',
+        status: StatusCodes.FORBIDDEN
+      });
+    }
+    throw error;
   }
 };
 

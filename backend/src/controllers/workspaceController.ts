@@ -38,8 +38,10 @@ export const createWorkspaceController = async (
       return;
     }
     console.log(error);
-    if (error.statusCode) {
-      res.status(error.statusCode).json(customErrorResponse(error.message));
+    const statusCode = error.status || error.statusCode;
+    if (statusCode) {
+      res.status(statusCode).json(customErrorResponse(error.explanation || error.message));
+      return;
     }
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
