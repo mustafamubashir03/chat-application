@@ -1,6 +1,6 @@
 # Chat Application
 
-A full-stack real-time chat application built with React, TypeScript, Node.js, Express, Socket.io, and MongoDB. This application enables users to create workspaces, channels, and communicate in real-time with rich text messaging capabilities.
+A full-stack real-time chat and video calling application built with React, TypeScript, Node.js, Express, Socket.io, and MongoDB. This application enables users to create workspaces, channels, and communicate in real-time with rich text messaging capabilities.
 
 ## 🚀 Features
 
