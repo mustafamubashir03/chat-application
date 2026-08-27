@@ -25,7 +25,7 @@ const QuillEditor = ({
   className,
   readOnly = false,
 }: QuillEditorProps) => {
-  const quillRef = useRef<ReactQuill | null>(null)
+  const quillRef = useRef<any>(null)
   const { currentChannel, socket } = useSocket()
   const { currentWorkspace } = useCurrentWorkspace()
   const { auth } = useAuth()

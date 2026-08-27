@@ -36,9 +36,21 @@ export const isUserPartOfWorkspace = (
   );
 };
 
+export const generateUniqueJoinCode = async (): Promise<string> => {
+  let joinCode = uuidv4().substring(0, 6).toUpperCase();
+  let existing = await workspaceRepository.getWokspaceByJoinCode(joinCode);
+  let attempts = 0;
+  while (existing && attempts < 10) {
+    joinCode = uuidv4().substring(0, 6).toUpperCase();
+    existing = await workspaceRepository.getWokspaceByJoinCode(joinCode);
+    attempts++;
+  }
+  return joinCode;
+};
+
 export const createWorkspaceService = async (workspaceData: any) => {
   try {
-    const joinCode = uuidv4().substring(0, 6).toUpperCase();
+    const joinCode = await generateUniqueJoinCode();
     const response = await workspaceRepository.createDoc({
       name: workspaceData.name,
       descripion: workspaceData.descripion,
@@ -257,7 +269,7 @@ export const resetWorkspaceJoinCodeService = async (
   userId: mongoose.Types.ObjectId
 ) => {
   try {
-    const newJoinCode = uuidv4().substring(0, 6).toUpperCase();
+    const newJoinCode = await generateUniqueJoinCode();
     const updatedWorkspace = await updateWorkspaceService(
       workspaceId,
       { joinCode: newJoinCode },

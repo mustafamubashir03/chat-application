@@ -99,7 +99,7 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
       newSocket.on('get-users', fetchParticipantsList)
 
       // 🔧 MODIFIED (minimal): guard against stream not ready
-      newPeer.on('call', (call) => {
+      newPeer.on('call', (call: any) => {
         console.log('incoming call from', call.peer)
 
         if (!localStream) {
@@ -110,7 +110,7 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
 
         call.answer(localStream)
 
-        call.on('stream', (remoteStream) => {
+        call.on('stream', (remoteStream: MediaStream) => {
           dispatch(addPeerAction(call.peer, remoteStream))
         })
       })
@@ -175,7 +175,7 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
           console.log('calling', otherPeerId)
           const call = peer.call(otherPeerId, stream)
 
-          call.on('stream', (remoteStream) => {
+          call.on('stream', (remoteStream: MediaStream) => {
             dispatch(addPeerAction(otherPeerId, remoteStream))
           })
         })

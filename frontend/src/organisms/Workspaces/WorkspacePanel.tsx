@@ -55,17 +55,17 @@ const WorkspacePanel = () => {
         >
           {workspaceDetails?.members && workspaceDetails.members.length > 0 ? (
             workspaceDetails.members.map((member: any) => {
-              if (member.role !== 'admin') {
-                return (
-                  <UserItem
-                    key={member.memberId._id}
-                    id={member.memberId._id}
-                    image={member.memberId.avatar}
-                    label={member.memberId.username}
-                  />
-                )
-              }
-              return null
+              if (!member?.memberId) return null
+              const isOwner = workspaceDetails.owner === member.memberId._id || member.role === 'admin'
+              const label = `${member.memberId.username || 'User'}${isOwner ? ' (Admin)' : ''}`
+              return (
+                <UserItem
+                  key={member.memberId._id}
+                  id={member.memberId._id}
+                  image={member.memberId.avatar}
+                  label={label}
+                />
+              )
             })
           ) : (
             <div className="text-slate-300">No members</div>

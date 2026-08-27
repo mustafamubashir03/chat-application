@@ -12,6 +12,7 @@ import Channel from './pages/Workspaces/Channels/Channel'
 import AuthContext from './context/AuthContext'
 import PlaceHolderChannel from './atoms/PlaceHolderChannel/PlaceHolderChannel'
 import VideoRoom from './pages/Workspaces/VideoRoom/VideoRoom'
+import InvitePage from './pages/Workspaces/InvitePage'
 
 export const AppRoutes = () => {
   const { auth } = useContext(AuthContext)
@@ -59,6 +60,14 @@ export const AppRoutes = () => {
       />
 
       {/* Workspaces */}
+      <Route
+        path="/invite/:inviteToken"
+        element={
+          <ProtectedRoute>
+            <InvitePage />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/workspace/join/:workspaceId"
         element={
