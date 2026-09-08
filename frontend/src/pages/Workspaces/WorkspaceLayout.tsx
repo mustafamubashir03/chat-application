@@ -8,17 +8,20 @@ import type React from 'react'
 
 const WorkspaceLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="h-[100vh]">
+    <div className="h-[100vh] overflow-hidden">
       <WorkspaceNavbar />
-      <div className="flex h-[calc(100vh-28px)]">
+      <div className="flex h-[calc(100vh-56px)]">
+        {/* WorkspaceSidebar handles its own mobile/desktop visibility */}
         <WorkspaceSidebar />
-        <ResizablePanelGroup autoSaveId={'workspaceId'} direction="horizontal">
-          <ResizablePanel defaultSize={20} minSize={11} className="bg-[#101325]">
+        {/* On mobile: hide the WorkspacePanel; the main content takes full width */}
+        <div className="flex flex-1 min-w-0 overflow-hidden">
+          <div className="hidden sm:flex sm:w-[220px] lg:w-[260px] shrink-0 bg-[#101325]">
             <WorkspacePanel />
-          </ResizablePanel>
-          <ResizableHandle withHandle className="bg-[#0000000]" />
-          <ResizablePanel minSize={20}>{children}</ResizablePanel>
-        </ResizablePanelGroup>
+          </div>
+          <div className="flex-1 min-w-0 overflow-hidden">
+            {children}
+          </div>
+        </div>
       </div>
       <CreateChannelModal />
       <WorkspacePreferencesModal />
@@ -27,3 +30,4 @@ const WorkspaceLayout = ({ children }: { children: React.ReactNode }) => {
 }
 
 export default WorkspaceLayout
+

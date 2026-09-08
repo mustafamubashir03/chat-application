@@ -4,6 +4,7 @@ import { useContext } from 'react'
 const useSocket = () => {
   const {
     joinChannel,
+    leaveChannel,
     joinVideoCall,
     socket,
     currentChannel,
@@ -17,6 +18,7 @@ const useSocket = () => {
 
   return {
     joinChannel,
+    leaveChannel,
     socket,
     currentChannel,
     newMessageRecieved,

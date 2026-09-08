@@ -5,12 +5,14 @@ type Props = {
   stream: MediaStream | null
   isLocal?: boolean
   username?: string
+  avatar?: string
 }
 
 const UserVideoFeedPlayer = ({
   stream,
   isLocal = false,
   username = 'You',
+  avatar = '',
 }: Props) => {
   const videoRef = useRef<HTMLVideoElement>(null)
 
@@ -110,16 +112,39 @@ const UserVideoFeedPlayer = ({
         muted={isLocal}
       />
 
-      {/* Camera OFF overlay */}
+      {/* Camera OFF overlay – show avatar + name */}
       {!videoEnabled && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/80 text-gray-400 pointer-events-none">
-          <VideoOff size={40} />
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 pointer-events-none gap-3">
+          {avatar ? (
+            <img
+              src={avatar}
+              alt={username}
+              className="w-16 h-16 rounded-full object-cover border-2 border-slate-500 shadow-lg"
+            />
+          ) : (
+            <div className="w-16 h-16 rounded-full bg-sky-600 flex items-center justify-center border-2 border-slate-500 shadow-lg">
+              <span className="text-white text-2xl font-bold">{username.charAt(0).toUpperCase()}</span>
+            </div>
+          )}
+          <span className="text-white text-sm font-semibold">{username}</span>
         </div>
       )}
 
-      {/* Username (unchanged as requested) */}
-      <div className="absolute bottom-2 left-2 px-2 py-1 rounded bg-black/60 text-xs text-white">
-        {username}
+
+      {/* Username + avatar overlay (always visible at bottom-left) */}
+      <div className="absolute bottom-2 left-2 flex items-center gap-1.5 px-2 py-1 rounded-lg bg-black/60 backdrop-blur-sm">
+        {avatar ? (
+          <img
+            src={avatar}
+            alt={username}
+            className="w-5 h-5 rounded-full object-cover border border-slate-500"
+          />
+        ) : (
+          <div className="w-5 h-5 rounded-full bg-sky-600 flex items-center justify-center border border-slate-500">
+            <span className="text-white text-[9px] font-bold">{username.charAt(0).toUpperCase()}</span>
+          </div>
+        )}
+        <span className="text-xs text-white font-medium truncate max-w-[120px]">{username}</span>
       </div>
 
       {/* Controls */}

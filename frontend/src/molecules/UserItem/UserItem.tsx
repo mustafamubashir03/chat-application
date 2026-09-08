@@ -42,7 +42,7 @@ const UserItem = ({
     >
       <Link
         className="flex gap-2 items-center justify-center"
-        to={`/workspace/${currentWorkspace._id}/members/${id}`}
+        to={`/workspace/${currentWorkspace._id}/dm/${id}`}
       >
         <Avatar className="hover:opacity-60 transition-opacity border-2 border-[var(--primary-end)]">
           <AvatarImage src={image} className="rounded-md" />

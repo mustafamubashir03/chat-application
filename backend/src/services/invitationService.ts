@@ -122,16 +122,22 @@ export const acceptInvitationService = async (
     });
   }
 
-  // Idempotent member addition
+  // Idempotent member addition – if already a member, tell the client
   const isAlreadyMember = isUserPartOfWorkspace(userId, workspace);
-  let updatedWorkspace = workspace;
-  if (!isAlreadyMember) {
-    updatedWorkspace = await workspaceRepository.addMemberToWorkspace(
-      userId,
-      invitation.workspaceId,
-      'member'
-    );
+  if (isAlreadyMember) {
+    // Return a special object so frontend can redirect without re-adding
+    return {
+      alreadyMember: true,
+      workspaceId: invitation.workspaceId,
+      _id: invitation.workspaceId,
+    };
   }
+
+  const updatedWorkspace = await workspaceRepository.addMemberToWorkspace(
+    userId,
+    invitation.workspaceId,
+    'member'
+  );
 
   invitation.isUsed = true;
   invitation.usedBy = userId;

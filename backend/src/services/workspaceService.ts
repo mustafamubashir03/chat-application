@@ -41,10 +41,17 @@ export const generateUniqueJoinCode = async (): Promise<string> => {
   let joinCode = uuidv4().substring(0, 6).toUpperCase();
   let existing = await Workspace.findOne({ joinCode });
   let attempts = 0;
-  while (existing && attempts < 10) {
+  while (existing && attempts < 50) {
     joinCode = uuidv4().substring(0, 6).toUpperCase();
     existing = await Workspace.findOne({ joinCode });
     attempts++;
+  }
+  if (existing) {
+    throw new ClientError({
+      message: 'Failed to generate join code',
+      explanation: 'Could not generate a unique workspace join code. Please try again.',
+      status: StatusCodes.INTERNAL_SERVER_ERROR
+    });
   }
   return joinCode;
 };
@@ -69,6 +76,13 @@ export const createWorkspaceService = async (workspaceData: any) => {
     return channelAddedWorkspace;
   } catch (error: any) {
     if (error?.code === 11000) {
+      if (error?.keyPattern?.joinCode || error?.errmsg?.includes('joinCode')) {
+        throw new ClientError({
+          message: 'Conflict',
+          explanation: 'Join code collision occurred. Please try again.',
+          status: StatusCodes.CONFLICT
+        });
+      }
       throw new ClientError({
         message: 'Invalid data from client',
         explanation: 'Workspace name already exists',

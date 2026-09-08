@@ -13,6 +13,7 @@ import AuthContext from './context/AuthContext'
 import PlaceHolderChannel from './atoms/PlaceHolderChannel/PlaceHolderChannel'
 import VideoRoom from './pages/Workspaces/VideoRoom/VideoRoom'
 import InvitePage from './pages/Workspaces/InvitePage'
+import DirectMessagePage from './pages/Workspaces/DirectMessagePage'
 
 export const AppRoutes = () => {
   const { auth } = useContext(AuthContext)
@@ -101,6 +102,16 @@ export const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <VideoRoom />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/workspace/:workspaceId/dm/:memberId"
+        element={
+          <ProtectedRoute>
+            <WorkspaceLayout>
+              <DirectMessagePage />
+            </WorkspaceLayout>
           </ProtectedRoute>
         }
       />

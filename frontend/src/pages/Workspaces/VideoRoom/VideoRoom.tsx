@@ -33,6 +33,10 @@ const VideoRoom = () => {
   const [connectionError] = useState<string | null>(null)
 
   const joinedRef = useRef(false)
+  // track last join-notice time to debounce duplicate events
+  const lastJoinNoticeRef = useRef<number>(0)
+  // store { peerId -> { username, avatar } } for remote participant display
+  const peersInfoRef = useRef<Record<string, { username: string; avatar: string }>>({})
 
   // 1. Join room on mount
   useEffect(() => {
@@ -45,10 +49,16 @@ const VideoRoom = () => {
       user: {
         id: auth?.user?.id,
         username: auth?.user?.username || 'Member',
+        avatar: auth?.user?.avatar || '',
       },
     })
 
     joinedRef.current = true
+
+    // reset on unmount so re-entering the room works correctly
+    return () => {
+      joinedRef.current = false
+    }
   }, [socket, peer?.id, workspaceId, auth?.user])
 
   // 2. Peer signaling: Joiner calls existing participants; existing participants only handle user-left
@@ -75,6 +85,15 @@ const VideoRoom = () => {
 
     const handleUserJoined = ({ user, peerId }: { user?: any; peerId: string }) => {
       if (peerId === peer.id) return
+      // store info for later rendering
+      peersInfoRef.current[peerId] = {
+        username: user?.username || 'Participant',
+        avatar: user?.avatar || '',
+      }
+      // debounce: ignore if we already showed a notice within the last 2s
+      const now = Date.now()
+      if (now - lastJoinNoticeRef.current < 2000) return
+      lastJoinNoticeRef.current = now
       const joinerName = user?.username || 'Someone'
       setJoinNotice(`${joinerName} joined the meeting`)
       setTimeout(() => setJoinNotice(null), 3500)
@@ -237,6 +256,7 @@ const VideoRoom = () => {
               stream={stream}
               isLocal
               username={`${auth?.user?.username || 'You'} (You)`}
+              avatar={auth?.user?.avatar || ''}
             />
 
             {/* Remote Participants Streams */}
@@ -245,7 +265,8 @@ const VideoRoom = () => {
                 key={peerId}
                 stream={peers[peerId].stream}
                 isLocal={false}
-                username={`Participant`}
+                username={peersInfoRef.current[peerId]?.username || 'Participant'}
+                avatar={peersInfoRef.current[peerId]?.avatar || ''}
               />
             ))}
           </div>

@@ -3,7 +3,7 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/context/useAuth'
 import { acceptInvitation, getInvitationByToken } from '@/apis/invitation'
-import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
+import { Loader2, CheckCircle2, AlertCircle, Users } from 'lucide-react'
 
 const InvitePage = () => {
   const { inviteToken } = useParams<{ inviteToken: string }>()
@@ -15,6 +15,7 @@ const InvitePage = () => {
   const [joining, setJoining] = useState(false)
   const [invitationData, setInvitationData] = useState<any>(null)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const [alreadyMember, setAlreadyMember] = useState<string | null>(null) // workspaceId if already a member
 
   useEffect(() => {
     if (!auth?.token) {
@@ -50,6 +51,12 @@ const InvitePage = () => {
         inviteToken,
         token: auth.token,
       })
+      // Backend returns { alreadyMember: true, _id: workspaceId } when user is already in workspace
+      if (res?.data?.alreadyMember) {
+        const wsId = res.data._id || res.data.workspaceId
+        setAlreadyMember(wsId?.toString() || null)
+        return
+      }
       const workspaceId = res?.data?._id || invitationData?.invitation?.workspaceId?._id
       if (workspaceId) {
         navigate(`/workspace/${workspaceId}`)
@@ -68,6 +75,32 @@ const InvitePage = () => {
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-slate-200 p-4">
         <Loader2 className="animate-spin size-8 text-blue-400 mb-4" />
         <p className="text-slate-400 text-sm">Validating workspace invitation...</p>
+      </div>
+    )
+  }
+
+  // Already a member – show dedicated UI with link back to workspace
+  if (alreadyMember) {
+    const workspaceName = invitationData?.invitation?.workspaceId?.name
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-slate-200 p-4">
+        <div className="max-w-md w-full bg-slate-900 border border-slate-700 rounded-xl p-8 shadow-2xl text-center">
+          <div className="size-16 bg-emerald-600/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Users className="size-8" />
+          </div>
+          <h1 className="text-2xl font-bold text-slate-100 mb-2">You're already a member!</h1>
+          <p className="text-slate-400 text-sm mb-6">
+            You are already a member of
+            <strong className="text-slate-200"> {workspaceName || 'this workspace'}</strong>.
+            No need to join again.
+          </p>
+          <Button
+            onClick={() => navigate(`/workspace/${alreadyMember}`)}
+            className="w-full py-5 text-base font-semibold bg-emerald-600 hover:bg-emerald-500 text-white"
+          >
+            Go to Workspace
+          </Button>
+        </div>
       </div>
     )
   }
