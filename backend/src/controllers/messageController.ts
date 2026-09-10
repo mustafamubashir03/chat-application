@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import { AuthRequest } from '../types/custom.js';
-import { getMessagesForUserService } from '../services/messageService.js';
+import { getMessageService } from '../services/messageService.js';
 import { StatusCodes } from 'http-status-codes';
 import { MongooseError } from 'mongoose';
 import {
@@ -13,9 +13,10 @@ export const getMessagesController = async (
   res: Response
 ) => {
   try {
-    const messages = await getMessagesForUserService(
-      req.params.channelId,
-      req.user!,
+    const messages = await getMessageService(
+      {
+        channelId: req.params.channelId
+      },
       Number(req?.query?.page) || 1,
       Number(req.query.limit) || 60
     );
