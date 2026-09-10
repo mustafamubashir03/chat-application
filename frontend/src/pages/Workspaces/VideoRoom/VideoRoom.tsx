@@ -5,7 +5,7 @@ import UserVideoFeedPlayer from '@/atoms/userVideoFeedPlayer/UserVideoFeedPlayer
 import { Button } from '@/components/ui/button'
 import useSocket from '@/hooks/context/useSocket'
 import { useAuth } from '@/hooks/context/useAuth'
-import { createInvitation } from '@/apis/invitation'
+import { createMeetingInvite } from '@/apis/meeting'
 import {
   Mic,
   MicOff,
@@ -53,6 +53,17 @@ const VideoRoom = () => {
       },
     })
 
+    // Let existing participants learn who just joined
+    socket.emit('ready', {
+      roomId: workspaceId,
+      peerId: peer.id,
+      user: {
+        id: auth?.user?.id,
+        username: auth?.user?.username || 'Member',
+        avatar: auth?.user?.avatar || '',
+      },
+    })
+
     joinedRef.current = true
 
     // reset on unmount so re-entering the room works correctly
@@ -60,6 +71,24 @@ const VideoRoom = () => {
       joinedRef.current = false
     }
   }, [socket, peer?.id, workspaceId, auth?.user])
+
+  // 1b. Full cleanup on unmount: leave the server room and hang up all peer calls
+  useEffect(() => {
+    const socketForCleanup = socket
+    const peerForCleanup = peer
+
+    return () => {
+      joinedRef.current = false
+      if (socketForCleanup) {
+        socketForCleanup.emit('leave-room')
+      }
+      if (peerForCleanup) {
+        Object.values(peerForCleanup.connections).forEach((conns) => {
+          conns.forEach((conn: { close: () => void }) => conn.close())
+        })
+      }
+    }
+  }, [socket, peer])
 
   // 2. Peer signaling: Joiner calls existing participants; existing participants only handle user-left
   useEffect(() => {
@@ -162,22 +191,22 @@ const VideoRoom = () => {
     }
   }
 
-  // 5. Copy Single Invitation Link
+  // 5. Copy Meeting Invitation Link (joins the active meeting, never grants workspace membership)
   const handleCopyInviteLink = async () => {
     if (!workspaceId || !auth?.token) return
     try {
       setGeneratingLink(true)
-      const res = await createInvitation({ workspaceId, token: auth.token })
+      const res = await createMeetingInvite({ workspaceId, token: auth.token })
       const token = res?.data?.token
       if (token) {
-        const inviteUrl = `${window.location.origin}/invite/${token}`
+        const inviteUrl = `${window.location.origin}/meeting/${token}`
         await navigator.clipboard.writeText(inviteUrl)
         setCopied(true)
-        toast.success('Invitation link copied!')
+        toast.success('Meeting invitation link copied!')
         setTimeout(() => setCopied(false), 2000)
       }
     } catch (e: any) {
-      toast.error(e?.message || 'Failed to generate invitation link')
+      toast.error(e?.message || 'Failed to generate meeting invitation link')
     } finally {
       setGeneratingLink(false)
     }
@@ -195,17 +224,19 @@ const VideoRoom = () => {
   }
 
   return (
-    <div className="w-full min-h-screen bg-slate-950 flex flex-col text-slate-200">
+    <div className="w-full min-h-dvh bg-slate-950 flex flex-col text-slate-200">
       {/* Top Bar */}
-      <header className="h-14 px-6 border-b border-slate-800/80 bg-slate-900/60 backdrop-blur flex justify-between items-center z-10">
-        <div className="flex items-center gap-3">
-          <div className="size-3 bg-red-500 rounded-full animate-pulse" />
-          <h1 className="text-sm font-semibold text-slate-200">Workspace Video Meeting</h1>
+      <header className="h-14 px-4 sm:px-6 border-b border-slate-800/80 bg-slate-900/60 backdrop-blur flex justify-between items-center z-10 gap-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="size-3 bg-red-500 rounded-full animate-pulse shrink-0" />
+          <h1 className="hidden sm:block text-sm font-semibold text-slate-200 truncate">
+            Workspace Video Meeting
+          </h1>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5 text-xs font-medium text-slate-400 bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700/50">
-            <Users className="size-3.5 text-blue-400" />
+        <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+          <div className="flex items-center gap-1.5 text-xs font-medium text-slate-400 bg-slate-800/80 px-2.5 sm:px-3 py-1.5 rounded-full border border-slate-700/50 whitespace-nowrap">
+            <Users className="size-3.5 text-blue-400 shrink-0" />
             <span>
               {totalParticipants} participant{totalParticipants > 1 ? 's' : ''}
             </span>
@@ -216,14 +247,16 @@ const VideoRoom = () => {
             variant="outline"
             onClick={handleCopyInviteLink}
             disabled={generatingLink}
-            className="text-xs bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white"
+            className="text-xs bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700 hover:text-white px-2.5 sm:px-3"
           >
             {generatingLink ? (
-              <Loader2 className="size-3.5 animate-spin mr-1.5" />
+              <Loader2 className="size-3.5 animate-spin shrink-0" />
             ) : (
-              <LinkIcon className="size-3.5 mr-1.5 text-blue-400" />
+              <LinkIcon className="size-3.5 text-blue-400 shrink-0" />
             )}
-            {copied ? 'Copied Link!' : 'Invite Members'}
+            <span className="hidden sm:inline">
+              {copied ? 'Copied Link!' : 'Invite Members'}
+            </span>
           </Button>
         </div>
       </header>
@@ -243,7 +276,7 @@ const VideoRoom = () => {
       )}
 
       {/* Main Video Stage */}
-      <main className="flex-1 p-6 flex flex-col justify-center overflow-y-auto">
+      <main className="flex-1 p-4 sm:p-6 flex flex-col justify-center overflow-y-auto">
         {!stream ? (
           <div className="flex flex-col items-center justify-center h-64 text-slate-400 gap-3">
             <Loader2 className="size-8 animate-spin text-blue-500" />
@@ -274,7 +307,7 @@ const VideoRoom = () => {
       </main>
 
       {/* Control Bar Footer */}
-      <footer className="h-20 border-t border-slate-800/80 bg-slate-900/80 backdrop-blur flex items-center justify-center gap-4 z-10 px-4">
+      <footer className="h-20 border-t border-slate-800/80 bg-slate-900/80 backdrop-blur flex items-center justify-center gap-3 sm:gap-4 z-10 px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
         <Button
           onClick={toggleMic}
           size="icon"

@@ -13,6 +13,7 @@ import AuthContext from './context/AuthContext'
 import PlaceHolderChannel from './atoms/PlaceHolderChannel/PlaceHolderChannel'
 import VideoRoom from './pages/Workspaces/VideoRoom/VideoRoom'
 import InvitePage from './pages/Workspaces/InvitePage'
+import MeetingInvitePage from './pages/Workspaces/MeetingInvitePage'
 import DirectMessagePage from './pages/Workspaces/DirectMessagePage'
 
 export const AppRoutes = () => {
@@ -61,6 +62,14 @@ export const AppRoutes = () => {
       />
 
       {/* Workspaces */}
+      <Route
+        path="/meeting/:meetingToken"
+        element={
+          <ProtectedRoute>
+            <MeetingInvitePage />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/invite/:inviteToken"
         element={

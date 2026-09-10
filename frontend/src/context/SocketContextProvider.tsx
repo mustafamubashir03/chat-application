@@ -43,6 +43,8 @@ const PEERJS_PATH = import.meta.env.VITE_PEERJS_PATH
 
 export const SocketContextProvider = ({ children }: { children: React.ReactNode }) => {
   const socketRef = useRef<Socket | null>(null)
+  const peerRef = useRef<Peer | null>(null)
+  const streamRef = useRef<MediaStream | null>(null)
 
   // ✅ NEW: queue for calls that arrive before stream is ready
   const pendingCallsRef = useRef<any[]>([])
@@ -62,14 +64,21 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
     if (!auth?.user) return
 
     let active = true
+    let localStream: MediaStream | null = null
 
     const init = async () => {
-      const localStream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true,
-      })
-      if (!active) return
-      setStream(localStream)
+      try {
+        const streamObj = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: true,
+        })
+        localStream = streamObj
+        streamRef.current = streamObj
+        if (active) setStream(streamObj)
+      } catch (err) {
+        // Permission denied or no device available — still create peer + socket
+        console.warn('Could not access camera/mic, continuing without local stream', err)
+      }
 
       const newPeer = new Peer(`${auth?.user?.id}`, {
         host: PEERJS_HOST,
@@ -84,7 +93,8 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
         },
       })
 
-      setPeer(newPeer)
+      peerRef.current = newPeer
+      if (active) setPeer(newPeer)
 
       const newSocket = io(import.meta.env.VITE_BACKEND_SOCKET_URL, {
         path: '/socket.io',
@@ -92,7 +102,7 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
       })
 
       socketRef.current = newSocket
-      setSocket(newSocket)
+      if (active) setSocket(newSocket)
 
       newSocket.on('connect', () => console.log('Socket connected:', newSocket.id))
       newSocket.on('newMessageRecieved', setNewMessageRecieved)
@@ -123,9 +133,14 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
     return () => {
       active = false
       socketRef.current?.disconnect()
+      socketRef.current = null
       setSocket(null)
-      stream?.getTracks().forEach((t) => t.stop())
-      peer?.destroy()
+      streamRef.current?.getTracks().forEach((t) => t.stop())
+      streamRef.current = null
+      setStream(null)
+      peerRef.current?.destroy()
+      peerRef.current = null
+      setPeer(null)
     }
   }, [auth?.user])
 

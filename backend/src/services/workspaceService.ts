@@ -61,7 +61,7 @@ export const createWorkspaceService = async (workspaceData: any) => {
     const joinCode = await generateUniqueJoinCode();
     const response = await workspaceRepository.createDoc({
       name: workspaceData.name,
-      descripion: workspaceData.descripion,
+      description: workspaceData.description,
       joinCode
     });
 
@@ -184,9 +184,14 @@ export const updateWorkspaceService = async (
     }
     const isAllowed = isUserAdminOfWorkspace(userId, workspace);
     if (isAllowed) {
+      const updateData: Record<string, any> = {};
+      if (workspaceData.name !== undefined) updateData.name = workspaceData.name;
+      if (workspaceData.joinCode !== undefined) {
+        updateData.joinCode = workspaceData.joinCode;
+      }
       const updatedWorkspace = await workspaceRepository.updateDoc(
         workspaceId,
-        { name: workspaceData.name }
+        updateData
       );
       return updatedWorkspace;
     } else {
@@ -321,6 +326,16 @@ export const joinWorkspaceService = async (
         message: 'User is not valid',
         explanation: 'No such user exist',
         status: StatusCodes.NOT_FOUND
+      });
+    }
+
+    const providedCode = String(joinCode || '').trim().toUpperCase();
+    const expectedCode = String(workspace.joinCode || '').toUpperCase();
+    if (!providedCode || expectedCode !== providedCode) {
+      throw new ClientError({
+        message: 'Invalid join code',
+        explanation: 'The workspace join code is incorrect',
+        status: StatusCodes.FORBIDDEN
       });
     }
 

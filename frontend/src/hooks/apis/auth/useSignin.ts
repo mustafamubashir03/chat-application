@@ -15,7 +15,7 @@ const useSignin = () => {
     onSuccess: (response: any) => {
       toast.success('You have signed in sucessfully.')
       localStorage.setItem('user', JSON.stringify(response.data))
-      localStorage.setItem('token', JSON.stringify(response.data.token))
+      localStorage.setItem('token', response.data.token)
       setAuth({
         user: response.data,
         token: response.data.token,

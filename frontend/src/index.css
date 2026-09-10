@@ -131,6 +131,8 @@ body {
   @apply text-foreground;
   @apply bg-background;
   @apply border-none hover:border-none focus-visible:outline-none  ring-0 ring-offset-0 focus:ring-0 focus-visible:ring-0;
+  overscroll-behavior-y: none;
+  overflow-x: hidden;
   /* Disable white focus ring and border glow globally */
   button:focus,
   button:focus-visible,
@@ -142,6 +144,62 @@ body {
     box-shadow: none !important;
     --tw-ring-color: transparent !important;
     --tw-ring-offset-color: transparent !important;
+  }
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+/* Prevent iOS form zoom by keeping form inputs at 16px+ on small screens */
+@media (max-width: 640px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
+/* ====== Audio equalizer bars (voice notes) ====== */
+.audio-eq {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.audio-eq span {
+  display: block;
+  width: 3px;
+  height: 60%;
+  border-radius: 2px;
+  background: rgb(59 130 246 / 0.9);
+  transform-origin: center;
+}
+.audio-eq.is-playing span {
+  animation: audio-eq 1s ease-in-out infinite;
+}
+.audio-eq.is-playing span:nth-child(1) {
+  animation-delay: 0s;
+}
+.audio-eq.is-playing span:nth-child(2) {
+  animation-delay: 0.25s;
+}
+.audio-eq.is-playing span:nth-child(3) {
+  animation-delay: 0.5s;
+}
+.audio-eq.is-playing span:nth-child(4) {
+  animation-delay: 0.75s;
+}
+@keyframes audio-eq {
+  0%,
+  100% {
+    transform: scaleY(0.4);
+  }
+  50% {
+    transform: scaleY(1);
   }
 }
 /* ====== Chat Scrollbar ====== */

@@ -9,7 +9,6 @@ import { useWorkspacePreferences } from '@/hooks/context/useWorkspacePreferences
 
 const WorkspaceSidebar = () => {
   const navigate = useNavigate()
-  const { workspaceId } = useParams<{ workspaceId: string }>()
   const { setOpenPreferences } = useWorkspacePreferences()
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -29,7 +28,7 @@ const WorkspaceSidebar = () => {
   }
 
   const SidebarContent = () => (
-    <div className="h-full flex flex-col gap-y-4 items-center pt-[10px] pb-[5px]">
+    <div className="h-full flex flex-col gap-y-4 items-center pt-[10px] pb-[max(0.625rem,env(safe-area-inset-bottom))]">
       <WorkspaceSwitcher />
       <SidebarButton Icon={HomeIcon} Label={'Home'} onClick={handleHome} />
       <SidebarButton Icon={MessageCircleIcon} Label={'Message'} />
@@ -45,7 +44,7 @@ const WorkspaceSidebar = () => {
     <>
       {/* Desktop sidebar — hidden on mobile */}
       <aside className="hidden sm:block w-[90px] h-full bg-[#0b0d1a] shrink-0">
-        <div className="h-[calc(100vh-40px)]">
+        <div className="h-[calc(100dvh-40px)]">
           <SidebarContent />
         </div>
       </aside>

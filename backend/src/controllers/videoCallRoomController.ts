@@ -34,8 +34,17 @@ interface ActiveMeeting {
 const activeMeetings: Record<string, ActiveMeeting> = {};
 // Room peer sets (workspaceId -> Set of peerIds)
 const rooms: Record<string, Set<string>> = {};
+// Track which socket currently owns a peerId inside a room (for idempotent leave)
+const peerSocketOwners: Record<string, Record<string, string>> = {};
 
 const meetingTimers: Record<string, NodeJS.Timeout> = {};
+
+// Emit shallow-cloned meeting objects so React state updates don't bail out
+// on identical object references.
+const serializeMeeting = (meeting: ActiveMeeting) => ({
+  ...meeting,
+  participants: { ...meeting.participants }
+});
 
 export const getOrCreateMeeting = (
   workspaceId: string,
@@ -60,6 +69,10 @@ export const getOrCreateMeeting = (
   return activeMeetings[workspaceId];
 };
 
+export const getActiveMeetingByWorkspaceId = (
+  workspaceId: string
+): ActiveMeeting | null => activeMeetings[workspaceId] || null;
+
 export const videoCallRoomHandler = (io: Server, socket: Socket) => {
   // Join workspace channel for state sync
   socket.on('workspace:join', ({ workspaceId }: { workspaceId: string }) => {
@@ -68,13 +81,20 @@ export const videoCallRoomHandler = (io: Server, socket: Socket) => {
     socket.join(wsRoom);
     // Send current active meeting state if any
     const meeting = activeMeetings[workspaceId] || null;
-    socket.emit('workspace:meeting-status', { workspaceId, meeting });
+    socket.emit('workspace:meeting-status', {
+      workspaceId,
+      meeting: meeting ? serializeMeeting(meeting) : null
+    });
   });
 
   socket.on('workspace:get-meeting-status', ({ workspaceId }: { workspaceId: string }, cb?: any) => {
     const meeting = activeMeetings[workspaceId] || null;
-    if (cb) cb(meeting);
-    else socket.emit('workspace:meeting-status', { workspaceId, meeting });
+    if (cb) cb(meeting ? serializeMeeting(meeting) : null);
+    else
+      socket.emit('workspace:meeting-status', {
+        workspaceId,
+        meeting: meeting ? serializeMeeting(meeting) : null
+      });
   });
 
   const createRoom = (data: JoinParams, cb?: any) => {
@@ -85,6 +105,8 @@ export const videoCallRoomHandler = (io: Server, socket: Socket) => {
       rooms[roomId] = new Set();
     }
     rooms[roomId].add(peerId);
+    if (!peerSocketOwners[roomId]) peerSocketOwners[roomId] = {};
+    peerSocketOwners[roomId][peerId] = socket.id;
 
     const meeting = getOrCreateMeeting(roomId, data.user);
     meeting.participants[peerId] = {
@@ -100,14 +122,14 @@ export const videoCallRoomHandler = (io: Server, socket: Socket) => {
     socket.data.roomId = roomId;
     socket.data.peerId = peerId;
 
-    io.to(`workspace:${roomId}`).emit('workspace:meeting-started', meeting);
+    io.to(`workspace:${roomId}`).emit('workspace:meeting-started', serializeMeeting(meeting));
     socket.emit('room-created', roomId, Array.from(rooms[roomId]));
 
     cb?.({
       success: true,
       message: 'Room created',
       data: roomId,
-      meeting
+      meeting: serializeMeeting(meeting)
     });
   };
 
@@ -115,12 +137,36 @@ export const videoCallRoomHandler = (io: Server, socket: Socket) => {
     const roomId = String(data.roomId);
     const peerId = String(data.peerId);
 
+    socket.join(roomId);
+    socket.join(`workspace:${roomId}`);
+    socket.data.roomId = roomId;
+    socket.data.peerId = peerId;
+
+    const meeting = activeMeetings[roomId];
+
+    // No active meeting — do NOT implicitly create one (separates "join" from "start")
+    if (!meeting) {
+      cb?.({
+        success: true,
+        participants: [],
+        meeting: null
+      });
+      return;
+    }
+
+    // Someone re-joined within the grace period — cancel the end timer
+    if (meetingTimers[roomId]) {
+      clearTimeout(meetingTimers[roomId]);
+      delete meetingTimers[roomId];
+    }
+
     if (!rooms[roomId]) {
       rooms[roomId] = new Set();
     }
     rooms[roomId].add(peerId);
+    if (!peerSocketOwners[roomId]) peerSocketOwners[roomId] = {};
+    peerSocketOwners[roomId][peerId] = socket.id;
 
-    const meeting = getOrCreateMeeting(roomId, data.user);
     meeting.participants[peerId] = {
       peerId,
       userId: data.user?.id,
@@ -129,25 +175,20 @@ export const videoCallRoomHandler = (io: Server, socket: Socket) => {
       cameraOn: true
     };
 
-    socket.join(roomId);
-    socket.join(`workspace:${roomId}`);
-    socket.data.roomId = roomId;
-    socket.data.peerId = peerId;
-
     // Send existing peers list to joiner
     socket.emit(GET_USERS, {
       roomId,
       participants: Array.from(rooms[roomId]),
-      meeting
+      meeting: serializeMeeting(meeting)
     });
 
     // Notify workspace of updated meeting state
-    io.to(`workspace:${roomId}`).emit('workspace:meeting-updated', meeting);
+    io.to(`workspace:${roomId}`).emit('workspace:meeting-updated', serializeMeeting(meeting));
 
     cb?.({
       success: true,
       participants: Array.from(rooms[roomId]),
-      meeting
+      meeting: serializeMeeting(meeting)
     });
   };
 
@@ -176,21 +217,26 @@ export const videoCallRoomHandler = (io: Server, socket: Socket) => {
 
   const handleLeave = () => {
     const { roomId, peerId } = socket.data as { roomId?: string; peerId?: string };
-    if (!roomId || !peerId) return;
+    if (!roomId || !peerId || !rooms[roomId]) return;
 
-    const room = rooms[roomId];
-    if (room) {
-      room.delete(peerId);
-    }
+    // Only the socket that currently owns this peerId may remove it.
+    // This makes leave idempotent and resolves the reconnect race where an old
+    // socket's disconnect arrives after the same user rejoined on a new socket.
+    const ownerId = peerSocketOwners[roomId]?.[peerId];
+    if (ownerId !== socket.id) return;
 
-    if (activeMeetings[roomId]) {
+    delete peerSocketOwners[roomId][peerId];
+
+    rooms[roomId].delete(peerId);
+    if (activeMeetings[roomId]?.participants[peerId]) {
       delete activeMeetings[roomId].participants[peerId];
     }
 
     socket.to(roomId).emit('user-left', { peerId });
 
-    if (!room || room.size === 0) {
+    if (rooms[roomId].size === 0) {
       delete rooms[roomId];
+      delete peerSocketOwners[roomId];
       if (meetingTimers[roomId]) clearTimeout(meetingTimers[roomId]);
       meetingTimers[roomId] = setTimeout(() => {
         if (!rooms[roomId] || rooms[roomId].size === 0) {
@@ -200,7 +246,7 @@ export const videoCallRoomHandler = (io: Server, socket: Socket) => {
         }
       }, 30000); // 30 second grace period for refresh/network reconnect
     } else if (activeMeetings[roomId]) {
-      io.to(`workspace:${roomId}`).emit('workspace:meeting-updated', activeMeetings[roomId]);
+      io.to(`workspace:${roomId}`).emit('workspace:meeting-updated', serializeMeeting(activeMeetings[roomId]));
     }
   };
 

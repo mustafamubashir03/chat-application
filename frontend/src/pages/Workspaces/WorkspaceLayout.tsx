@@ -1,4 +1,3 @@
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import CreateChannelModal from '@/molecules/CreateChannelModal/CreateChannelModal'
 import WorkspacePreferencesModal from '@/molecules/WorkspacePreferencesModal/WorkspacePreferencesModal'
 import WorkspaceNavbar from '@/organisms/Workspaces/WorkspaceNavbar'
@@ -8,9 +7,9 @@ import type React from 'react'
 
 const WorkspaceLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="h-[100vh] overflow-hidden">
+    <div className="h-[100dvh] overflow-hidden">
       <WorkspaceNavbar />
-      <div className="flex h-[calc(100vh-56px)]">
+      <div className="flex h-[calc(100dvh-56px)] min-h-0">
         {/* WorkspaceSidebar handles its own mobile/desktop visibility */}
         <WorkspaceSidebar />
         {/* On mobile: hide the WorkspacePanel; the main content takes full width */}

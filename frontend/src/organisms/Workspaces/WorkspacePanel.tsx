@@ -56,7 +56,7 @@ const WorkspacePanel = () => {
           {workspaceDetails?.members && workspaceDetails.members.length > 0 ? (
             workspaceDetails.members.map((member: any) => {
               if (!member?.memberId) return null
-              const isOwner = workspaceDetails.owner === member.memberId._id || member.role === 'admin'
+              const isOwner = member.role === 'admin'
               const label = `${member.memberId.username || 'User'}${isOwner ? ' (Admin)' : ''}`
               return (
                 <UserItem

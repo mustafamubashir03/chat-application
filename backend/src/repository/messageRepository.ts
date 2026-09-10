@@ -1,6 +1,5 @@
 import crudRepository from './crudRepository.js';
 import Message from '../schema/message.js';
-import mongoose from 'mongoose';
 
 const messageRepository = {
   ...crudRepository<any>(Message),
@@ -10,16 +9,6 @@ const messageRepository = {
     limit: number
   ) => {
     try {
-      // Convert channelId to ObjectId if it's a string
-      if (
-        messageParams.channelId &&
-        typeof messageParams.channelId === 'string'
-      ) {
-        messageParams.channelId = new mongoose.Types.ObjectId(
-          messageParams.channelId
-        );
-      }
-
       const messages = await Message.find(messageParams)
         .sort({ createdAt: 1 })
         .skip((page - 1) * limit)

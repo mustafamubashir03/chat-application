@@ -27,7 +27,7 @@ const WorkspaceSwitcher = () => {
           {isPending ? (
             <LucideLoader2 className="size-5 spin" />
           ) : (
-            workspaceDetails?.name[0].toUpperCase()
+            (workspaceDetails?.name?.[0] ?? '?').toUpperCase()
           )}
         </Button>
       </DropdownMenuTrigger>

@@ -59,7 +59,14 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
     if (userStr && tokenStr) {
       try {
         const user = JSON.parse(userStr)
-        const token = JSON.parse(tokenStr)
+        // tokens are stored as plain strings; tolerate legacy JSON-encoded values
+        let token: string = tokenStr
+        try {
+          const parsed = JSON.parse(tokenStr)
+          if (typeof parsed === 'string') token = parsed
+        } catch {
+          // token stored as a plain string — use it as-is
+        }
 
         if (isTokenExpired(token)) {
           localStorage.removeItem('token')

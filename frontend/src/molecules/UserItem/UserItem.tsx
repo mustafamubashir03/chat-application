@@ -1,10 +1,9 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { useCurrentWorkspace } from '@/hooks/context/useCurrentWorkspace'
 import { cn } from '@/lib/utils'
 import { cva } from 'class-variance-authority'
 
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 
 const userItemVariatns = cva(
   'flex outline-none border-none hover:border-none items-center gap-1.5 justify-start font-normal h-7 px-4 text-sm overflow:hidden',
@@ -32,7 +31,7 @@ const UserItem = ({
   variant?: 'default' | 'active'
   image: string
 }) => {
-  const { currentWorkspace } = useCurrentWorkspace()
+  const { workspaceId } = useParams<{ workspaceId: string }>()
   return (
     <Button
       asChild
@@ -42,7 +41,7 @@ const UserItem = ({
     >
       <Link
         className="flex gap-2 items-center justify-center"
-        to={`/workspace/${currentWorkspace._id}/dm/${id}`}
+        to={`/workspace/${workspaceId}/dm/${id}`}
       >
         <Avatar className="hover:opacity-60 transition-opacity border-2 border-[var(--primary-end)]">
           <AvatarImage src={image} className="rounded-md" />

@@ -3,7 +3,8 @@ import mongoose, { ObjectId } from 'mongoose';
 export interface MessageI extends Document {
   messageBody: string;
   image?: string;
-  channelId: ObjectId;
+  audio?: string;
+  channelId: string;
   workspaceId: ObjectId;
   senderId: ObjectId;
 }
@@ -17,9 +18,11 @@ const messageSchema = new mongoose.Schema(
     image: {
       type: String
     },
+    audio: {
+      type: String
+    },
     channelId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Channel',
+      type: String,
       required: [true, 'Channel id is required']
     },
     workspaceId: {

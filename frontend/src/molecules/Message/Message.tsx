@@ -1,3 +1,4 @@
+import AudioMessage from '@/atoms/audioMessage/AudioMessage'
 import MessageImageThumbnail from '@/atoms/messageImageThumbnail/MessageImageThumbnail'
 import MessageRenderer from '@/atoms/messageRenderer/MessageRenderer'
 import { AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -7,12 +8,14 @@ const Message = ({
   authorImage,
   authorName,
   image,
+  audio,
   createdAt,
   body,
 }: {
   authorImage: string
   authorName: string
   image: string
+  audio?: string
   createdAt: any
   body: any
 }) => {
@@ -38,6 +41,7 @@ const Message = ({
           </div>
           <MessageRenderer value={body} />
           {image && <MessageImageThumbnail imageURL={image} />}
+          {audio && <AudioMessage src={audio} />}
         </div>
       </div>
     </div>

@@ -5,9 +5,10 @@ import { LucideLoader2 } from 'lucide-react'
 import useSocket from '@/hooks/context/useSocket'
 import { useAuth } from '@/hooks/context/useAuth'
 import { useGetWorkspaceById } from '@/hooks/apis/workspace/useGetWorkspaceById'
+import { getMessagesByChannelId } from '@/apis/channel'
 
+import ChatInput from '@/molecules/ChatInput/ChatInput'
 import Message from '@/molecules/Message/Message'
-import QuillEditor from '@/components/ui/quill-editor'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 /**
@@ -28,7 +29,6 @@ const DirectMessagePage = () => {
   const { workspaceDetails } = useGetWorkspaceById({ workspaceId: workspaceId || '' })
 
   const [messages, setMessages] = useState<any[]>([])
-  const [editorValue, setEditorValue] = useState('')
   const [loading, setLoading] = useState(false)
 
   // Deterministic DM room id – sorted so both users get the same id
@@ -57,6 +57,24 @@ const DirectMessagePage = () => {
     }
   }, [dmRoomId, joinChannel, leaveChannel])
 
+  // Load persisted DM history from the DB (same room id scheme)
+  useEffect(() => {
+    if (!dmRoomId || !auth?.token) return
+
+    setLoading(true)
+    getMessagesByChannelId({ channelId: dmRoomId, token: auth.token })
+      .then((res) => {
+        const history = Array.isArray(res?.data) ? res.data : []
+        setMessages(
+          [...history].sort(
+            (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+          ),
+        )
+      })
+      .catch(() => setMessages([]))
+      .finally(() => setLoading(false))
+  }, [dmRoomId, auth?.token])
+
   // Listen for incoming messages and append to this DM room
   useEffect(() => {
     if (!newMessageRecieved?._id) return
@@ -74,36 +92,40 @@ const DirectMessagePage = () => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  const handleSend = (html: string) => {
-    if (!socket || !dmRoomId || !auth?.user?.id || !html.trim()) return
+  const handleSend = (content: string, image?: string, audio?: string) => {
+    if (!socket || !dmRoomId || !auth?.user?.id) return
+    if (!content.trim() && !image && !audio) return
     const messagePayload = {
       channelId: dmRoomId,
       senderId: auth.user.id,
-      messageBody: html,
+      messageBody: content,
+      image: image || undefined,
+      audio: audio || undefined,
       isDm: true,
     }
     socket.emit('newMessage', messagePayload)
-    setEditorValue('')
   }
 
   return (
-    <div className="flex flex-col h-screen bg-background">
+    <div className="flex flex-col h-full min-h-0 bg-background">
       {/* Header */}
-      <div className="shrink-0 px-4 py-3 mt-8 border-b border-slate-500/30 flex items-center gap-3">
-        <Avatar className="size-8 border border-slate-600">
+      <div className="shrink-0 px-4 py-3 border-b border-slate-500/30 flex items-center gap-3">
+        <Avatar className="size-8 border border-slate-600 shrink-0">
           <AvatarImage src={otherAvatar} />
           <AvatarFallback className="bg-sky-600 text-white text-sm">
             {otherUsername.charAt(0).toUpperCase()}
           </AvatarFallback>
         </Avatar>
-        <div>
-          <p className="text-slate-200 font-semibold text-sm leading-tight">{otherUsername}</p>
+        <div className="min-w-0">
+          <p className="text-slate-200 font-semibold text-sm leading-tight truncate">
+            {otherUsername}
+          </p>
           <p className="text-slate-500 text-xs">Direct Message</p>
         </div>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4 chat-scroll">
+      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-4 chat-scroll">
         {loading && (
           <div className="flex justify-center py-4">
             <LucideLoader2 className="animate-spin size-6 text-slate-400" />
@@ -129,6 +151,7 @@ const DirectMessagePage = () => {
             authorImage={message.senderId?.avatar || (message.senderId === auth?.user?.id ? auth?.user?.avatar : otherAvatar)}
             authorName={message.senderId?.username || (message.senderId === auth?.user?.id ? auth?.user?.username : otherUsername)}
             image={message.image || ''}
+            audio={message.audio || undefined}
             body={message.messageBody}
             createdAt={new Date(message.createdAt).toLocaleString()}
           />
@@ -137,14 +160,9 @@ const DirectMessagePage = () => {
         <div ref={bottomRef} />
       </div>
 
-      {/* Editor */}
-      <div className="shrink-0 border-t border-slate-500/30 bg-background/80 backdrop-blur px-4 py-3">
-        <QuillEditor
-          value={editorValue}
-          onChange={setEditorValue}
-          placeholder={`Message ${otherUsername}...`}
-          onSend={handleSend}
-        />
+      {/* Composer */}
+      <div className="shrink-0 border-t border-slate-500/30 bg-background/80 backdrop-blur px-2 sm:px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+        <ChatInput placeholder={`Message ${otherUsername}...`} onSend={handleSend} />
       </div>
     </div>
   )

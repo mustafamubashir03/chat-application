@@ -5,19 +5,20 @@ import { LucideLoader2 } from 'lucide-react'
 import useGetChannelWithWorkspaceDetails from '@/hooks/apis/channel/useGetChannelWithWorkspaceDetails'
 import { useGetMessagesByChannelId } from '@/hooks/apis/channel/useGetMessagesByChannelId'
 import useSocket from '@/hooks/context/useSocket'
+import { useAuth } from '@/hooks/context/useAuth'
 
+import ChatInput from '@/molecules/ChatInput/ChatInput'
 import Message from '@/molecules/Message/Message'
-import QuillEditor from '@/components/ui/quill-editor'
 
 const Channel = () => {
-  const { channelId } = useParams<{ channelId: string }>()
+  const { workspaceId, channelId } = useParams<{ workspaceId: string; channelId: string }>()
 
   const bottomRef = useRef<HTMLDivElement>(null)
 
-  const { joinChannel, newMessageRecieved } = useSocket()
+  const { joinChannel, leaveChannel, newMessageRecieved, socket } = useSocket()
+  const { auth } = useAuth()
 
   const [messages, setMessages] = useState<any[]>([])
-  const [editorValue, setEditorValue] = useState('')
 
   /* ---------------- CHANNEL DETAILS ---------------- */
   const {
@@ -44,8 +45,10 @@ const Channel = () => {
 
     joinChannel(channelId)
 
-    return () => {}
-  }, [channelId, isChannelFetching, isError, joinChannel])
+    return () => {
+      leaveChannel(channelId)
+    }
+  }, [channelId, isChannelFetching, isError, joinChannel, leaveChannel])
 
   /* ---------------- LOAD DB MESSAGES ---------------- */
   useEffect(() => {
@@ -75,16 +78,31 @@ const Channel = () => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  /* ---------------- SEND MESSAGE ---------------- */
+  const handleSend = (content: string, image?: string, audio?: string) => {
+    if (!socket || !channelId || !auth?.user?.id) return
+    if (!content.trim() && !image && !audio) return
+
+    socket.emit('newMessage', {
+      channelId,
+      workspaceId,
+      senderId: auth.user.id,
+      messageBody: content,
+      image: image || undefined,
+      audio: audio || undefined,
+    })
+  }
+
   /* ---------------- RENDER ---------------- */
   return (
-    <div className="flex flex-col h-screen bg-background">
+    <div className="flex flex-col h-full min-h-0 bg-background">
       {/* Header */}
-      <div className="shrink-0 px-4 py-3 mt-8 border-b border-slate-500/30 text-slate-300 font-semibold text-lg">
+      <div className="shrink-0 px-4 py-3 border-b border-slate-500/30 text-slate-300 font-semibold text-lg truncate">
         #{channelWithWorkspaceDetails?.name}
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4 chat-scroll">
+      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-4 chat-scroll">
         {(isChannelFetching || isMessagesFetching) && (
           <div className="flex justify-center py-4">
             <LucideLoader2 className="animate-spin size-6 text-slate-400" />
@@ -99,6 +117,7 @@ const Channel = () => {
             authorImage={message.senderId?.avatar}
             authorName={message.senderId?.username}
             image={message.image || ''}
+            audio={message.audio || undefined}
             body={message.messageBody}
             createdAt={new Date(message.createdAt).toLocaleString()}
           />
@@ -107,13 +126,9 @@ const Channel = () => {
         <div ref={bottomRef} />
       </div>
 
-      {/* Editor */}
-      <div className="shrink-0 border-t border-slate-500/30 bg-background/80 backdrop-blur px-4 py-3">
-        <QuillEditor
-          value={editorValue}
-          onChange={setEditorValue}
-          placeholder="Type a message..."
-        />
+      {/* Composer */}
+      <div className="shrink-0 border-t border-slate-500/30 bg-background/80 backdrop-blur px-2 sm:px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+        <ChatInput placeholder="Type a message..." onSend={handleSend} />
       </div>
     </div>
   )

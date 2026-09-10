@@ -1,6 +1,6 @@
 import { Server, Socket } from 'socket.io';
 
-import { JOIN_CHANNEL } from '../utils/eventConstant.js';
+import { JOIN_CHANNEL, LEAVE_CHANNEL } from '../utils/eventConstant.js';
 
 type JoinChannelData = {
   channelId: string;
@@ -29,4 +29,11 @@ export default function channelSocketHandlers(io: Server, socket: Socket) {
       });
     }
   );
+
+  socket.on(LEAVE_CHANNEL, (data: JoinChannelData) => {
+    const roomId = String(data.channelId);
+    if (!roomId) return;
+    socket.leave(roomId);
+    console.log(`${socket.id} has left channel: ${roomId}`);
+  });
 }

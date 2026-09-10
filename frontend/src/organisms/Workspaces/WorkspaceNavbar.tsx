@@ -24,10 +24,12 @@ const WorkspaceNavbar = () => {
   useEffect(() => {
     if (!socket || !workspaceId) return
 
-    socket.emit('workspace:join', { workspaceId })
-    socket.emit('workspace:get-meeting-status', { workspaceId }, (meeting: any) => {
-      setActiveMeeting(meeting)
-    })
+    const subscribeToWorkspace = () => {
+      socket.emit('workspace:join', { workspaceId })
+      socket.emit('workspace:get-meeting-status', { workspaceId }, (meeting: any) => {
+        setActiveMeeting(meeting)
+      })
+    }
 
     const handleMeetingStatus = (data: { workspaceId: string; meeting: any }) => {
       if (data.workspaceId === workspaceId) {
@@ -53,12 +55,16 @@ const WorkspaceNavbar = () => {
       }
     }
 
+    socket.on('connect', subscribeToWorkspace)
     socket.on('workspace:meeting-status', handleMeetingStatus)
     socket.on('workspace:meeting-started', handleMeetingStarted)
     socket.on('workspace:meeting-updated', handleMeetingUpdated)
     socket.on('workspace:meeting-ended', handleMeetingEnded)
 
+    subscribeToWorkspace()
+
     return () => {
+      socket.off('connect', subscribeToWorkspace)
       socket.off('workspace:meeting-status', handleMeetingStatus)
       socket.off('workspace:meeting-started', handleMeetingStarted)
       socket.off('workspace:meeting-updated', handleMeetingUpdated)
@@ -91,28 +97,28 @@ const WorkspaceNavbar = () => {
   }
 
   return (
-    <nav className="flex items-center justify-between h-14 px-6 bg-[#0b0d1a] border-b border-slate-800/60">
+    <nav className="flex items-center justify-between h-14 px-3 sm:px-6 bg-[#0b0d1a] border-b border-slate-800/60">
       <div className="flex-1"></div>
-      <div>
-        <Button variant={'darkBlue'} size={'sm'} className="bg-slate-900 border-slate-800">
-          <SearchIcon className="size-4 mr-1 text-slate-400" />
-          <span>Search {workspaceDetails?.name}</span>
+      <div className="min-w-0">
+        <Button variant={'darkBlue'} size={'sm'} className="bg-slate-900 border-slate-800 max-w-full">
+          <SearchIcon className="size-4 mr-1 text-slate-400 shrink-0" />
+          <span className="hidden md:inline truncate">Search {workspaceDetails?.name}</span>
         </Button>
       </div>
-      <div className="ml-auto flex-1 flex items-center justify-end gap-3">
+      <div className="ml-auto flex-1 flex items-center justify-end gap-2 sm:gap-3 min-w-0">
         {activeMeeting ? (
-          <div className="flex items-center gap-2 bg-emerald-950/40 border border-emerald-700/50 rounded-lg px-3 py-1">
-            <span className="relative flex h-2.5 w-2.5">
+          <div className="flex items-center gap-1.5 sm:gap-2 bg-emerald-950/40 border border-emerald-700/50 rounded-lg px-2 sm:px-3 py-1 min-w-0">
+            <span className="relative flex h-2.5 w-2.5 shrink-0">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
             </span>
-            <div className="text-xs text-emerald-300 font-medium">
+            <div className="hidden md:block text-xs text-emerald-300 font-medium whitespace-nowrap">
               Meeting in progress ({participantCount} active)
             </div>
             <Button
               onClick={handleStartOrJoinMeeting}
               size="sm"
-              className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs ml-2 h-7"
+              className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs h-7"
             >
               Join Meeting
             </Button>
@@ -120,7 +126,7 @@ const WorkspaceNavbar = () => {
         ) : (
           <Button onClick={handleStartOrJoinMeeting} variant={'indigoGlow'} size="sm">
             <VideoIcon className="size-4 mr-1" />
-            Start Meeting
+            <span className="hidden sm:inline">Start Meeting</span>
           </Button>
         )}
       </div>
