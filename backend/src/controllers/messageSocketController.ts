@@ -1,4 +1,5 @@
 import { Server, Socket } from 'socket.io';
+import mongoose from 'mongoose';
 
 import {
   CreateMessageInput,
@@ -21,22 +22,39 @@ export default async function messageHandlers(io: Server, socket: Socket) {
     NEW_MESSAGE_EVENT,
     async function createMessageHandler(
       data: CreateMessageInput,
-      cb: (response: MessageResponse) => void
+      cb?: (response: MessageResponse) => void
     ) {
-      const messageResponse = await createMessageService(data);
-      const message = await Message.findById(messageResponse._id).populate(
-        'senderId',
-        'username email avatar'
-      );
-      const channelId = String(data.channelId);
-      // socket.broadcast.emit(NEW_MESSAGE_RECIEVED_EVENT,messageResponse)
-      io.to(channelId).emit(NEW_MESSAGE_RECIEVED_EVENT, message);
-      //Implementation of rooms
-      cb?.({
-        success: true,
-        message: 'Successfully created the message',
-        data: messageResponse
-      });
+      try {
+        const senderId = String(data?.senderId ?? '');
+        if (!mongoose.Types.ObjectId.isValid(senderId)) {
+          cb?.({
+            success: false,
+            message: 'Invalid sender id',
+            data: null
+          });
+          return;
+        }
+
+        const messageResponse = await createMessageService(data);
+        const message = await Message.findById(messageResponse._id).populate(
+          'senderId',
+          'username email avatar'
+        );
+        const channelId = String(data.channelId);
+        io.to(channelId).emit(NEW_MESSAGE_RECIEVED_EVENT, message);
+        //Implementation of rooms
+        cb?.({
+          success: true,
+          message: 'Successfully created the message',
+          data: messageResponse
+        });
+      } catch (error: any) {
+        cb?.({
+          success: false,
+          message: error?.message || 'Failed to create the message',
+          data: null
+        });
+      }
     }
   );
 }

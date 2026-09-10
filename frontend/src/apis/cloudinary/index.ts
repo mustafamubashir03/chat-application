@@ -9,7 +9,7 @@ const uploadToCloudinary = async (file: File, resourceType: 'image' | 'video') =
       `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`,
       formData,
     )
-    return res.data.secure_url
+    return res.data
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw error.response?.data
@@ -19,9 +19,14 @@ const uploadToCloudinary = async (file: File, resourceType: 'image' | 'video') =
 }
 
 export const uploadImageToCloudinary = async (image: File) => {
-  return uploadToCloudinary(image, 'image')
+  const data = await uploadToCloudinary(image, 'image')
+  return data.secure_url
 }
 
 export const uploadAudioToCloudinary = async (audio: File) => {
-  return uploadToCloudinary(audio, 'video')
+  const data = await uploadToCloudinary(audio, 'video')
+  return {
+    url: data.secure_url,
+    publicId: data.public_id,
+  }
 }

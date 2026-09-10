@@ -3,12 +3,14 @@ import MessageImageThumbnail from '@/atoms/messageImageThumbnail/MessageImageThu
 import MessageRenderer from '@/atoms/messageRenderer/MessageRenderer'
 import { AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Avatar } from '@radix-ui/react-avatar'
+import type { ChatMessageType } from '@/types/message'
 
 const Message = ({
   authorImage,
   authorName,
   image,
   audio,
+  messageType,
   createdAt,
   body,
 }: {
@@ -16,9 +18,13 @@ const Message = ({
   authorName: string
   image: string
   audio?: string
-  createdAt: any
-  body: any
+  messageType?: ChatMessageType
+  createdAt: string
+  body: string
 }) => {
+  const isAudio = messageType === 'audio' || !!audio
+  const isImage = messageType === 'image' || !!image
+
   return (
     <div className="flex flex-col gap-2 p-1.5 px-5 hover:bg-blue-900/60 group relative">
       <div className="flex items-start gap-4">
@@ -39,9 +45,9 @@ const Message = ({
             <span>&nbsp;&nbsp;&nbsp;</span>
             <button className="text-sm text-slate-400 hover:underline">{createdAt}</button>
           </div>
-          <MessageRenderer value={body} />
-          {image && <MessageImageThumbnail imageURL={image} />}
-          {audio && <AudioMessage src={audio} />}
+          {body ? <MessageRenderer value={body} /> : null}
+          {isImage && image && <MessageImageThumbnail imageURL={image} />}
+          {isAudio && audio && <AudioMessage src={audio} />}
         </div>
       </div>
     </div>

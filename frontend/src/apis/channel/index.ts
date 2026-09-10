@@ -1,5 +1,15 @@
 import axios from '@/config/axiosConfig'
 
+const getErrorData = (error: unknown) =>
+  error &&
+  typeof error === 'object' &&
+  'response' in error &&
+  error.response &&
+  typeof error.response === 'object' &&
+  'data' in error.response
+    ? (error.response as { data?: unknown }).data
+    : undefined
+
 export const getChannelWithWorkspaceDetails = async ({
   channelId,
   token,
@@ -15,8 +25,8 @@ export const getChannelWithWorkspaceDetails = async ({
     })
 
     return response?.data
-  } catch (error: any) {
-    throw error.response?.data
+  } catch (error: unknown) {
+    throw getErrorData(error)
   }
 }
 export const getChannelById = async ({
@@ -33,8 +43,8 @@ export const getChannelById = async ({
       },
     })
     return response?.data
-  } catch (error: any) {
-    throw error.response?.data
+  } catch (error: unknown) {
+    throw getErrorData(error)
   }
 }
 
@@ -52,15 +62,15 @@ export const getMessagesByChannelId = async ({
   try {
     const response = await axios.get(`/messages/${channelId}`, {
       params: {
-        limit: limit || 60,
-        page: page || 0,
+        limit: limit || '60',
+        page: page || '1',
       },
       headers: {
         token,
       },
     })
     return response?.data
-  } catch (error: any) {
-    throw error.response?.data
+  } catch (error: unknown) {
+    throw getErrorData(error)
   }
 }

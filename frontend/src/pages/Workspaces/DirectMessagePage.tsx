@@ -11,7 +11,7 @@ import { getMessagesByChannelId } from '@/apis/channel'
 import ChatInput from '@/molecules/ChatInput/ChatInput'
 import Message from '@/molecules/Message/Message'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import type { ChatMessage, ChatMessageSender } from '@/types/message'
+import type { AudioAttachment, ChatMessage, ChatMessageSender } from '@/types/message'
 import { senderAvatarOf, senderIdOf, senderNameOf } from '@/utils/message'
 
 /**
@@ -71,7 +71,7 @@ const DirectMessagePage = () => {
     setLoading(true)
     getMessagesByChannelId({ channelId: dmRoomId, token: auth.token })
       .then((res) => {
-        const history = Array.isArray(res?.data) ? res.data : []
+        const history = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : []
         setMessages(
           [...history].sort(
             (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
@@ -99,15 +99,20 @@ const DirectMessagePage = () => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  const handleSend = (content: string, image?: string, audio?: string) => {
+  const handleSend = (content: string, image?: string, audio?: AudioAttachment) => {
     if (!dmRoomId || !auth?.user?.id) return
     if (!content.trim() && !image && !audio) return
     const messagePayload = {
       channelId: dmRoomId,
       senderId: auth.user.id,
       messageBody: content,
+      messageType: audio ? 'audio' : image ? 'image' : 'text',
+      mediaUrl: audio ? audio.url : image || undefined,
+      mediaPublicId: audio?.publicId,
+      mediaMimeType: audio?.mimeType,
+      mediaDuration: audio?.duration,
       image: image || undefined,
-      audio: audio || undefined,
+      audio: audio?.url,
       isDm: true,
     }
     sendNewMessage(messagePayload)
@@ -168,7 +173,8 @@ const DirectMessagePage = () => {
             authorImage={senderAvatarOf(message.senderId) || (senderIdOf(message.senderId) === auth?.user?.id ? auth?.user?.avatar : otherAvatar)}
             authorName={senderNameOf(message.senderId) || (senderIdOf(message.senderId) === auth?.user?.id ? auth?.user?.username : otherUsername)}
             image={message.image || ''}
-            audio={message.audio || undefined}
+            audio={message.mediaUrl || message.audio || undefined}
+            messageType={message.messageType}
             body={message.messageBody}
             createdAt={new Date(message.createdAt).toLocaleString()}
           />

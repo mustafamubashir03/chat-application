@@ -1,9 +1,9 @@
 import { uploadAudioToCloudinary, uploadImageToCloudinary } from '@/apis/cloudinary'
-import AudioMessage from '@/atoms/audioMessage/AudioMessage'
 import useAudioRecorder from '@/hooks/useAudioRecorder'
+import type { AudioAttachment } from '@/types/message'
 import { cn } from '@/lib/utils'
 import { Loader2, Mic, Paperclip, Send, Smile, Square, Trash2 } from 'lucide-react'
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { toast } from 'sonner'
 
 const EMOJIS = [
@@ -23,7 +23,7 @@ const formatDuration = (durationMs: number) => {
 
 interface ChatInputProps {
   placeholder?: string
-  onSend: (content: string, image?: string, audio?: string) => void
+  onSend: (content: string, image?: string, audio?: AudioAttachment) => void
   className?: string
 }
 
@@ -58,17 +58,63 @@ const ChatInput = ({ placeholder = 'Type a message...', onSend, className }: Cha
     el.style.height = `${Math.min(el.scrollHeight, 120)}px`
   }, [text])
 
-  /* ---------------- VOICE NOTE PREVIEW URL ---------------- */
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  /* ---------------- AUTO-SEND VOICE NOTE ---------------- */
+  const [voiceFailed, setVoiceFailed] = useState(false)
+  const autoSentForRef = useRef<Blob | null>(null)
+  const voiceBusy = hasAudioBlob && !voiceFailed
+
+  // The moment a recording stops, upload it and push it through the normal
+  // message pipeline (onSend -> socket 'newMessage' -> backend -> Mongo).
+  // There is deliberately no separate Send button for voice notes.
+  const sendVoiceAutomatically = useCallback(
+    async (voiceBlob: Blob) => {
+      if (voiceBlob.size === 0) {
+        setVoiceFailed(true)
+        return
+      }
+
+      setVoiceFailed(false)
+      try {
+        const file = new File([voiceBlob], 'voice-note.webm', {
+          type: voiceBlob.type || 'audio/webm',
+        })
+        const { url, publicId } = await uploadAudioToCloudinary(file)
+        onSend(text.trim(), undefined, {
+          url,
+          publicId,
+          mimeType: voiceBlob.type || 'audio/webm',
+          duration: durationMs / 1000,
+        })
+        setText('')
+        setImageUrl(null)
+        setEmojiOpen(false)
+        reset()
+      } catch {
+        setVoiceFailed(true)
+      }
+    },
+    [durationMs, onSend, reset, text],
+  )
+
+  // Track which blob was already auto-sent so one recording produces exactly
+  // one message (guards against re-running effects / double uploads).
   useEffect(() => {
-    if (!blob) {
-      setPreviewUrl(null)
-      return
-    }
-    const url = URL.createObjectURL(blob)
-    setPreviewUrl(url)
-    return () => URL.revokeObjectURL(url)
-  }, [blob])
+    if (status !== 'recorded' || !blob) return
+    if (autoSentForRef.current === blob) return
+    autoSentForRef.current = blob
+    void sendVoiceAutomatically(blob)
+  }, [blob, sendVoiceAutomatically, status])
+
+  const retryVoiceSend = () => {
+    if (!blob) return
+    void sendVoiceAutomatically(blob)
+  }
+
+  const discardVoice = () => {
+    autoSentForRef.current = null
+    setVoiceFailed(false)
+    reset()
+  }
 
   /* ---------------- IMAGE ATTACH ---------------- */
   const handleImageSelect = async (file: File) => {
@@ -84,21 +130,13 @@ const ChatInput = ({ placeholder = 'Type a message...', onSend, className }: Cha
   }
 
   /* ---------------- SEND ---------------- */
+  // Manual send is only used for text + images. Voice notes auto-send the
+  // moment recording stops (see AUTO-SEND VOICE NOTE above), so there is no
+  // separate Send button for a completed recording.
   const handleSend = async () => {
     if (!canSend || imageUploading) return
 
-    let audioUrl: string | undefined
-    if (hasAudioBlob && blob) {
-      try {
-        const file = new File([blob], 'voice-note.webm', { type: blob.type })
-        audioUrl = await uploadAudioToCloudinary(file)
-      } catch {
-        toast.error('Voice note upload failed. Please try again.')
-        return
-      }
-    }
-
-    onSend(text.trim(), imageUrl || undefined, audioUrl)
+    onSend(text.trim(), imageUrl || undefined)
 
     setText('')
     setImageUrl(null)
@@ -152,15 +190,25 @@ const ChatInput = ({ placeholder = 'Type a message...', onSend, className }: Cha
         </div>
       )}
 
-      {/* Voice note preview */}
-      {hasAudioBlob && previewUrl && (
-        <div className="flex items-center gap-3 mb-2">
-          <AudioMessage src={previewUrl} />
+      {/* Image preview */}
+      {imageUploading && (
+        <div className="mb-2 flex items-center gap-3">
+          <div className="w-16 h-16 rounded-lg border border-slate-700 bg-slate-800 flex items-center justify-center">
+            <Loader2 className="size-5 animate-spin text-slate-400" />
+          </div>
+          <span className="text-xs text-slate-500">Uploading image...</span>
+        </div>
+      )}
+      {imageUrl && !imageUploading && (
+        <div className="mb-2 flex items-center gap-3">
+          <div className="w-16 h-16 rounded-lg overflow-hidden border border-slate-700">
+            <img src={imageUrl} alt="Selected image" className="w-full h-full object-cover" />
+          </div>
           <button
             type="button"
-            onClick={reset}
+            onClick={() => setImageUrl(null)}
             className="size-8 shrink-0 rounded-full border border-slate-700 text-slate-400 hover:text-red-400 hover:border-red-800/60 flex items-center justify-center transition-colors"
-            aria-label="Discard voice note"
+            aria-label="Remove image"
           >
             <Trash2 className="size-4" />
           </button>
@@ -194,6 +242,31 @@ const ChatInput = ({ placeholder = 'Type a message...', onSend, className }: Cha
               <Square className="size-3 fill-current" />
             </button>
           </div>
+        </div>
+      ) : voiceBusy ? (
+        /* ---------------- VOICE UPLOADING ---------------- */
+        <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-sky-950/30 border border-sky-800/40">
+          <Loader2 className="size-5 animate-spin text-sky-300 shrink-0" />
+          <span className="text-xs font-medium text-sky-300">Sending voice note...</span>
+        </div>
+      ) : voiceFailed ? (
+        /* ---------------- VOICE FAILURE / RETRY ---------------- */
+        <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-red-950/30 border border-red-800/40">
+          <span className="text-xs font-medium text-red-300 flex-1">Voice note failed to send.</span>
+          <button
+            type="button"
+            onClick={retryVoiceSend}
+            className="shrink-0 rounded-full bg-blue-600 hover:bg-blue-500 px-3 py-1 text-xs font-medium text-white transition-colors"
+          >
+            Retry
+          </button>
+          <button
+            type="button"
+            onClick={discardVoice}
+            className="shrink-0 rounded-full border border-slate-700 px-3 py-1 text-xs font-medium text-slate-400 hover:text-red-300 transition-colors"
+          >
+            Discard
+          </button>
         </div>
       ) : (
         /* ---------------- COMPOSER ROW ---------------- */

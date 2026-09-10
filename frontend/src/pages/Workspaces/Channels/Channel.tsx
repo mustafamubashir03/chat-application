@@ -10,7 +10,7 @@ import useQueuedNewMessageSender from '@/hooks/useQueuedNewMessageSender'
 
 import ChatInput from '@/molecules/ChatInput/ChatInput'
 import Message from '@/molecules/Message/Message'
-import type { ChatMessage } from '@/types/message'
+import type { AudioAttachment, ChatMessage } from '@/types/message'
 import { senderAvatarOf, senderNameOf } from '@/utils/message'
 
 const Channel = () => {
@@ -87,7 +87,7 @@ const Channel = () => {
   }, [messages])
 
   /* ---------------- SEND MESSAGE ---------------- */
-  const handleSend = (content: string, image?: string, audio?: string) => {
+  const handleSend = (content: string, image?: string, audio?: AudioAttachment) => {
     if (!channelId || !auth?.user?.id) return
     if (!content.trim() && !image && !audio) return
 
@@ -96,8 +96,13 @@ const Channel = () => {
       workspaceId,
       senderId: auth.user.id,
       messageBody: content,
+      messageType: audio ? 'audio' : image ? 'image' : 'text',
+      mediaUrl: audio ? audio.url : image || undefined,
+      mediaPublicId: audio?.publicId,
+      mediaMimeType: audio?.mimeType,
+      mediaDuration: audio?.duration,
       image: image || undefined,
-      audio: audio || undefined,
+      audio: audio?.url,
     })
   }
 
@@ -131,7 +136,8 @@ const Channel = () => {
             authorImage={senderAvatarOf(message.senderId)}
             authorName={senderNameOf(message.senderId)}
             image={message.image || ''}
-            audio={message.audio || undefined}
+            audio={message.mediaUrl || message.audio || undefined}
+            messageType={message.messageType}
             body={message.messageBody}
             createdAt={new Date(message.createdAt).toLocaleString()}
           />
