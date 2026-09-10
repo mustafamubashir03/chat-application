@@ -30,7 +30,11 @@ const Channel = () => {
   })
 
   /* ---------------- DB MESSAGES ---------------- */
-  const { messagesByChannelId, isFetching: isMessagesFetching } = useGetMessagesByChannelId({
+  const {
+    messagesByChannelId,
+    isFetching: isMessagesFetching,
+    error: messagesError,
+  } = useGetMessagesByChannelId({
     channelId: channelId || '',
   })
 
@@ -110,6 +114,12 @@ const Channel = () => {
         )}
 
         {isError && <p className="text-center text-slate-400">Couldn't fetch messages</p>}
+
+        {messagesError && !isMessagesFetching && (
+          <p className="text-center text-sm text-red-400 py-4">
+            {messagesError?.message || "Couldn't load messages"}
+          </p>
+        )}
 
         {messages.map((message) => (
           <Message

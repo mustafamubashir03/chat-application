@@ -80,7 +80,14 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
         console.warn('Could not access camera/mic, continuing without local stream', err)
       }
 
-      const newPeer = new Peer(`${auth?.user?.id}`, {
+      // Generate a unique peer id per session. A fixed (user-derived) id collides
+      // when the same account connects twice (second tab / reconnect), emitting
+      // 'unavailable-id' ("ID is taken"). Signaling only ever passes peer.id
+      // around via sockets, so ids don't need to be deterministic.
+      const sessionPeerId = `${auth?.user?.id}-${Date.now().toString(36)}-${Math.random()
+        .toString(36)
+        .slice(2, 10)}`
+      const newPeer = new Peer(sessionPeerId, {
         host: PEERJS_HOST,
         port: PEERJS_PORT,
         path: PEERJS_PATH,
