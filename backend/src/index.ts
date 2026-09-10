@@ -21,7 +21,12 @@ const server = createServer(app);
 // ---- Socket.IO ----
 const io = new Server(server, {
   transports: ['websocket', 'polling'],
-  path: '/socket.io', 
+  path: '/socket.io',
+  // Generous handshake/upgrade windows: the Render free dyno sleeps when idle
+  // and can take well over 20s to boot, which used to surface on the client as
+  // repeated `connect_error: timeout` when the first websocket upgrade stalled.
+  connectTimeout: 60000,
+  upgradeTimeout: 30000,
   cors: {
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],

@@ -112,19 +112,20 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
     // Create the socket BEFORE requesting camera/mic. Waiting on the media
     // permission prompt left the socket null for a long time, so the first
     // message a user sent was silently dropped/queued.
-    // Websocket-only transport avoids the long-polling CORS/429 storms seen on
-    // the deployed server (Render proxy returns 503/429 without CORS headers
-    // while the backend is cold-starting), which killed live sends including
-    // voice notes.
+    // Websocket-first (with polling fallback) + a long handshake timeout keeps
+    // the connection alive across Render cold starts: the first websocket
+    // upgrade can stall while the free dyno boots, which previously surfaced
+    // as repeated `connect_error: timeout`. Polling succeeds via the Render
+    // proxy once the server is up, then the transport upgrades to websocket.
     const newSocket = io(import.meta.env.VITE_BACKEND_SOCKET_URL, {
       path: '/socket.io',
-      transports: ['websocket'],
+      transports: ['websocket', 'polling'],
       withCredentials: false,
       reconnection: true,
       reconnectionAttempts: Infinity,
       reconnectionDelay: 1000,
-      reconnectionDelayMax: 8000,
-      timeout: 20000,
+      reconnectionDelayMax: 15000,
+      timeout: 60000,
     })
 
     socketRef.current = newSocket
