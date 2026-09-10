@@ -109,23 +109,17 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
 
     newPeer.on('error', console.error)
 
-    // Create the socket BEFORE requesting camera/mic. Waiting on the media
-    // permission prompt left the socket null for a long time, so the first
-    // message a user sent was silently dropped/queued.
-    // Websocket-first (with polling fallback) + a long handshake timeout keeps
-    // the connection alive across Render cold starts: the first websocket
-    // upgrade can stall while the free dyno boots, which previously surfaced
-    // as repeated `connect_error: timeout`. Polling succeeds via the Render
-    // proxy once the server is up, then the transport upgrades to websocket.
+    // Dial the socket exactly like the original app did (this config ran fine
+    // on Render for months): socket.io's DEFAULTS. That means long-polling
+    // first, which your Render proxy answers reliably, and a silent upgrade to
+    // websocket once connected. Forcing `transports: ['websocket', ...]` made
+    // the very first handshake a direct websocket upgrade, which stalls on
+    // Render's free tier and we looped on `connect_error: timeout` forever.
+    // Default reconnect (5 attempts) also stops piling up errors/toasts the
+    // moment the server is truly unreachable.
     const newSocket = io(import.meta.env.VITE_BACKEND_SOCKET_URL, {
       path: '/socket.io',
-      transports: ['websocket', 'polling'],
       withCredentials: false,
-      reconnection: true,
-      reconnectionAttempts: Infinity,
-      reconnectionDelay: 1000,
-      reconnectionDelayMax: 15000,
-      timeout: 60000,
     })
 
     socketRef.current = newSocket
