@@ -1,4 +1,5 @@
 import { useGetWorkspaceById } from '@/hooks/apis/workspace/useGetWorkspaceById'
+import { useAuth } from '@/hooks/context/useAuth'
 import { HashIcon, Loader2, TriangleAlert } from 'lucide-react'
 import { useParams } from 'react-router-dom'
 import WorkspacePanelHeader from './WorkspacePanelHeader'
@@ -10,6 +11,7 @@ import UserItem from '@/molecules/UserItem/UserItem'
 
 const WorkspacePanel = () => {
   const { workspaceId } = useParams()
+  const { auth } = useAuth()
   const { openChannelPanelSection, setOpenChannelPanelSection } = useOpenWorkspacePanelSection()
   const [openMembersState, setOpenMembersState] = useState<boolean>(false)
   const { workspaceDetails, isPending, isSuccess } = useGetWorkspaceById({
@@ -53,20 +55,24 @@ const WorkspacePanel = () => {
           openState={openMembersState}
           setOpenState={setOpenMembersState}
         >
-          {workspaceDetails?.members && workspaceDetails.members.length > 0 ? (
-            workspaceDetails.members.map((member: any) => {
-              if (!member?.memberId) return null
-              const isOwner = member.role === 'admin'
-              const label = `${member.memberId.username || 'User'}${isOwner ? ' (Admin)' : ''}`
-              return (
-                <UserItem
-                  key={member.memberId._id}
-                  id={member.memberId._id}
-                  image={member.memberId.avatar}
-                  label={label}
-                />
-              )
-            })
+          {workspaceDetails?.members &&
+          workspaceDetails.members.filter((member: any) => member?.memberId?._id !== auth?.user?.id)
+            .length > 0 ? (
+            workspaceDetails.members
+              .filter((member: any) => member?.memberId?._id !== auth?.user?.id)
+              .map((member: any) => {
+                if (!member?.memberId) return null
+                const isOwner = member.role === 'admin'
+                const label = `${member.memberId.username || 'User'}${isOwner ? ' (Admin)' : ''}`
+                return (
+                  <UserItem
+                    key={member.memberId._id}
+                    id={member.memberId._id}
+                    image={member.memberId.avatar}
+                    label={label}
+                  />
+                )
+              })
           ) : (
             <div className="text-slate-300">No members</div>
           )}

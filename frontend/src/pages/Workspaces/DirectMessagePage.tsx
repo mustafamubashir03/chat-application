@@ -35,9 +35,11 @@ const DirectMessagePage = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [loading, setLoading] = useState(false)
 
-  // Deterministic DM room id – sorted so both users get the same id
+  // Deterministic DM room id – sorted so both users get the same id.
+  // A DM with yourself is not allowed, so no room is ever formed for it.
   const dmRoomId = useMemo(() => {
     if (!auth?.user?.id || !memberId) return null
+    if (memberId === auth.user.id) return null
     return [auth.user.id, memberId].sort().join('_')
   }, [auth?.user?.id, memberId])
 
@@ -109,6 +111,16 @@ const DirectMessagePage = () => {
       isDm: true,
     }
     sendNewMessage(messagePayload)
+  }
+
+  // Don't allow opening a DM with yourself
+  if (memberId === auth?.user?.id) {
+    return (
+      <div className="flex-1 min-h-0 flex flex-col items-center justify-center gap-2 text-slate-500 px-6 text-center">
+        <p className="text-slate-300 font-semibold">You can&apos;t send a DM to yourself</p>
+        <p className="text-sm">Messages to yourself aren&apos;t allowed.</p>
+      </div>
+    )
   }
 
   return (
