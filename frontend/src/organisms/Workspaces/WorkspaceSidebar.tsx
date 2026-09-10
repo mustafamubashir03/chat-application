@@ -1,16 +1,26 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import UserIcon from '@/atoms/userIcon/UserIcon'
 import SidebarButton from '@/molecules/SidebarButton/SidebarButton'
 import { BellIcon, HomeIcon, MessageCircleIcon, MoreHorizontalIcon, MenuIcon, XIcon } from 'lucide-react'
 import WorkspaceSwitcher from './WorkspaceSwitcher'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { useWorkspacePreferences } from '@/hooks/context/useWorkspacePreferences'
+import WorkspacePanel from './WorkspacePanel'
 
 const WorkspaceSidebar = () => {
   const navigate = useNavigate()
+  const location = useLocation()
+  const { workspaceId } = useParams<{ workspaceId: string }>()
   const { setOpenPreferences } = useWorkspacePreferences()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const inWorkspace = !!workspaceId
+
+  // Closing the drawer the moment the route changes lets the user tap a
+  // channel/member in the mobile panel and land straight into the conversation.
+  useEffect(() => {
+    setMobileOpen(false)
+  }, [location.pathname])
 
   const handleHome = () => {
     navigate('/home')
@@ -67,25 +77,37 @@ const WorkspaceSidebar = () => {
       )}
 
       {/* Mobile: slide-out drawer */}
-      <aside
-        className={`sm:hidden fixed top-0 left-0 z-50 h-full w-[90px] bg-[#0b0d1a] border-r border-slate-800 shadow-2xl transition-transform duration-300 ${
-          mobileOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
-      >
-        <button
-          className="absolute top-3 right-[-36px] p-1.5 rounded-r-lg bg-[#0b0d1a] border border-l-0 border-slate-700 text-slate-400 hover:text-white"
-          onClick={() => setMobileOpen(false)}
-          aria-label="Close menu"
+      {mobileOpen && (
+        <aside
+          className={`sm:hidden fixed top-0 left-0 z-50 h-full bg-[#0b0d1a] shadow-2xl transition-transform duration-300 flex ${
+            inWorkspace ? 'w-[min(370px,94vw)]' : 'w-[90px]'
+          }`}
         >
-          <XIcon className="size-4" />
-        </button>
-        <div className="h-full">
-          <SidebarContent />
-        </div>
-      </aside>
+          <div className="w-[90px] shrink-0 h-full">
+            <SidebarContent />
+          </div>
+          {inWorkspace && (
+            <div className="flex-1 min-w-0 h-full bg-[#101325] border-l border-slate-800 flex flex-col">
+              <div className="shrink-0 flex items-center justify-between px-3 py-2 border-b border-slate-700/60">
+                <span className="text-sm font-semibold text-slate-300">Channels & DMs</span>
+                <button
+                  type="button"
+                  onClick={() => setMobileOpen(false)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60"
+                  aria-label="Close menu"
+                >
+                  <XIcon className="size-4" />
+                </button>
+              </div>
+              <div className="flex-1 min-h-0 overflow-y-auto chat-scroll">
+                <WorkspacePanel />
+              </div>
+            </div>
+          )}
+        </aside>
+      )}
     </>
   )
 }
 
 export default WorkspaceSidebar
-
