@@ -55,24 +55,24 @@ const WorkspacePanel = () => {
           openState={openMembersState}
           setOpenState={setOpenMembersState}
         >
-          {workspaceDetails?.members &&
-          workspaceDetails.members.filter((member: any) => member?.memberId?._id !== auth?.user?.id)
-            .length > 0 ? (
-            workspaceDetails.members
-              .filter((member: any) => member?.memberId?._id !== auth?.user?.id)
-              .map((member: any) => {
-                if (!member?.memberId) return null
-                const isOwner = member.role === 'admin'
-                const label = `${member.memberId.username || 'User'}${isOwner ? ' (Admin)' : ''}`
-                return (
-                  <UserItem
-                    key={member.memberId._id}
-                    id={member.memberId._id}
-                    image={member.memberId.avatar}
-                    label={label}
-                  />
-                )
-              })
+          {workspaceDetails?.members && workspaceDetails.members.length > 0 ? (
+            workspaceDetails.members.map((member: any) => {
+              if (!member?.memberId) return null
+              const isOwner = member.role === 'admin'
+              const isSelf = member.memberId._id === auth?.user?.id
+              const label = `${member.memberId.username || 'User'}${isOwner ? ' (Admin)' : ''}${
+                isSelf ? ' (You)' : ''
+              }`
+              return (
+                <UserItem
+                  key={member.memberId._id}
+                  id={member.memberId._id}
+                  image={member.memberId.avatar}
+                  label={label}
+                  isSelf={isSelf}
+                />
+              )
+            })
           ) : (
             <div className="text-slate-300">No members</div>
           )}

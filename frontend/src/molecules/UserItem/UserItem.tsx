@@ -25,13 +25,40 @@ const UserItem = ({
   label = 'User',
   variant = 'default',
   image,
+  isSelf = false,
 }: {
   id?: string
   label: string
   variant?: 'default' | 'active'
   image: string
+  isSelf?: boolean
 }) => {
   const { workspaceId } = useParams<{ workspaceId: string }>()
+  const content = (
+    <>
+      <Avatar className="hover:opacity-60 transition-opacity border-2 border-[var(--primary-end)]">
+        <AvatarImage src={image} className="rounded-md" />
+        <AvatarFallback className="rounded-md bg-sky-500 text-white">
+          {label.charAt(0).toUpperCase()}
+        </AvatarFallback>
+      </Avatar>
+      <span>{label}</span>
+    </>
+  )
+  if (isSelf) {
+    // Your own entry is shown for convenience but is not clickable: there is
+    // no point opening a chat window with yourself.
+    return (
+      <Button
+        type="button"
+        className={`${cn(userItemVariatns({ variant }))} my-3`}
+        variant={'transparent'}
+        size={'sm'}
+      >
+        {content}
+      </Button>
+    )
+  }
   return (
     <Button
       asChild
@@ -43,13 +70,7 @@ const UserItem = ({
         className="flex gap-2 items-center justify-center"
         to={`/workspace/${workspaceId}/dm/${id}`}
       >
-        <Avatar className="hover:opacity-60 transition-opacity border-2 border-[var(--primary-end)]">
-          <AvatarImage src={image} className="rounded-md" />
-          <AvatarFallback className="rounded-md bg-sky-500 text-white">
-            {label.charAt(0).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
-        <span>{label}</span>
+        {content}
       </Link>
     </Button>
   )
