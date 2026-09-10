@@ -242,8 +242,12 @@ const DirectMessagePage = () => {
             key={message._id}
             authorImage={senderAvatarOf(message.senderId) || (senderIdOf(message.senderId) === auth?.user?.id ? auth?.user?.avatar : otherAvatar)}
             authorName={senderNameOf(message.senderId) || (senderIdOf(message.senderId) === auth?.user?.id ? auth?.user?.username : otherUsername)}
-            image={message.image || ''}
-            audio={message.mediaUrl || message.audio || undefined}
+            image={message.image || (message.messageType === 'image' ? message.mediaUrl : undefined) || ''}
+            audio={
+              message.messageType === 'audio'
+                ? message.mediaUrl || message.audio || undefined
+                : message.audio || undefined
+            }
             messageType={message.messageType}
             body={message.messageBody}
             createdAt={new Date(message.createdAt).toLocaleString()}
