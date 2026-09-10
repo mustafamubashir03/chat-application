@@ -6,9 +6,12 @@ import useGetChannelWithWorkspaceDetails from '@/hooks/apis/channel/useGetChanne
 import { useGetMessagesByChannelId } from '@/hooks/apis/channel/useGetMessagesByChannelId'
 import useSocket from '@/hooks/context/useSocket'
 import { useAuth } from '@/hooks/context/useAuth'
+import useQueuedNewMessageSender from '@/hooks/useQueuedNewMessageSender'
 
 import ChatInput from '@/molecules/ChatInput/ChatInput'
 import Message from '@/molecules/Message/Message'
+import type { ChatMessage } from '@/types/message'
+import { senderAvatarOf, senderNameOf } from '@/utils/message'
 
 const Channel = () => {
   const { workspaceId, channelId } = useParams<{ workspaceId: string; channelId: string }>()
@@ -17,8 +20,9 @@ const Channel = () => {
 
   const { joinChannel, leaveChannel, newMessageRecieved, socket } = useSocket()
   const { auth } = useAuth()
+  const sendNewMessage = useQueuedNewMessageSender(socket)
 
-  const [messages, setMessages] = useState<any[]>([])
+  const [messages, setMessages] = useState<ChatMessage[]>([])
 
   /* ---------------- CHANNEL DETAILS ---------------- */
   const {
@@ -84,10 +88,10 @@ const Channel = () => {
 
   /* ---------------- SEND MESSAGE ---------------- */
   const handleSend = (content: string, image?: string, audio?: string) => {
-    if (!socket || !channelId || !auth?.user?.id) return
+    if (!channelId || !auth?.user?.id) return
     if (!content.trim() && !image && !audio) return
 
-    socket.emit('newMessage', {
+    sendNewMessage({
       channelId,
       workspaceId,
       senderId: auth.user.id,
@@ -124,8 +128,8 @@ const Channel = () => {
         {messages.map((message) => (
           <Message
             key={message._id}
-            authorImage={message.senderId?.avatar}
-            authorName={message.senderId?.username}
+            authorImage={senderAvatarOf(message.senderId)}
+            authorName={senderNameOf(message.senderId)}
             image={message.image || ''}
             audio={message.audio || undefined}
             body={message.messageBody}

@@ -4,12 +4,15 @@ import { LucideLoader2 } from 'lucide-react'
 
 import useSocket from '@/hooks/context/useSocket'
 import { useAuth } from '@/hooks/context/useAuth'
+import useQueuedNewMessageSender from '@/hooks/useQueuedNewMessageSender'
 import { useGetWorkspaceById } from '@/hooks/apis/workspace/useGetWorkspaceById'
 import { getMessagesByChannelId } from '@/apis/channel'
 
 import ChatInput from '@/molecules/ChatInput/ChatInput'
 import Message from '@/molecules/Message/Message'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import type { ChatMessage, ChatMessageSender } from '@/types/message'
+import { senderAvatarOf, senderIdOf, senderNameOf } from '@/utils/message'
 
 /**
  * DirectMessagePage
@@ -27,8 +30,9 @@ const DirectMessagePage = () => {
 
   const { joinChannel, leaveChannel, newMessageRecieved, socket } = useSocket()
   const { workspaceDetails } = useGetWorkspaceById({ workspaceId: workspaceId || '' })
+  const sendNewMessage = useQueuedNewMessageSender(socket)
 
-  const [messages, setMessages] = useState<any[]>([])
+  const [messages, setMessages] = useState<ChatMessage[]>([])
   const [loading, setLoading] = useState(false)
 
   // Deterministic DM room id – sorted so both users get the same id
@@ -40,9 +44,10 @@ const DirectMessagePage = () => {
   // Find the other member's profile from workspace members list
   const otherMember = useMemo(() => {
     if (!workspaceDetails?.members || !memberId) return null
-    return workspaceDetails.members.find(
-      (m: any) => m?.memberId?._id === memberId || m?.memberId === memberId,
-    )?.memberId
+    return workspaceDetails.members.find((m: unknown) => {
+      const member = m as { memberId?: ChatMessageSender | string }
+      return senderIdOf(member?.memberId) === memberId
+    })?.memberId as ChatMessageSender | undefined
   }, [workspaceDetails, memberId])
 
   const otherUsername = otherMember?.username || 'Member'
@@ -93,7 +98,7 @@ const DirectMessagePage = () => {
   }, [messages])
 
   const handleSend = (content: string, image?: string, audio?: string) => {
-    if (!socket || !dmRoomId || !auth?.user?.id) return
+    if (!dmRoomId || !auth?.user?.id) return
     if (!content.trim() && !image && !audio) return
     const messagePayload = {
       channelId: dmRoomId,
@@ -103,7 +108,7 @@ const DirectMessagePage = () => {
       audio: audio || undefined,
       isDm: true,
     }
-    socket.emit('newMessage', messagePayload)
+    sendNewMessage(messagePayload)
   }
 
   return (
@@ -148,8 +153,8 @@ const DirectMessagePage = () => {
         {messages.map((message) => (
           <Message
             key={message._id}
-            authorImage={message.senderId?.avatar || (message.senderId === auth?.user?.id ? auth?.user?.avatar : otherAvatar)}
-            authorName={message.senderId?.username || (message.senderId === auth?.user?.id ? auth?.user?.username : otherUsername)}
+            authorImage={senderAvatarOf(message.senderId) || (senderIdOf(message.senderId) === auth?.user?.id ? auth?.user?.avatar : otherAvatar)}
+            authorName={senderNameOf(message.senderId) || (senderIdOf(message.senderId) === auth?.user?.id ? auth?.user?.username : otherUsername)}
             image={message.image || ''}
             audio={message.audio || undefined}
             body={message.messageBody}
