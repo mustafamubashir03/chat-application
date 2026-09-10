@@ -1,8 +1,14 @@
 import { getMessagesByChannelId } from '@/apis/channel'
 import { useAuth } from '@/hooks/context/useAuth'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 
-export const useGetMessagesByChannelId = ({ channelId }: { channelId: string }) => {
+export const useGetMessagesByChannelId = ({
+  channelId,
+  page = 1,
+}: {
+  channelId: string
+  page?: number
+}) => {
   const { auth } = useAuth()
   const {
     data: messagesByChannelId,
@@ -10,9 +16,12 @@ export const useGetMessagesByChannelId = ({ channelId }: { channelId: string }) 
     isSuccess,
     error,
   } = useQuery({
-    queryFn: () => getMessagesByChannelId({ channelId, token: auth.token || '' }),
-    queryKey: [`getMessagesByChannelId-${channelId}`],
+    queryFn: () =>
+      getMessagesByChannelId({ channelId, token: auth.token || '', page: String(page) }),
+    queryKey: [`getMessagesByChannelId-${channelId}-${page}`],
     staleTime: 30000,
+    placeholderData: keepPreviousData,
+    enabled: !!channelId && !!auth?.token,
   })
   return {
     messagesByChannelId,

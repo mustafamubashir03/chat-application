@@ -1,6 +1,7 @@
 import { createContext, useEffect, useReducer, useRef, useState } from 'react'
 import { io, Socket } from 'socket.io-client'
 import Peer from 'peerjs'
+import { toast } from 'sonner'
 import { useAuth } from '@/hooks/context/useAuth'
 import { peerReducer } from '@/Reducers/peerReducer'
 import { addPeerAction } from '@/Actions/peerAction'
@@ -132,6 +133,28 @@ export const SocketContextProvider = ({ children }: { children: React.ReactNode 
     newSocket.on('connect', () => console.log('Socket connected:', newSocket.id))
     newSocket.on('newMessageRecieved', setNewMessageRecieved)
     newSocket.on('get-users', fetchParticipantsList)
+
+    // Surface socket connection failures so a misconfigured / unreachable
+    // VITE_BACKEND_SOCKET_URL is obvious in the console (or as a toast)
+    // instead of messages silently being queued forever.
+    let connectErrorNotified = false
+    newSocket.on('connect_error', (err) => {
+      console.error(
+        'Socket connect_error:',
+        err.message,
+        '| configured URL:',
+        JSON.stringify(import.meta.env.VITE_BACKEND_SOCKET_URL),
+      )
+      if (!connectErrorNotified) {
+        connectErrorNotified = true
+        toast.error(
+          'Chat server unreachable. Check your connection or the socket URL and try again.',
+        )
+      }
+    })
+    newSocket.on('disconnect', (reason) => {
+      console.warn('Socket disconnected:', reason)
+    })
 
     // Request camera/mic in parallel — permission being pending must not block
     // the socket or peer from existing.

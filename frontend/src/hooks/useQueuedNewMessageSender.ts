@@ -7,15 +7,38 @@ import type { Socket } from 'socket.io-client'
  * connected (connecting, disconnected, or not yet created), the payload is
  * queued and flushed automatically once the socket reconnects, so messages
  * (including voice notes) are never silently dropped.
+ *
+ * Every emit carries an ack callback: the backend replies { success, message }
+ * after persisting the message. If it replies with success:false, the user is
+ * told the send failed instead of it silently disappearing.
  */
 const useQueuedNewMessageSender = (socket: Socket | null) => {
   const queueRef = useRef<Record<string, unknown>[]>([])
   const notifiedRef = useRef(false)
 
+  const emitWithAck = useCallback(
+    (payload: Record<string, unknown>) => {
+      if (!socket) return
+
+      socket.emit(
+        'newMessage',
+        payload,
+        (response?: { success: boolean; message?: string }) => {
+          if (response?.success === false) {
+            toast.error(
+              response.message || 'Message failed to send. Please try again.',
+            )
+          }
+        },
+      )
+    },
+    [socket],
+  )
+
   const sendNewMessage = useCallback(
     (payload: Record<string, unknown>) => {
       if (socket?.connected) {
-        socket.emit('newMessage', payload)
+        emitWithAck(payload)
         return
       }
 
@@ -26,7 +49,7 @@ const useQueuedNewMessageSender = (socket: Socket | null) => {
         toast.info('You are temporarily offline — message will be sent when reconnected.')
       }
     },
-    [socket],
+    [socket, emitWithAck],
   )
 
   useEffect(() => {
@@ -35,8 +58,8 @@ const useQueuedNewMessageSender = (socket: Socket | null) => {
     const pending = queueRef.current.splice(0, queueRef.current.length)
     notifiedRef.current = false
 
-    pending.forEach((payload) => socket.emit('newMessage', payload))
-  }, [socket, socket?.connected])
+    pending.forEach(emitWithAck)
+  }, [socket, socket?.connected, emitWithAck])
 
   return sendNewMessage
 }

@@ -13,16 +13,24 @@ import Message from '@/molecules/Message/Message'
 import type { AudioAttachment, ChatMessage } from '@/types/message'
 import { senderAvatarOf, senderNameOf } from '@/utils/message'
 
+const PAGE_SIZE = 60
+
+const byCreatedAt = (a: ChatMessage, b: ChatMessage) =>
+  new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+
 const Channel = () => {
   const { workspaceId, channelId } = useParams<{ workspaceId: string; channelId: string }>()
 
   const bottomRef = useRef<HTMLDivElement>(null)
+  const listRef = useRef<HTMLDivElement>(null)
+  const prevHeightRef = useRef(0)
 
   const { joinChannel, leaveChannel, newMessageRecieved, socket } = useSocket()
   const { auth } = useAuth()
   const sendNewMessage = useQueuedNewMessageSender(socket)
 
   const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [page, setPage] = useState(1)
 
   /* ---------------- CHANNEL DETAILS ---------------- */
   const {
@@ -33,18 +41,31 @@ const Channel = () => {
     channelId: channelId || '',
   })
 
-  /* ---------------- DB MESSAGES ---------------- */
+  /* ---------------- DB MESSAGES (paged) ---------------- */
   const {
     messagesByChannelId,
     isFetching: isMessagesFetching,
+    isSuccess,
     error: messagesError,
   } = useGetMessagesByChannelId({
     channelId: channelId || '',
+    page,
   })
+
+  const hasMore =
+    isSuccess && Array.isArray(messagesByChannelId) && messagesByChannelId.length === PAGE_SIZE
+
+  const loadMore = () => {
+    const el = listRef.current
+    if (el) prevHeightRef.current = el.scrollHeight
+    setPage((p) => p + 1)
+  }
 
   /* ---------------- RESET ON CHANNEL CHANGE ---------------- */
   useEffect(() => {
     setMessages([])
+    setPage(1)
+    prevHeightRef.current = 0
   }, [channelId])
 
   /* ---------------- JOIN / LEAVE SOCKET CHANNEL ---------------- */
@@ -58,16 +79,27 @@ const Channel = () => {
     }
   }, [channelId, isChannelFetching, isError, joinChannel, leaveChannel])
 
-  /* ---------------- LOAD DB MESSAGES ---------------- */
+  /* ---------------- MERGE DB MESSAGES ---------------- */
   useEffect(() => {
-    if (!messagesByChannelId) return
+    if (!Array.isArray(messagesByChannelId) || messagesByChannelId.length === 0) return
 
-    setMessages(
-      [...messagesByChannelId].sort(
-        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-      ),
-    )
-  }, [messagesByChannelId])
+    setMessages((prev) => {
+      const known = new Set(prev.map((m) => m._id))
+      const additions = (messagesByChannelId as ChatMessage[]).filter(
+        (m) => !known.has(m._id),
+      )
+      return [...additions, ...prev].sort(byCreatedAt)
+    })
+  }, [messagesByChannelId, page])
+
+  /* ---------------- PRESERVE SCROLL WHILE LOADING OLDER MESSAGES ---------------- */
+  useEffect(() => {
+    if (page <= 1) return
+    const el = listRef.current
+    if (el && prevHeightRef.current) {
+      el.scrollTop += el.scrollHeight - prevHeightRef.current
+    }
+  }, [page, messagesByChannelId])
 
   /* ---------------- SOCKET MESSAGE ---------------- */
   useEffect(() => {
@@ -79,12 +111,16 @@ const Channel = () => {
       if (exists) return prev
       return [...prev, newMessageRecieved]
     })
+
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [newMessageRecieved, channelId])
 
-  /* ---------------- AUTO SCROLL ---------------- */
+  /* ---------------- SCROLL TO BOTTOM ON INITIAL LOAD ---------------- */
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+    if (page === 1 && messages.length > 0 && !isMessagesFetching) {
+      bottomRef.current?.scrollIntoView()
+    }
+  }, [page, messages, isMessagesFetching])
 
   /* ---------------- SEND MESSAGE ---------------- */
   const handleSend = (content: string, image?: string, audio?: AudioAttachment) => {
@@ -115,8 +151,8 @@ const Channel = () => {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-4 chat-scroll">
-        {(isChannelFetching || isMessagesFetching) && (
+      <div ref={listRef} className="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-4 chat-scroll">
+        {(isChannelFetching || (isMessagesFetching && page === 1 && messages.length === 0)) && (
           <div className="flex justify-center py-4">
             <LucideLoader2 className="animate-spin size-6 text-slate-400" />
           </div>
@@ -128,6 +164,19 @@ const Channel = () => {
           <p className="text-center text-sm text-red-400 py-4">
             {messagesError?.message || "Couldn't load messages"}
           </p>
+        )}
+
+        {hasMore && (
+          <div className="flex justify-center py-2">
+            <button
+              type="button"
+              onClick={loadMore}
+              disabled={isMessagesFetching}
+              className="text-xs text-blue-400 hover:text-blue-300 disabled:opacity-60 px-3 py-1 rounded-full border border-blue-800/40 bg-blue-950/30"
+            >
+              {isMessagesFetching ? 'Loading earlier messages...' : 'Load earlier messages'}
+            </button>
+          </div>
         )}
 
         {messages.map((message) => (

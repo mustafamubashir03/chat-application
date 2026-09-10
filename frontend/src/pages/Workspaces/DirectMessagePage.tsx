@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useMemo } from 'react'
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { LucideLoader2 } from 'lucide-react'
 
@@ -14,6 +14,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import type { AudioAttachment, ChatMessage, ChatMessageSender } from '@/types/message'
 import { senderAvatarOf, senderIdOf, senderNameOf } from '@/utils/message'
 
+const PAGE_SIZE = 60
+
+const byCreatedAt = (a: ChatMessage, b: ChatMessage) =>
+  new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+
 /**
  * DirectMessagePage
  *
@@ -27,6 +32,8 @@ const DirectMessagePage = () => {
   const { workspaceId, memberId } = useParams<{ workspaceId: string; memberId: string }>()
   const { auth } = useAuth()
   const bottomRef = useRef<HTMLDivElement>(null)
+  const listRef = useRef<HTMLDivElement>(null)
+  const prevHeightRef = useRef(0)
 
   const { joinChannel, leaveChannel, newMessageRecieved, socket } = useSocket()
   const { workspaceDetails } = useGetWorkspaceById({ workspaceId: workspaceId || '' })
@@ -34,6 +41,9 @@ const DirectMessagePage = () => {
 
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [loading, setLoading] = useState(false)
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(false)
+  const [prependTag, setPrependTag] = useState(0)
 
   // Deterministic DM room id – sorted so both users get the same id.
   // A DM with yourself is not allowed, so no room is ever formed for it.
@@ -64,23 +74,66 @@ const DirectMessagePage = () => {
     }
   }, [dmRoomId, joinChannel, leaveChannel])
 
-  // Load persisted DM history from the DB (same room id scheme)
-  useEffect(() => {
-    if (!dmRoomId || !auth?.token) return
+  // Load persisted DM history from the DB (same room id scheme). Page 1 is the
+  // newest; each subsequent page holds older messages, prepended on arrival.
+  const loadHistory = useCallback(
+    async (pageToLoad: number) => {
+      if (!dmRoomId || !auth?.token) return
 
-    setLoading(true)
-    getMessagesByChannelId({ channelId: dmRoomId, token: auth.token })
-      .then((res) => {
-        const history = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : []
-        setMessages(
-          [...history].sort(
-            (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-          ),
-        )
-      })
-      .catch(() => setMessages([]))
-      .finally(() => setLoading(false))
-  }, [dmRoomId, auth?.token])
+      setLoading(true)
+      try {
+        const res = await getMessagesByChannelId({
+          channelId: dmRoomId,
+          token: auth.token,
+          page: String(pageToLoad),
+        })
+        const history = Array.isArray(res) ? res : Array.isArray(res?.data) ? res.data : []
+
+        setMessages((prev) => {
+          const known = new Set(prev.map((m) => m._id))
+          const additions = history.filter((m: ChatMessage) => !known.has(m._id))
+          return [...additions, ...prev].sort(byCreatedAt)
+        })
+        if (pageToLoad > 1 && history.length > 0) setPrependTag((t) => t + 1)
+        setHasMore(history.length === PAGE_SIZE)
+      } catch {
+        if (pageToLoad === 1) setMessages([])
+        setHasMore(false)
+      } finally {
+        setLoading(false)
+      }
+    },
+    [dmRoomId, auth?.token],
+  )
+
+  useEffect(() => {
+    setMessages([])
+    setPage(1)
+    setHasMore(false)
+    prevHeightRef.current = 0
+    void loadHistory(1)
+  }, [loadHistory, dmRoomId])
+
+  const loadMore = () => {
+    const el = listRef.current
+    if (el) prevHeightRef.current = el.scrollHeight
+    setPage((p) => p + 1)
+  }
+
+  // Fetch the newly requested (older) page once `page` changes
+  useEffect(() => {
+    if (page <= 1) return
+    void loadHistory(page)
+  }, [page, loadHistory])
+
+  // Preserve scroll position right after older messages were prepended
+  useEffect(() => {
+    if (prependTag === 0) return
+    const el = listRef.current
+    if (el && prevHeightRef.current) {
+      el.scrollTop += el.scrollHeight - prevHeightRef.current
+    }
+  }, [prependTag])
 
   // Listen for incoming messages and append to this DM room
   useEffect(() => {
@@ -92,12 +145,16 @@ const DirectMessagePage = () => {
       if (exists) return prev
       return [...prev, newMessageRecieved]
     })
+
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [newMessageRecieved, dmRoomId])
 
-  // Auto scroll
+  // Scroll to bottom on initial load
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+    if (page === 1 && messages.length > 0 && !loading) {
+      bottomRef.current?.scrollIntoView()
+    }
+  }, [page, messages, loading])
 
   const handleSend = (content: string, image?: string, audio?: AudioAttachment) => {
     if (!dmRoomId || !auth?.user?.id) return
@@ -147,10 +204,23 @@ const DirectMessagePage = () => {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-4 chat-scroll">
-        {loading && (
+      <div ref={listRef} className="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-4 chat-scroll">
+        {loading && page === 1 && messages.length === 0 && (
           <div className="flex justify-center py-4">
             <LucideLoader2 className="animate-spin size-6 text-slate-400" />
+          </div>
+        )}
+
+        {hasMore && (
+          <div className="flex justify-center py-2">
+            <button
+              type="button"
+              onClick={loadMore}
+              disabled={loading}
+              className="text-xs text-blue-400 hover:text-blue-300 disabled:opacity-60 px-3 py-1 rounded-full border border-blue-800/40 bg-blue-950/30"
+            >
+              {loading ? 'Loading earlier messages...' : 'Load earlier messages'}
+            </button>
           </div>
         )}
 
